@@ -21,6 +21,12 @@ AppSail crashes, Circuits failures, cron problems, or API Gateway errors.
   - Functions: `catalyst deploy --only functions`
   - AppSail: `catalyst deploy appsail`
 
+### `is_deployed: false` in API responses does not indicate a problem
+`List_All_Functions` and related API/MCP responses return `"is_deployed": false` for all
+functions — including functions that are actively deployed and handling requests. This field
+does not reflect actual deployment status and should be ignored. Verify function status from
+the Catalyst console (Functions list) or by invoking the function endpoint directly.
+
 ### AppSail deployment fails or app not responding after deploy
 - **Port mismatch** — The `port` field in `catalyst-config.json` must exactly match the port
   the app listens on. Using a different port causes requests to fail.
@@ -115,6 +121,8 @@ In `node20`, the response object is a raw `http.ServerResponse`, **not** an Expr
 - **"Empty query" error** — Wrong body key. Use `{ "zcql": "SELECT ..." }` not `{ "query": "..." }`.
 - **Max rows** — ZCQL returns a maximum of 300 rows per query. Paginate with
   `LIMIT offset, count` (e.g., `LIMIT 0, 300`, then `LIMIT 300, 300`).
+- **Max columns per SELECT** — ZCQL limits `SELECT` to 20 columns per query. Use explicit column
+  names instead of `SELECT *` on tables with more than 20 columns.
 - **Case sensitivity** — Table names and column names are case-sensitive; must match the
   console exactly.
 - **String quoting** — String values in ZCQL must be in **single quotes**: `WHERE name = 'Alice'`.
@@ -152,6 +160,52 @@ Error: `"No privileges to perform this action"`
 - Data Store does NOT support emoji or 4-byte UTF-8 characters (many CJK extensions).
 - These are silently stored as `?`.
 - Workaround: store a string key (e.g., `"happy"`) and map to emoji in application code.
+
+### DataStore SDK methods hang silently in Job functions (Python SDK)
+All `zcatalyst_sdk` DataStore `Table` methods (`get_paged_rows`, `delete_rows`, `insert_rows`,
+etc.) use `CredentialUser.USER` internally. Job functions run under admin credentials only —
+`CredentialUser.USER` has no token, so every DataStore SDK call makes a request with no auth,
+waits 60 seconds, and fails silently. No exception is raised; the function eventually hits the
+15-minute hard timeout.
+- Fix: call the underlying requester directly with `CredentialUser.ADMIN`:
+  ```python
+  from zcatalyst_sdk.credential import CredentialUser
+
+  rows = table._requester.request(
+      method="GET",
+      path=f"/datastore/table/{table_identifier}/tablerow",
+      user=CredentialUser.ADMIN,
+      timeout=10,
+  )
+  ```
+- Cache SDK methods are NOT affected — they already use `CredentialUser.ADMIN` by default.
+
+---
+
+## Cache Errors
+
+### `segment.delete()` / `Delete_Cache_Item` does not remove the key
+`segment.delete(key)` (SDK) and the `Delete_Cache_Item` MCP tool both set `cache_value = null`
+and clear the TTL, but the key continues to exist indefinitely. A subsequent `segment.getValue(key)`
+does NOT raise a "key not found" error — it returns a result object with a null value. Code that
+checks for key absence by catching an exception will incorrectly treat the null-value key as
+present.
+- Fix: check the value itself, not the exception:
+  ```python
+  lock_val = segment.get_value(key)  # does not raise even if deleted
+  if lock_val:  # truthy check — null/empty means absent
+      # key is live
+  ```
+
+### `segment.update()` without TTL creates an immortal key
+`segment.update(key, value)` called without an expiry argument creates a key with no TTL that
+persists indefinitely — it will never expire, even across server restarts.
+- Fix: always pass the same TTL used at creation time:
+  ```python
+  segment.update(key, value, 1)  # 1-hour TTL, matching segment.put(key, value, 1)
+  ```
+- This applies to lock tokens, session state, and any key originally created with a TTL.
+  Updating without an expiry silently removes the expiration.
 
 ---
 
@@ -221,6 +275,20 @@ Causes (check in this order):
 - Calling it without an argument crashes because the SDK calls `.startsWith("/")` on `undefined`.
 - Fix: `catalyst.auth.signOut(window.location.origin);` (Slate apps) or `catalyst.auth.signOut(window.location.origin + '/app/index.html');` (legacy Web Client)
 - Note: `constructSignOutUrl()` does not exist — do not use a two-step pattern.
+
+### `Authorization: Bearer` header intercepted before the function handler runs
+Catalyst validates any `Authorization: Bearer <token>` header as a Zoho OAuth token **before**
+passing the request to the function handler — even when the endpoint's Security Rule has
+`authentication: optional`. If your function uses its own Bearer token for server-to-server
+auth (e.g. a shared secret), Catalyst returns `INVALID_TOKEN` before your code runs.
+- Fix: use a non-standard header for application-level secrets:
+  ```
+  # ✓ Not intercepted — use this for custom auth
+  X-My-App-Token: <secret>
+
+  # ✗ Intercepted by Catalyst's auth layer — avoid for custom secrets
+  Authorization: Bearer <secret>
+  ```
 
 ### ZAID mismatch between environments
 - ZAID (Zoho Application ID) differs between Development and Production environments.

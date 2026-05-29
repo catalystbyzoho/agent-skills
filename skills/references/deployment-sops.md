@@ -19,6 +19,12 @@ Before running `catalyst deploy`, verify all of the following:
       manually. If missing, re-initialize.
 - [ ] **`functions/` directory structure** — each function has its own subdirectory with the
       handler file (`index.js`, `index.py`, or the Java main class).
+- [ ] **All function env vars are in `catalyst-config.json`, NOT the Console UI** —
+      `catalyst deploy` **overwrites the function's environment with values from
+      `catalyst-config.json` only**. Any variable set through the Console UI is silently
+      deleted on the next deploy. Store all secrets, API keys, and config in
+      `catalyst-config.json` (gitignore this file) before deploying. After every deploy,
+      spot-check Functions → [function] → Settings → Environment Variables to confirm.
 - [ ] **AppSail apps have `catalyst-config.json`** with correct `name`, `stack`, `command`,
       `memory`, and `port` fields. The `port` must match what the app actually listens on.
 - [ ] **Web client in `client/` directory** (only if using Web Client Hosting, not Slate).
@@ -126,6 +132,13 @@ What happens on failure:
      listening on the port within 10 seconds, the instance is killed.
 3. Check AppSail instance logs: AppSail → Instances → click the Logs icon → Catalyst Logs.
 4. Verify the app uses `process.env.X_ZOHO_CATALYST_LISTEN_PORT || 9000` (Node.js) for the port.
+
+### Function behaves correctly locally but fails or uses wrong config after deploy
+- **Root cause**: environment variables set through the Catalyst Console UI are deleted on
+  every `catalyst deploy`. The deploy replaces the function environment with values from
+  `catalyst-config.json` only.
+- Fix: move all env vars into `catalyst-config.json` and redeploy. Do not rely on Console-set
+  vars for any value that must survive deployments.
 
 ### Functions deployed but not behaving as expected
 - Check `catalyst.json` for correct function names and configurations.
