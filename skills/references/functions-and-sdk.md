@@ -208,6 +208,84 @@ module.exports = async (req, res) => {
 
 Invocation: Any HTTP method to `/server/my_api/execute`
 
+### User-scope vs admin-scope initialization
+
+The SDK supports two initialization scopes. Choose based on what the operation needs:
+
+```javascript
+// USER SCOPE (default) — for resolving user identity
+const userApp = catalyst.initialize(req);
+const currentUser = await userApp.userManagement().getCurrentUser();
+// getCurrentUser() makes an internal GET to /project-user/current using the user token.
+// Only works for registered app users (signed up via Catalyst auth), NOT collaborators/admins.
+
+// ADMIN SCOPE — for all data operations (DataStore, Stratus, ZCQL, Cache, etc.)
+const adminApp = catalyst.initialize(req, { scope: 'admin' });
+const dataStore = adminApp.datastore();
+const zcql = adminApp.zcql();
+const stratus = adminApp.stratus();
+```
+
+**Common pattern for apps that need both auth AND data:**
+```javascript
+module.exports = async (req, res) => {
+  try {
+    // 1. Get user identity (user-scope)
+    const userApp = catalyst.initialize(req);
+    const currentUser = await userApp.userManagement().getCurrentUser();
+    
+    // 2. Perform data operations (admin-scope)
+    const adminApp = catalyst.initialize(req, { scope: 'admin' });
+    const table = adminApp.datastore().table('MyTable');
+    
+    // 3. Use currentUser for ownership/filtering
+    const rows = await adminApp.zcql().executeZCQLQuery(
+      `SELECT * FROM MyTable WHERE owner_id = '${currentUser.user_id}'`
+    );
+    sendJson(res, 200, { user: currentUser, data: rows });
+  } catch (error) {
+    sendJson(res, 500, { error: error.message });
+  }
+};
+```
+
+> ⚠️ **Do NOT use admin-scope for `getCurrentUser()`** — it throws "no user credentials present".
+> Admin scope lacks user identity. Use default (user) scope for identity, admin scope for data.
+
+### CORS handling for Slate → Function cross-domain
+
+When a Slate frontend calls your Advanced I/O function cross-domain, the Catalyst gateway injects
+`Access-Control-Allow-Origin` automatically (if the Slate domain is in Authorized Domains in the console).
+
+**Critical rule: do NOT set CORS headers in your function for production origins.** If both the
+gateway and your code set `Access-Control-Allow-Origin`, the browser receives duplicate values
+and rejects the response.
+
+Only set CORS headers for `localhost` (local dev, where no gateway exists):
+
+```javascript
+// Place this BEFORE your route handlers
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '';
+  if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.status(204).end();
+  }
+  next();
+});
+```
+
+**Setup required in the console:**
+Console → Authentication → Whitelisting → Authorized Domains → add your Slate domain → enable CORS toggle.
+
+> ⚠️ **The `Authorization` header your frontend sends is stripped by the gateway.** After
+> validation, the gateway replaces it with internal `x-zc-*` headers. `req.headers['authorization']`
+> will be `undefined` inside your function. The SDK reads the `x-zc-*` headers internally via
+> `catalyst.initialize(req)` — you don't need to handle this manually.
+
 ### HTTP payload limits
 
 | Limit | Value |
@@ -836,6 +914,10 @@ function code, especially when switching between function types or languages.
 | Using wrong port variable for AppSail | App binds to hard-coded port; Catalyst routes to a different port, causing connection failures | Always use `process.env.X_ZOHO_CATALYST_LISTEN_PORT \|\| 9000` |
 | Not adding `credentials: 'include'` to fetch calls from web client | Auth cookies not forwarded; `getCurrentUser()` throws 401 even for authenticated users | Add `credentials: 'include'` to all fetch calls from the web client |
 | Parsing `CREATEDTIME` directly with `new Date()` | Catalyst stores CREATEDTIME in the project timezone without an offset marker; `new Date()` treats it as UTC → wrong timestamps | Append the project timezone offset before parsing the date string |
+| Using Express `cors()` middleware with Slate → Function cross-domain | Gateway AND Express both inject `Access-Control-Allow-Origin` → duplicate header → browser rejects | Only set CORS headers for localhost (local dev). Remove `cors()` middleware entirely for production origins. The gateway handles it. |
+| Using admin-scope for `getCurrentUser()` | Throws "no user credentials present" — admin scope has no user identity | Use default (user) scope: `catalyst.initialize(req)` for `getCurrentUser()`. Use admin scope only for data operations. |
+| Not handling `getCurrentUser()` returning `null` | Collaborators/admins are not registered app users → `null` return → `Cannot read properties of null` | Add null check. `getCurrentUser()` only works for users who signed up through Catalyst's auth flow, not console collaborators. |
+| Reading `req.headers['authorization']` inside the function | Gateway strips the `Authorization` header after validation and injects `x-zc-*` internal headers instead → `undefined` | Don't read the Authorization header. Use `catalyst.initialize(req)` which reads the `x-zc-*` headers internally. |
 
 ### Java
 

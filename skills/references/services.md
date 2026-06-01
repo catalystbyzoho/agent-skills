@@ -136,11 +136,10 @@ This applies to all env vars including secrets, API keys, and table names. Do no
 Note: For serverless Functions, `env_variables` in `catalyst-config.json` DO work and are
 deployed with the function. This limitation is specific to AppSail.
 
-### AppSail + Slate cross-origin issue (development)
+### Slate + AppSail cross-origin issue
 
-In Catalyst development environments, the authentication layer blocks direct browser requests
-from other origins. A Slate-hosted frontend calling AppSail APIs will get `"Unable to Fetch"`
-or `"Failed to fetch"` errors — this is NOT a CORS configuration issue, it's Catalyst's auth layer.
+A Slate-hosted frontend calling AppSail APIs may get `"Unable to Fetch"` or `"Failed to fetch"`
+errors due to Catalyst's auth layer on AppSail.
 
 **Solution — serve the frontend from AppSail itself (same-origin):**
 
@@ -164,6 +163,51 @@ app.get('*', (req, res) => {
 Copy your frontend build output into `public/` inside the AppSail directory. Use relative
 URLs in frontend code (`const API_BASE = ''`) so all API calls stay same-origin.
 This eliminates both CORS and auth-layer issues without extra configuration.
+
+### Slate + Serverless Functions cross-origin (WORKS — with correct setup)
+
+Unlike AppSail, **Slate → Serverless Function cross-domain requests DO work** once configured correctly.
+The Catalyst ZGS gateway handles CORS injection automatically.
+
+**Required setup:**
+
+1. **Add Slate domain to Authorized Domains** — Console → Authentication → Whitelisting →
+   Authorized Domains → + Add Domain → add your Slate URL (e.g. `myapp.onslate.com`) → enable CORS toggle.
+   This makes the gateway inject `Access-Control-Allow-Origin` on every response.
+
+2. **Do NOT set CORS headers in your function code for production origins.** The gateway already
+   injects them. If your Express code also sets `Access-Control-Allow-Origin`, the browser receives
+   **duplicate headers** and rejects the response:
+   ```
+   The 'Access-Control-Allow-Origin' header contains multiple values
+   'https://myapp.onslate.com, https://myapp.onslate.com', but only one is allowed.
+   ```
+
+3. **Only set CORS headers for localhost** (local dev — where no gateway is present):
+   ```javascript
+   // CORS for local development only — gateway handles production origins
+   app.use((req, res, next) => {
+     const origin = req.headers.origin || '';
+     if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+       res.setHeader('Access-Control-Allow-Origin', origin);
+       res.setHeader('Access-Control-Allow-Credentials', 'true');
+       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+       if (req.method === 'OPTIONS') return res.status(204).end();
+     }
+     next();
+   });
+   ```
+
+4. **Use `generateAuthToken()` with the full function URL** — relative paths resolve to
+   `onslate.com/server/...` (404). See `sdk-web.md` for the complete cross-domain pattern.
+
+**Key rule: the gateway owns CORS headers for production origins. Express must not touch them.**
+
+**What causes failures:**
+- `cors()` middleware with explicit allowed list → gateway AND Express both set the header → duplicate → rejected
+- `cors({ origin: true })` → reflects origin, duplicating the gateway injection
+- `cors()` with `callback(new Error(...))` for non-localhost → returns HTML 500 error page instead of JSON
 
 ### Health checks and autoscaling
 

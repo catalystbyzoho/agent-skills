@@ -1,5 +1,6 @@
 {
   "name": "catalyst-by-zoho",
+  "description": "Official plugin for Catalyst by Zoho — AI agent skills for the full-stack serverless cloud platform.",
   "owner": {
     "name": "Catalyst by Zoho",
     "email": "support@zohocatalyst.com"

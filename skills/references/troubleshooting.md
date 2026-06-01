@@ -190,10 +190,12 @@ Causes (check in this order):
 - Mitigation: keep startup/initialization code minimal; move heavy setup to after `listen()`.
 
 ### AppSail cross-origin issues with Slate frontend
-- In development, Slate-hosted frontends calling AppSail APIs get blocked by Catalyst's auth
-  layer (manifests as "Unable to Fetch" or "Failed to fetch").
+- Slate-hosted frontends calling AppSail APIs may get blocked by Catalyst's auth layer
+  (manifests as "Unable to Fetch" or "Failed to fetch").
 - Fix: serve the frontend from AppSail itself using `express.static()` so all calls are
   same-origin. This eliminates CORS and auth-layer issues entirely.
+- **Note:** This issue is specific to AppSail. For Serverless Functions, cross-domain
+  from Slate DOES work — see the "Duplicate Access-Control-Allow-Origin" entry under Auth Errors.
 
 ---
 
@@ -226,6 +228,116 @@ Causes (check in this order):
 - ZAID (Zoho Application ID) differs between Development and Production environments.
 - This is the #1 source of auth issues when promoting to production.
 - Fix: always retrieve ZAID from the correct environment's console and update accordingly.
+
+### Duplicate `Access-Control-Allow-Origin` header (Slate + Serverless Functions)
+
+Error in browser console:
+```
+The 'Access-Control-Allow-Origin' header contains multiple values
+'https://myapp.onslate.com, https://myapp.onslate.com', but only one is allowed.
+```
+
+**Cause:** The Catalyst gateway injects `Access-Control-Allow-Origin` when the Slate domain is
+in Authorized Domains (Console → Authentication → Whitelisting). If your Express code ALSO sets
+this header (via `cors()` middleware or manual `res.setHeader`), the browser receives two values
+in one header and rejects the response.
+
+**Fix:** Remove ALL Express/function-level CORS headers for production origins. Only set CORS
+headers for `localhost` (local dev, where no gateway is present):
+```javascript
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '';
+  if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.status(204).end();
+  }
+  next();
+});
+```
+
+**Key rule:** The gateway owns CORS headers for deployed origins. Express must not touch them.
+
+### `getCurrentUser()` returns `null` — collaborator vs app user
+
+`userManagement().getCurrentUser()` calls the internal `/project-user/current` endpoint using the
+user token. This only returns data for **registered app users** — users who signed up through
+Catalyst's auth flow (signUp/signIn).
+
+**Collaborators and project admins** (people added via the Catalyst console) are NOT registered
+app users. `getCurrentUser()` returns `null` for them, causing `Cannot read properties of null`
+errors if your code doesn't check for it.
+
+**Fix — add a null check with admin-scope fallback:**
+```javascript
+const userApp = catalyst.initialize(req);            // user-scope
+const userData = await userApp.userManagement().getCurrentUser();
+
+if (!userData || !userData.user_id) {
+  // Collaborator/admin — not in the project-user table.
+  // Fall back to admin-scope user list, or use a default identity.
+  const adminApp = catalyst.initialize(req, { scope: 'admin' });
+  const allUsers = await adminApp.userManagement().getAllUsers();
+  // Match by email or use a system identity
+}
+```
+
+### User-scope vs admin-scope: when to use each
+
+The SDK supports two initialization scopes. Using the wrong one causes auth failures:
+
+| Scope | Init call | Use for | What it CAN'T do |
+|-------|-----------|---------|-------------------|
+| **User** (default) | `catalyst.initialize(req)` | `getCurrentUser()`, user-identity operations | DataStore writes (if App User perms not enabled) |
+| **Admin** | `catalyst.initialize(req, { scope: 'admin' })` | DataStore CRUD, Stratus, ZCQL, Cache, all data operations | `getCurrentUser()` — throws "no user credentials present" |
+
+**Pattern for apps that need both auth and data ops:**
+```javascript
+// User-scope for identity
+const userApp = catalyst.initialize(req);
+const currentUser = await userApp.userManagement().getCurrentUser();
+
+// Admin-scope for data operations
+const adminApp = catalyst.initialize(req, { scope: 'admin' });
+const dataStore = adminApp.datastore();
+const table = dataStore.table('MyTable');
+```
+
+### `Authorization` header is `undefined` inside the function
+
+The Catalyst gateway **strips** the `Authorization` header after validating the token. It then
+injects internal `x-zc-*` headers that the SDK reads directly. Do not try to read
+`req.headers['authorization']` — it will be `undefined`. The SDK handles this internally via
+`catalyst.initialize(req)`.
+
+---
+
+## Slate Deployment Errors
+
+### `slate-config.toml` wiped by build commands
+
+The `.catalyst/slate-config.toml` file lives inside the build output directory (e.g., `dist/`).
+Build commands that clean the output directory (Vite `--clean`, Expo `--clear`, `rm -rf dist/`)
+delete this file. Without it, `catalyst deploy slate` fails.
+
+**Fix — recreate after every clean build:**
+```bash
+# Example for a React/Vite app
+npm run build && mkdir -p dist/.catalyst && \
+  echo -e 'framework = "static"\ndeployment_name = "default"' > dist/.catalyst/slate-config.toml && \
+  catalyst deploy slate
+```
+
+### Assets returning 404 on Slate (framework `baseUrl` issue)
+
+If your build tool has a `baseUrl` or `basePath` configured for a non-root path (e.g.,
+`/server/my_function`), all JS/CSS asset URLs will be prefixed with that path on Slate — but
+Slate serves from root `/`. This causes all assets to 404.
+
+**Fix:** Remove `baseUrl`/`basePath` from your build config before building for Slate deployment.
+Only set it when serving the frontend from inside a function or AppSail sub-path.
 
 ---
 

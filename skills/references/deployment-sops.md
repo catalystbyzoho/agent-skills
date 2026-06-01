@@ -153,6 +153,72 @@ What happens on failure:
    timeouts, and exceptions from DevOps → Application Alerts.
 6. **User limit**: Development supports max 25 users; Production has no user limit.
 
+### Function promotion to Production (separate step)
+
+`catalyst deploy --only functions` deploys to the **Development** environment only.
+Promoting functions to Production requires a **separate manual step** in the console:
+
+> Console → Cloud Scale → Serverless → Deploy → Select Functions → Initiate Deployment
+
+If this step is skipped, the Development function has your latest code but Production still
+runs old code. The Diff Generation screen will show `Total Changes: 0` for Functions if
+there are no new changes to promote — use this as a diagnostic.
+
+### Slate production deployment
+
+Slate can be deployed directly to production from the CLI:
+```bash
+catalyst deploy slate --production
+```
+
+### Recommended: deploy components separately
+
+Deploy functions and Slate separately rather than using `catalyst deploy` (which deploys everything):
+```bash
+# Deploy function changes
+catalyst deploy --only functions
+
+# Deploy frontend changes
+catalyst deploy slate
+```
+
+This gives clearer error messages, avoids deploying unchanged components, and makes it
+easier to diagnose which component caused a failure.
+
+---
+
+## Slate-specific deployment gotchas
+
+### `slate-config.toml` wiped by clean builds
+
+The `.catalyst/slate-config.toml` file lives inside the build output directory (e.g., `dist/`).
+Any build command that cleans the output (Vite `--clean`, Expo `--clear`, `rm -rf dist/`) deletes
+this file. Without it, `catalyst deploy slate` fails.
+
+**Fix — recreate after every clean build:**
+```bash
+# Vite/React example
+npm run build && mkdir -p dist/.catalyst && \
+  echo -e 'framework = "static"\ndeployment_name = "default"' > dist/.catalyst/slate-config.toml
+
+# Expo web example
+npx expo export --platform web --clear && \
+  mkdir -p dist/.catalyst && \
+  echo -e 'framework = "static"\ndeployment_name = "default"' > dist/.catalyst/slate-config.toml
+
+# Then deploy
+catalyst deploy slate
+```
+
+### `baseUrl` breaks assets on Slate
+
+If your build config has a `baseUrl` or `basePath` set to a sub-path (e.g., `/server/my_function`
+for serving from inside a function), all JS/CSS URLs will be prefixed with that path on Slate.
+Since Slate serves from root `/`, every asset returns 404.
+
+**Fix:** Remove `baseUrl`/`basePath` from your build config before building for Slate. Only set
+it when the frontend is served from inside a function or AppSail sub-path.
+
 ---
 
 ## `catalyst-config.json` reference (AppSail)

@@ -128,10 +128,11 @@ Auth: Catalyst Auth & User Management
 **Services:** Slate · Advanced I/O Function · Data Store · Stratus · Auth
 
 **Key implementation notes:**
-- Always use `credentials: 'include'` in `fetch()` calls from Slate to the function
+- **Same-domain (legacy Web Client):** Use `credentials: 'include'` in `fetch()` calls
+- **Cross-domain (Slate → Serverless Function):** Use `generateAuthToken()` with the full function URL and `Authorization: ${token}` header. Add Slate domain to Authorized Domains in console with CORS toggle enabled. Do NOT use Express `cors()` middleware — the gateway handles CORS headers for production origins.
 - **⚠️ REQUIRED: Enable App User permissions on every table** — Console → Data Store → {Table} → Scopes & Permissions → App User → check Select, Insert, Update, Delete. Without this, ALL user-authenticated operations fail silently. This is not optional.
-- Use admin-scoped SDK (`catalyst.initialize(req, { scope: 'admin' })`) for DataStore operations to bypass user permission checks
-- Use user-scoped SDK only to call `getCurrentUser()` for auth verification
+- Use admin-scoped SDK (`catalyst.initialize(req, { scope: 'admin' })`) for DataStore/Stratus/ZCQL operations
+- Use user-scoped SDK (`catalyst.initialize(req)`) ONLY for `getCurrentUser()` for auth verification — admin scope cannot resolve user identity
 
 **Project structure:**
 ```
@@ -428,6 +429,7 @@ When a user describes their use case, follow this process:
 
 5. **Flag common gotchas** relevant to the architecture:
    - DataStore → remind to enable CRUD permissions for App User role
-   - Web client → function calls → remind about `credentials: 'include'`
+   - Web client → function calls → remind about `credentials: 'include'` (same-domain) or `generateAuthToken()` (cross-domain from Slate)
+   - Slate + Functions → remind: gateway owns CORS headers, no Express `cors()` middleware
    - AppSail → remind about the correct port env variable
    - Job Scheduling → note that CLI always deploys to Development

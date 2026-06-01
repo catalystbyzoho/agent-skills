@@ -176,12 +176,14 @@ catalyst.auth.signOut(redirectURL);
 
 ### generateAuthToken() (v4.6.1+)
 
-Generate a short-lived auth token for cross-domain requests (e.g., calling AppSail from a Slate widget):
+Generate a short-lived auth token for cross-domain requests (e.g., calling Serverless Functions or AppSail from a Slate app):
 
 ```js
 const tokenResponse = await catalyst.auth.generateAuthToken();
-const token = tokenResponse.content.token;
+const token = tokenResponse.access_token;
 ```
+
+> ⚠️ **The token is at `tokenResponse.access_token`** — NOT `tokenResponse.content.token`. This method does NOT follow the standard `{status, content, message}` response pattern used by other SDK methods.
 
 ### JWT Sign-In
 
@@ -203,20 +205,20 @@ await catalyst.auth.signinWithJwt(jwtToken);
 
 ### Calling AppSail from Slate (Cross-Domain Pattern)
 
-When calling an AppSail endpoint from a Slate widget, you need to pass an auth token since they are on different subdomains.
+When calling an AppSail endpoint from a Slate app, you need to pass an auth token since they are on different subdomains.
 
 **Helper function:**
 
 ```js
 async function callAppSail(endpoint, method = "GET", body = null) {
   const tokenResponse = await catalyst.auth.generateAuthToken();
-  const token = tokenResponse.content.token;
+  const token = tokenResponse.access_token;
 
   const options = {
     method: method,
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Zoho-catalyst-appsail ${token}`
+      "Authorization": token   // Raw token — no prefix needed
     }
   };
 
@@ -238,8 +240,8 @@ const result = await callAppSail("/api/items", "POST", { name: "New Item" });
 
 **Required configuration:**
 
-- **AppSail CORS whitelist:** Add your Slate domain (`*.catalystserverless.com`) in the AppSail CORS settings via the Catalyst console
-- **No `cors()` middleware:** Do NOT add Express `cors()` middleware in your AppSail code — Catalyst handles CORS at the platform level. Adding middleware causes duplicate header errors.
+- **Authorized Domains:** Add your Slate domain in Console → Authentication → Authorized Domains → enable CORS toggle. The Catalyst gateway will inject `Access-Control-Allow-Origin` automatically.
+- **No `cors()` middleware:** Do NOT add Express `cors()` middleware in your backend code — Catalyst's gateway handles CORS at the platform level. Adding middleware causes **duplicate `Access-Control-Allow-Origin` headers**, which browsers reject.
 
 ### ⚠️ Calling Advanced I/O Functions from Slate (Cross-Domain — Required)
 
@@ -256,35 +258,70 @@ Slate apps are served from `*.onslate.com`. Advanced I/O functions are on `*.cat
 // Build the full function URL (NOT a relative path)
 const FUNCTION_URL = 'https://{project-domain}.development.catalystserverless.com/server/{function_name}/execute';
 
-async function callFunction(params = {}) {
+async function callFunction(path, method = 'GET', body = null) {
   // Get short-lived auth token from the Web SDK
   const tokenRes = await window.catalyst.auth.generateAuthToken();
-  const token = tokenRes.content.token;
+  const token = tokenRes.access_token;  // NOT .content.token
 
-  const url = new URL(FUNCTION_URL);
-  // Add query params if needed
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-
-  const res = await fetch(url.toString(), {
-    method: 'GET', // or 'POST' with body
+  const options = {
+    method,
     headers: {
-      'Authorization': `Zoho-catalyst-appsail ${token}`,
+      'Authorization': token,  // Raw token — no prefix needed
       'Content-Type': 'application/json'
     }
-  });
+  };
+
+  if (body && method !== 'GET' && method !== 'HEAD') {
+    options.body = JSON.stringify(body);
+  }
+
+  const url = path.startsWith('http') ? path : `${FUNCTION_URL}${path}`;
+  const res = await fetch(url, options);
   return res.json();
 }
 ```
 
-**Required console setup — CORS whitelist:**
+**Required console setup — Authorized Domains:**
 
-Go to **Catalyst Console → Authentication → Authorized Domains (CORS)** and add both domains:
-- `https://{your-app}.onslate.com` (your Slate frontend)
-- `https://{project-domain}.development.catalystserverless.com` (your functions)
+Go to **Catalyst Console → Authentication → Whitelisting → Authorized Domains** and add your Slate domain:
+- Add `{your-app}.onslate.com` → enable the **CORS** toggle
 
-Without this, the browser blocks the cross-domain fetch entirely.
+The Catalyst gateway will inject `Access-Control-Allow-Origin: https://{your-app}.onslate.com` on every response from your function. **Do NOT also set CORS headers in your function code** — duplicating the header causes browsers to reject the response.
 
 > **Tip:** The `{project-domain}` is in `.catalystrc` → `project_domain`. Example: `myapp-60019947973.development.catalystserverless.com`.
+
+**What happens under the hood (the gateway flow):**
+
+```
+1. Frontend: generateAuthToken() → gets access_token → sends as Authorization header
+2. Catalyst Gateway: validates token → strips Authorization → injects internal headers:
+   - x-zc-user-cred-type, x-zc-user-cred-token, x-zc-user-type (user identity)
+   - x-zc-admin-cred-type, x-zc-admin-cred-token (admin credentials)
+   - x-zc-projectid, x-zc-project-key, x-zc-environment (project context)
+   Also injects: Access-Control-Allow-Origin (from Authorized Domains config)
+3. Function: catalyst.initialize(req) reads the x-zc-* headers directly from req.headers
+4. Function: userManagement().getCurrentUser() makes internal API call using the user token
+```
+
+> ⚠️ **The `Authorization` header your frontend sends is NOT available in `req.headers` inside the function.** The gateway strips it after validation. The SDK reads the injected `x-zc-*` headers instead. Do not try to read `req.headers['authorization']` — it will be `undefined`.
+
+**CORS rule for functions with Express (e.g., Advanced I/O with Express router):**
+
+The gateway owns CORS headers for all production/deployed origins. Your Express code should only handle CORS for localhost (local dev, where no gateway exists):
+
+```js
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '';
+  if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.status(204).end();
+  }
+  next();
+});
+```
 
 ---
 
@@ -461,7 +498,7 @@ const allVars = await env.getAll();
 | `isUserAuthenticated` fails locally           | SDK version below v4.5.0                                   | Upgrade to v4.5.0+                                                                          |
 | `generateAuthToken is not a function`         | SDK version below v4.6.1                                   | Upgrade to v4.6.1+                                                                          |
 | `NO_ACCESS` on API calls                      | User role lacks permission for the resource                | Check role permissions in Catalyst console                                                   |
-| Duplicate CORS headers / preflight fails      | Express `cors()` middleware AND Catalyst CORS both active   | Remove `cors()` middleware from AppSail code; configure CORS only in Catalyst console        |
+| Duplicate CORS headers / preflight fails      | Express `cors()` middleware AND Catalyst Authorized Domains both inject `Access-Control-Allow-Origin` | Remove ALL Express CORS headers for production origins. Only set CORS for localhost (local dev). The gateway owns CORS for deployed origins. |
 | Sign-out not working / crashes                 | `signOut()` called without redirect URL argument           | Pass a redirect URL: `catalyst.auth.signOut(redirectURL)`. `constructSignOutUrl()` does not exist. |
 | `getCurrentUser is not a function`             | Method does not exist in Web SDK                           | Use `catalyst.auth.isUserAuthenticated()` — resolves with full user object                    |
 | Embedded iFrame won't load                    | Div ID mismatch or CSP blocking                            | Verify the div `id` matches, check Content-Security-Policy headers allow Zoho iFrame origins |
