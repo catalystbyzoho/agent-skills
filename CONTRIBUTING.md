@@ -15,7 +15,7 @@ If the skill produces incorrect code, recommends deprecated services, or misses 
 ### Improving the skill
 
 1. Fork the repository
-2. Edit the `SKILL.md` or reference files in `skills/references/`
+2. Edit the relevant `SKILL.md` or reference files in `skills/{service}/references/`
 3. Test the updated skill by importing it into your AI tool
 4. Open a Pull Request with a clear description of what changed and why
 
@@ -31,33 +31,75 @@ If the skill produces incorrect code, recommends deprecated services, or misses 
 
 ```
 skills/
-├── SKILL.md                              ← Main skill file (triggers, context, quick reference)
-└── references/                           ← Detailed reference files
-    ├── cloud-scale.md                    ← Data Store, Stratus, NoSQL, Cache, Auth, etc.
-    ├── functions-and-sdk.md              ← Function types, Node.js/Java/Python SDK patterns
-    ├── architecture-patterns.md              ← Use-case → service mapping, architecture blueprints
-    ├── services.md                       ← AppSail, Circuits, Signals, Slate, Pipelines, etc.
-    ├── equivalents-aws.md                ← AWS Lambda/S3/RDS → Catalyst mapping
-    ├── equivalents-gcp.md                ← GCP Cloud Run/Pub-Sub → Catalyst mapping
-    ├── equivalents-azure.md              ← Azure Functions/Blob → Catalyst mapping
-    ├── equivalents-firebase.md           ← Firebase Auth/Firestore → Catalyst mapping
-    ├── equivalents-heroku.md             ← Heroku/Railway/Render → Catalyst mapping
-    ├── equivalents-supabase.md           ← Supabase full-stack BaaS → Catalyst mapping
-    ├── equivalents-vercel-netlify.md     ← Vercel/Netlify serverless → Catalyst mapping
-    ├── meta-ids.md                       ← Project ID, ZAID, Table ID — where to find them
-    ├── pricing.md                        ← Unit prices, free tiers, cost estimation
-    ├── project-and-cli.md                ← CLI commands, project structure
-    ├── zoho-mcp-tools.md                 ← LLM-driven resource management via Zoho MCP
-    ├── sdk-nodejs.md                     ← Complete Node.js SDK code examples
-    ├── sdk-java.md                       ← Complete Java SDK code examples
-    ├── sdk-python.md                     ← Complete Python SDK code examples
-    ├── sdk-web.md                        ← Web SDK v4 client-side (auth, Data Store, Stratus)
-    ├── sdk-mobile.md                     ← Android, iOS, Flutter SDK reference
-    ├── signals-deep-dive.md              ← Signals event bus (publishers, rules, targets)
-    ├── smartbrowz-deep-dive.md           ← SmartBrowz (headless, grid, templates, dataverse)
-    ├── job-scheduling-deep-dive.md       ← Job pools, crons, SDK examples, REST APIs
-    ├── devops-deep-dive.md               ← APM, logs, automation testing, alerts
-    └── cli-reference.md                  ← Full CLI command map, Slate frameworks, safety
+├── SKILL.md                              ← Root router — routes queries to service skills
+├── references/
+│   └── skill-feedback.md                 ← Loaded when a skill gives wrong guidance
+├── catalyst-basics/
+│   ├── SKILL.md
+│   └── references/
+│       ├── project-basics.md             ← Directory structure, catalyst.json, IDs, environments
+│       ├── cli.md                        ← Full CLI command reference
+│       ├── architecture.md              ← Service selection guide, DC availability table
+│       └── setup/
+│           ├── claude-code.md            ← MCP setup for Claude Code
+│           ├── cursor.md                 ← MCP setup for Cursor
+│           └── github-copilot.md         ← MCP setup for GitHub Copilot
+├── catalyst-functions/
+│   ├── SKILL.md
+│   └── references/
+│       ├── functions-basics.md           ← All 7 function types, handler signatures, config
+│       ├── functions-advanced.md         ← File uploads, streaming, chaining
+│       └── api-gateway.md                ← API Gateway routing, rate limiting
+├── catalyst-appsail/
+│   ├── SKILL.md
+│   └── references/
+│       └── appsail-basics.md
+├── catalyst-datastore/
+│   ├── SKILL.md
+│   └── references/
+│       └── datastore-basics.md           ← CRUD, ZCQL, permissions, pagination
+├── catalyst-authentication/
+│   ├── SKILL.md
+│   └── references/
+│       ├── auth-basics.md                ← Login/signup, ZAID, Security Rules
+│       └── connections.md                ← OAuth/Connections for external APIs
+├── catalyst-stratus/
+│   ├── SKILL.md
+│   └── references/
+│       └── stratus-basics.md
+├── catalyst-nosql/
+│   ├── SKILL.md
+│   └── references/
+│       └── nosql-basics.md
+├── catalyst-cache/
+│   ├── SKILL.md
+│   └── references/
+│       └── cache-basics.md
+├── catalyst-slate/
+│   ├── SKILL.md
+│   └── references/
+│       └── slate-basics.md
+├── catalyst-pricing/
+│   ├── SKILL.md
+│   └── references/
+│       └── pricing-basics.md
+├── catalyst-sdk/
+│   ├── SKILL.md
+│   └── references/
+│       ├── sdk-nodejs.md
+│       ├── sdk-web.md
+│       ├── sdk-python.md
+│       ├── sdk-java.md
+│       └── sdk-mobile.md
+├── catalyst-zia/
+│   ├── SKILL.md
+│   └── references/
+│       ├── zia-services.md
+│       └── quickml.md
+└── catalyst-zoho-mcp/
+    ├── SKILL.md
+    └── references/
+        └── zoho-mcp.md                   ← MCP setup (all 3 clients), tool catalog, errors
 ```
 
 ### Guidelines

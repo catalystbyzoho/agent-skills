@@ -12,22 +12,43 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 
 > **Note:** For edge-case lookups not covered by the Tier 1 or Tier 2 reference files, the skill instructs agents to search the official Catalyst docs site (`docs.catalyst.zoho.com`) and fetch individual pages — rather than bundling the full documentation dump locally. This keeps the repo lean while ensuring accurate, up-to-date answers.
 
-### The skill covers
+### Dedicated skills (full guidance + code examples)
 
-- **Compute**: Functions (7 types), AppSail (PaaS with Docker support)
-- **Storage**: Data Store, ZCQL, Stratus (S3-compatible), NoSQL, Cache
-- **Frontend**: Slate (Git-based, SSR support), Web Client Hosting
-- **Integration**: Signals (event bus), Connections (OAuth manager)
-- **Orchestration**: Circuits (workflows), Job Scheduling, Pipelines (CI/CD)
-- **AI/ML**: Zia Services, QuickML, ConvoKraft (chatbots)
-- **Browser Automation**: SmartBrowz (headless browser)
-- **DevOps**: Logs, APM, Alerts, GitHub integration
-- **Developer Tools**: CLI, SDKs (Node.js/Java/Python/Web/Android/iOS/Flutter), REST APIs, VS Code Extension
-- **Zoho MCP**: Create tables, query data, manage buckets/cache directly from LLM conversations
+| Service | Skill |
+|---------|-------|
+| Functions (7 types, API Gateway, Security Rules) | `catalyst-functions` |
+| AppSail (PaaS, Docker, managed runtimes) | `catalyst-appsail` |
+| Slate (frontend hosting, Git deploy, SSR) | `catalyst-slate` |
+| Data Store + ZCQL | `catalyst-datastore` |
+| Stratus (object storage, signed URLs) | `catalyst-stratus` |
+| NoSQL (document storage) | `catalyst-nosql` |
+| Authentication + Connections (OAuth) | `catalyst-authentication` |
+| Cache (in-memory key-value, TTL) | `catalyst-cache` |
+| Pricing (free tier, cost estimation) | `catalyst-pricing` |
+| SDKs (Node.js, Web, Python, Java, Android, iOS, Flutter) | `catalyst-sdk` |
+| Zia Services + QuickML (OCR, AutoML) | `catalyst-zia` |
+| Zoho MCP (`CatalystbyZoho_*` tools) | `catalyst-zoho-mcp` |
+| Project setup, CLI, environments, architecture | `catalyst-basics` |
+
+### Also covered (via reference files, no dedicated skill)
+
+Signals (event bus), Circuits (workflows), Job Scheduling, Pipelines (CI/CD), ConvoKraft (chatbots), SmartBrowz (headless browser), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
 
 ## Installation
 
-### Option 1: Claude Code (Plugin)
+### Option 1: Agent Skills CLI
+
+Install with a single command — works with Cursor, Claude Code, Copilot, Windsurf, and any other Agent Skills-compatible tool:
+
+```bash
+npx skills add catalystbyzoho/agent-skills
+```
+
+The CLI automatically detects which AI tools you have configured and installs the skills in the right location for each one.
+
+---
+
+### Option 2: Claude Code (Plugin)
 
 > **Prerequisites:** You must have the [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code/overview) installed. Open your **system terminal** (not the Claude Code desktop app or web interface) and start a session with `claude` before running the commands below.
 
@@ -53,25 +74,25 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
    > For full details and verification steps, see the [Zoho MCP setup section](#zoho-mcp-setup-recommended-all-tools) below.
 
 
-### Option 2: Gemini CLI (Extension)
+### Option 3: Gemini CLI (Extension)
 
 ```bash
 gemini extensions install https://github.com/catalystbyzoho/agent-skills
 ```
 
-### Option 3: Cursor
+### Option 4: Cursor
 
 **Via symlink (recommended):**
 ```bash
 git clone https://github.com/catalystbyzoho/agent-skills.git
-ln -s /path/to/catalyst-skills/skills/catalyst-by-zoho ~/.cursor/rules/catalyst-by-zoho
+ln -s /path/to/catalyst-skills/skills ~/.cursor/rules/catalyst-by-zoho
 ```
 
 **Or via the plugin manifest:** The `.cursor-plugin/plugin.json` in this repo points Cursor
 to the `skills/` directory automatically if Cursor supports plugin manifests in your version.
 Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your project root.
 
-### Option 4: GitHub Copilot
+### Option 5: GitHub Copilot
 
 1. Clone the repo:
    ```bash
@@ -94,9 +115,9 @@ Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your projec
    awk '/^---/{f++; next} f>=2' skills/SKILL.md >> .github/copilot-instructions.md
    ```
 
-3. Copy the `skills/references/` folder into `.github/references/` for full context
+3. Copy the `skills/` folder into `.github/` for the agent to load reference files on demand
 
-### Option 5: Windsurf
+### Option 6: Windsurf
 
 1. Clone the repo:
    ```bash
@@ -104,39 +125,7 @@ Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your projec
    ```
 2. Copy `skills/` into your project's `.windsurfrules/` directory
 
-### Option 6: OpenAI Codex
-
-1. Install the skill as a plugin:
-   ```bash
-   codex plugin marketplace add catalystbyzoho/agent-skills
-   ```
-2. Open Codex and run `/plugins` to verify `catalyst-by-zoho` appears in the active list.
-3. Add your Zoho MCP server URL to Codex's MCP settings (see **Zoho MCP setup** below).
-
-### Option 7: Kiro
-
-1. Clone the repo (if you haven't already):
-   ```bash
-   git clone https://github.com/catalystbyzoho/agent-skills.git
-   ```
-2. Symlink the skill into Kiro's steering directory:
-   ```bash
-   ln -s "$(pwd)/agent-skills/skills/catalyst-by-zoho" ~/.kiro/steering/catalyst-by-zoho
-   ```
-3. Add your Zoho MCP server to Kiro's MCP config (`~/.kiro/settings/mcp.json`):
-   ```json
-   {
-     "mcpServers": {
-       "zoho-catalyst": {
-         "url": "https://<your-server>-<org>.zohomcp.com/mcp/<token>/message",
-         "type": "http"
-       }
-     }
-   }
-   ```
-4. Restart Kiro — the skill and MCP tools will be available in new conversations.
-
-### Option 8: Any other AI tool (Manual)
+### Option 7: Any other AI tool (Manual)
 
 1. Clone the repo:
    ```bash
@@ -156,7 +145,7 @@ To let the AI manage Catalyst infrastructure (create tables, query data, manage 
 
 > **Note:** `.mcp.json` ships with a placeholder URL. See the `_setup` field inside for instructions.
 
-See `skills/references/zoho-mcp-tools.md` for detailed setup and verification steps.
+See `skills/catalyst-zoho-mcp/references/zoho-mcp.md` for detailed setup and verification steps.
 
 ## What the skill enables
 
