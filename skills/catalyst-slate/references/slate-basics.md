@@ -3,7 +3,7 @@
 
 ## Key Features
 
-- Native support: Next.js, React (Vite/CRA), Vue, Angular, Svelte, Astro, SolidJS, static HTML
+- Native support: Next.js, React (Vite/CRA), Vue, Angular, Svelte, Astro, SolidJS, Preact, static HTML
 - Git-based deployment (GitHub/GitLab repos)
 - Auto build and deploy on push
 - Preview deployments for branches
@@ -26,7 +26,15 @@ catalyst deploy --only slate:name # Deploy specific app
 catalyst deploy slate --production # Deploy to Production ⚠️
 ```
 
-**Slate URL format:** `https://<project-domain>.onslate.in`
+**Slate URL format** (varies by data center):
+
+| DC | URL format |
+|----|------------|
+| US | `https://<subdomain>.onslate.com` |
+| EU | `https://<subdomain>.onslate.eu` |
+| IN | `https://<subdomain>.onslate.in` |
+| AU | `https://<subdomain>.onslate.au` |
+| CA | `https://<subdomain>.onslate.ca` |
 
 ---
 
@@ -42,6 +50,7 @@ catalyst deploy slate --production # Deploy to Production ⚠️
 | `svelte` | SvelteKit | `dist/` or `build/` |
 | `astro` | Astro | `dist/` |
 | `solidjs` | SolidJS | `dist/` |
+| `preact` | Preact | `dist/` |
 | `create-react-app` | CRA | `build/` |
 
 ---

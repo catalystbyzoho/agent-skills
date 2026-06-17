@@ -2,13 +2,22 @@
 
 Step-by-step navigation for the most common console tasks.
 
+> **Coverage note:** This guide documents the most commonly needed console flows. The following areas are **not yet documented here** and require consulting the [official Catalyst docs](https://docs.catalyst.zoho.com):
+> - Hosted Authentication (ZAID configuration, OAuth providers, custom login pages)
+> - Billing activation and plan upgrades
+> - Cache segment creation (Cloud Scale → Cache → New Segment)
+> - NoSQL collection and table creation (Cloud Scale → NoSQL)
+> - Stratus bucket creation and IAM policy setup (Cloud Scale → Stratus)
+> - Connections configuration (Connections → New Connection → OAuth provider setup)
+> - Signals and Job Scheduling setup
+
 ---
 
 ## Finding Project ID, ZAID, and Table ID
 
 ### Project ID
-1. Open [catalyst.zoho.com](https://catalyst.zoho.com) and click your project
-2. Look at the browser URL: `https://catalyst.zoho.com/org/<ORG_ID>/project/<PROJECT_ID>/`
+1. Open [console.catalyst.zoho.com](https://console.catalyst.zoho.com/baas/index) and click your project
+2. Look at the browser URL: `https://console.catalyst.zoho.com/baas/<ORG_ID>/project/<PROJECT_ID>/`
 3. `PROJECT_ID` is the numeric segment after `/project/`
 
 ### ZAID (Zoho Application ID)

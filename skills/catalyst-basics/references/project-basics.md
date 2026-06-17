@@ -104,8 +104,21 @@ Contains `project_id`, `env_id`, `project_domain`, and `timezone`. If missing, `
 }
 ```
 
-Valid `type` values: `basicio`, `advancedio`, `event`, `cron`, `job`, `integration`, `browserlogic`  
-Valid `stack` values: `node20` *(recommended)*, `node14`, `node16`, `node18`, `java17`, `java11`, `java8`, `python39`
+Valid `type` values (use exactly as shown — do not change this after function creation):
+
+| Function Type | `type` value |
+|--------------|-------------|
+| Basic I/O | `basicio` |
+| Advanced I/O | `advancedio` |
+| Cron | `cron` |
+| Job | `job` |
+| Event | `event` |
+| Integration | `integration` |
+| Browser Logic | `browserlogic` |
+
+> `browserlogic` — NOT `browselogic`.
+
+Valid `stack` values: `node24` *(recommended)*, `node22`, `node20`, `node18`, `node16`, `node14`, `node12`, `java25`, `java21`, `java17`, `java11`, `java8`, `python_3_13`, `python_3_12`, `python_3_11`, `python_3_10`
 
 ---
 

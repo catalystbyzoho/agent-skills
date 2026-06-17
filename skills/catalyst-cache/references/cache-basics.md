@@ -20,7 +20,7 @@ await segment.put('user:123', JSON.stringify({ name: 'Alice' }), 1); // 1 hour
 const value = await segment.getValue('user:123');
 const parsed = value ? JSON.parse(value) : null;
 
-// get() — returns the full cache entry object (includes metadata like cache_key, cache_value, expiry_in_hours)
+// get() — returns the full cache entry object (includes metadata like cache_name, cache_value, expiry_in_hours)
 const entry = await segment.get('user:123');
 // entry.cache_value, entry.expiry_in_hours, etc.
 
@@ -30,6 +30,17 @@ await segment.update('user:123', JSON.stringify({ name: 'Alice Updated' }));
 // Delete
 await segment.delete('user:123');
 ```
+
+## `getValue()` vs `get()` Comparison
+
+| | `segment.getValue(key)` | `segment.get(key)` |
+|---|---|---|
+| **Returns** | `string \| null` — the raw value only | Full object (JSON) with metadata |
+| **Response shape** | `"Alice"` | `{ cache_name: "user:123", cache_value: "Alice", expires_in: "<datetime>", expiry_in_hours: 24, ttl_in_milliseconds: 86400000, project_details: {...}, segment_details: {...} }` |
+| **Use when** | You need the stored value (most cases) | You need TTL/expiry metadata |
+| **After `delete()`** | Returns `null` | Returns object with `cache_value: null` |
+
+> Use `getValue()` by default. Only use `get()` if you need to inspect the remaining TTL or expiry hours.
 
 ## Critical Gotchas
 

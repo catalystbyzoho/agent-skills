@@ -129,9 +129,9 @@ const bucket = catalystApp.stratus().bucket('myapp-files-70699');
 const pagedResult = await bucket.listPagedObjects({ prefix: 'uploads/', maxKeys: 100 });
 for await (const obj of bucket.listIterableObjects({ prefix: 'uploads/' })) { ... }
 
-// HEAD (check if exists)
-const head = await bucket.headObject('uploads/file.pdf');
-const headSafe = await bucket.headObject('uploads/file.pdf', { throwErr: false }); // null if missing
+// HEAD (check if exists) — returns true/false boolean
+const exists = await bucket.headObject('uploads/file.pdf');
+const existsSafe = await bucket.headObject('uploads/file.pdf', { throwErr: false }); // false if missing, true if exists
 
 // Download
 const stream = await bucket.getObject('uploads/file.pdf');
@@ -145,19 +145,17 @@ await bucket.putObject('uploads/file.pdf', fs.createReadStream('/path'), {
   metaData: { uploadedBy: 'automation' }
 });
 
-// Multipart (for files >= 100 MB)
-const multipart = bucket.multipart();
-const upload = await multipart.initiateMultipartUpload('uploads/huge.mp4');
-const part1 = await multipart.uploadPart('uploads/huge.mp4', upload.uploadId, {
-  partNumber: 1, body: fs.createReadStream('/path/part1')
-});
-await multipart.completeMultipartUpload('uploads/huge.mp4', upload.uploadId, [
-  { partNumber: 1, eTag: part1.eTag }
-]);
+// Multipart (for files >= 100 MB) — methods are directly on bucket, no .multipart() wrapper
+const initRes = await bucket.initiateMultipartUpload('uploads/huge.mp4');
+const uploadId = initRes['upload_id'];  // snake_case, not uploadId
+await bucket.uploadPart('uploads/huge.mp4', uploadId, fs.createReadStream('/path/part1'), 1);
+await bucket.completeMultipartUpload('uploads/huge.mp4', uploadId);  // no parts array needed
 
-// Pre-signed URLs
-const getUrl = await bucket.generatePreSignedUrl('uploads/file.pdf', { expiresIn: 3600 });
-const putUrl = await bucket.generatePreSignedUrl('uploads/new.pdf', { expiresIn: 3600, method: 'PUT' });
+// Pre-signed URLs — positional: (key, action, options?); returns { signature: url }
+const getResult = await bucket.generatePreSignedUrl('uploads/file.pdf', 'GET', { expiryIn: 3600 });
+const getUrl = getResult.signature;
+const putResult = await bucket.generatePreSignedUrl('uploads/new.pdf', 'PUT', { expiryIn: 3600 });
+const putUrl = putResult.signature;
 
 // Delete
 await bucket.deleteObject('uploads/file.pdf');
@@ -192,7 +190,7 @@ const newUser = await userManagement.registerUser({
 ## Email
 
 ```javascript
-await catalystApp.mail().sendMail({
+await catalystApp.email().sendMail({
   from_email: 'noreply@yourdomain.com',
   to_email: ['recipient@example.com'],
   cc: ['cc@example.com'],
@@ -211,13 +209,17 @@ const nosql = catalystApp.nosql();
 const { NoSQLItem } = require('zcatalyst-sdk-node/lib/no-sql');
 const table = nosql.table('SessionStore');
 
-const item = new NoSQLItem();
-item.put('userId', 'string', 'user_001');
-item.put('loginTime', 'number', Date.now());
-await table.insertItems([item]);
+// Build item with typed builder methods — no item.put(); no plain JSON
+const item = new NoSQLItem()
+  .addString('userId', 'user_001')   // partition key
+  .addNumber('loginTime', Date.now());
 
-const fetched = await table.fetchItems({
-  partitionKey: { name: 'userId', value: 'user_001' }
+// insertItems takes an object { item }, NOT an array
+await table.insertItems({ item });
+
+// fetchItem (singular) — keys is a NoSQLItem identifying the record
+const fetched = await table.fetchItem({
+  keys: [new NoSQLItem().addString('userId', 'user_001')]
 });
 
 const queryResult = await table.queryTable({
@@ -267,11 +269,16 @@ await cron.resumeCron(cronId);
 await cron.runCron(cronId);     // manual trigger
 await cron.deleteCron(cronId);
 
-// Submit jobs
-await jobScheduling.submitJob({
-  job_name: 'process-orders', jobpool_name: 'OrderPool',
-  target_type: 'Function', target_name: 'ProcessOrderFunction',
-  job_config: { batchSize: 50 }
+// Submit an immediate job
+// Step 1: get a jobpool instance by name — you must do this first, there is no default.
+// job_name: alphanumeric and underscores only — hyphens are rejected.
+const jobpool = await jobScheduling.getJobpool({ name: 'OrderPool' });
+const job = await jobpool.submitJob({
+  job_name: 'process_orders',       // alphanumeric + underscores only
+  target_type: 'Function',
+  target_name: 'ProcessOrderFunction', // or use target_id
+  params: { batchSize: 50 },
+  job_config: { number_of_retries: 2, retry_interval: String(15 * 60 * 1000) }
 });
 ```
 

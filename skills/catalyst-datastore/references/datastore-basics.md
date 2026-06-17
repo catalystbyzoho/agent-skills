@@ -30,8 +30,18 @@ console.log('Inserted ROWID:', row.ROWID);
 // GET by ROWID
 const row = await table.getRow(ROWID);
 
-// GET all rows (paginated, max 200 per call)
-const allRows = await table.getAllRows({ nextToken: null, maxRows: 100 });
+// GET all rows (paginated) — use getPagedRows(), NOT getAllRows() which is deprecated
+// Default page size: 200 rows. maxRows is optional.
+// Response shape: { data, next_token, more_records }
+// data rows are already flat — NO table-name wrapper (unlike ZCQL results)
+function fetchAllRows(nextToken = undefined) {
+  table.getPagedRows({ nextToken, maxRows: 200 })
+    .then(({ data, next_token, more_records }) => {
+      console.log('rows:', data);
+      // data: [{ ROWID, CREATORID, CREATEDTIME, Name, ... }, ...]
+      if (more_records) fetchAllRows(next_token);
+    });
+}
 
 // UPDATE (must include ROWID)
 const updated = await table.updateRow({ ROWID: '12345', Salary: 90000 });
@@ -226,7 +236,10 @@ Data Store does NOT support multi-statement transactions.
 **Workarounds:**
 - Use single ZCQL statements for bulk operations
 - Use optimistic concurrency: read `MODIFIEDTIME`, verify before writing
-- Use Circuits for multi-step workflows with saga patterns
+- Use Circuits for multi-step workflows with saga patterns — **US DC only**; Circuits is not available in EU, AU, IN, JP, SA, or CA data centers
+
+> ⚠️ **DC restriction:** Circuits is **not available** in EU, AU, IN, JP, SA, or CA data centers.
+> Before recommending Circuits, confirm the user's data center. For restricted DCs, use single ZCQL statements or optimistic concurrency instead.
 
 ---
 
@@ -241,7 +254,7 @@ Data Store does NOT support multi-statement transactions.
 | Error | Cause | Fix |
 |-------|-------|-----|
 | `HTTP 429 Too Many Requests` on bulk write | Bulk write queue is full | Reduce batch size; implement exponential backoff; contact Catalyst support to increase limit |
-| ZCQL returns only 200 rows when more exist | Default ZCQL result limit is 200 rows | Add `LIMIT 300` (max) or paginate with `OFFSET`; for >300 rows use Bulk Read REST API |
+| ZCQL returns fewer rows than expected | ZCQL SELECT hard limit is **300 rows** per query (not 200) | Paginate with `LIMIT offset, 300` — e.g., `LIMIT 0, 300`, then `LIMIT 300, 300`; for full-table scans use `getPagedRows()` (default: 200 rows per page; returns `{ data, next_token, more_records }`) |
 | ZCQL silently hangs in Job/Cron/Event function | `catalyst.initialize(context)` without `scope: 'admin'` makes unauthenticated requests | Use `catalyst.initialize(context, { scope: 'admin' })` in non-HTTP function types |
 | `Column not found` on insert | Column name case mismatch or column not yet created | Column names are case-sensitive; verify in Console → Data Store |
 | `ZCQL query exceeds 20-column SELECT limit` | ZCQL limits SELECT to 20 columns per query | Split into multiple queries or use `SELECT *` (counts as 1) |

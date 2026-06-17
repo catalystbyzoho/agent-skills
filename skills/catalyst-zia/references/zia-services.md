@@ -2,7 +2,19 @@
 
 Catalyst Zia provides pre-trained AI/ML models as serverless APIs. No model training required — call the SDK methods and get results.
 
-Pricing: Pay-per-call. Free tier included for each service.
+Pricing: Pay-per-call. Refer to the `catalyst-pricing` skill for current rates and free tier details.
+
+> **All Zia methods are called directly on the `zia` object** — there are no sub-objects like `textAnalytics()`, `OCR()`, or `faceAnalytics()`.
+
+---
+
+## DC Restrictions
+
+| Service | Availability |
+|---------|-------------|
+| Identity Scanner (Facial Comparison / Aadhaar) | **IN DC only** |
+| AutoML / QuickML | **Not available** in EU, AU, IN, JP, SA, CA |
+| All other Zia services | All data centers |
 
 ---
 
@@ -10,102 +22,107 @@ Pricing: Pay-per-call. Free tier included for each service.
 
 ```javascript
 const zia = catalystApp.zia();
-const textAnalytics = zia.textAnalytics();
 
 // Sentiment Analysis
-const sentimentResult = await textAnalytics.analyzeSentiment('I love this product!');
-// { sentiment: 'positive', score: 0.98 }
+const sentimentResult = await zia.getSentimentAnalysis(
+  ['I love this product!'],  // array of text strings
+  ['optional', 'keywords']   // optional keyword hints
+);
+
+// Named Entity Recognition (NER)
+const nerResult = await zia.getNERPrediction([
+  'John works at Zoho in Chennai'
+]);
 
 // Keyword Extraction
-const keywords = await textAnalytics.extractKeywords('Catalyst is a cloud backend platform.');
-// { keywords: ['Catalyst', 'cloud backend platform'] }
+const keywordsResult = await zia.getKeywordExtraction([
+  'Catalyst is a cloud backend platform.'
+]);
 
-// Entity Extraction (Named Entity Recognition)
-const entities = await textAnalytics.extractEntities('John works at Zoho in Chennai');
-// { entities: [{ value: 'John', type: 'Person' }, { value: 'Zoho', type: 'Organization' }, ...] }
-
-// Language Detection
-const lang = await textAnalytics.detectLanguage('Bonjour le monde');
-// { language: 'French', code: 'fr', confidence: 0.99 }
-
-// Keyword Prediction
-const predicted = await textAnalytics.predictKeywords('Machine learning is transforming AI');
+// All Text Analytics combined
+const allResult = await zia.getTextAnalytics(
+  ['Zoho Corporation is a multinational technology company.'],
+  ['Zoho']  // optional keywords
+);
 ```
-
-Pricing: $0.002 per API call. Free tier: 500 calls/month per service.
 
 ---
 
 ## OCR (Optical Character Recognition)
 
 ```javascript
-const ocr = zia.OCR();
+const zia = catalystApp.zia();
 
-// From file buffer
-const result = await ocr.extractText(imageBuffer);
-// { result: 'Extracted text content...', pages: [...] }
+// Basic OCR
+const result = await zia.extractOpticalCharacters(
+  fs.createReadStream('./invoice.png')
+);
 
-// From URL
-const resultFromUrl = await ocr.extractTextFromURL('https://example.com/invoice.pdf');
+// With options (model type, language)
+const panResult = await zia.extractOpticalCharacters(
+  fs.createReadStream('./pan.webp'),
+  { modelType: 'PAN' }
+);
 ```
 
-Supported formats: JPG, PNG, BMP, GIF, PDF (multi-page)
-Pricing: $0.004 per call. Free tier: 500 calls/month.
+Supported formats: JPG, PNG, WEBP
 
 ---
 
 ## Face Analytics
 
 ```javascript
-const faceAnalytics = zia.faceAnalytics();
+const zia = catalystApp.zia();
 
-// Face detection with attributes
-const faceResult = await faceAnalytics.detectFace(imageBuffer);
-// Returns: age range, gender prediction, emotion, smile probability, landmarks
+// Face detection with attributes (age, gender, emotion, smile)
+const faceResult = await zia.analyseFace(
+  fs.createReadStream('./face.png')
+);
 
-// Face comparison (2 images)
-const compareResult = await faceAnalytics.compareFace(imageBuffer1, imageBuffer2);
-// { match: true, confidence: 0.95 }
+// Facial Comparison / E-KYC (⚠️ IN DC only — part of Identity Scanner)
+const compareResult = await zia.compareFace(sourceImageStream, queryImageStream);
+// { match: true/false, confidence: 0–1 }
 ```
-
-Pricing: $0.003 per face in image. Free tier: 500 faces/month.
 
 ---
 
 ## Object Detection
 
 ```javascript
-const objectDetection = zia.objectDetection();
+const zia = catalystApp.zia();
 
-const detections = await objectDetection.detectObjects(imageBuffer);
-// [{ label: 'car', confidence: 0.94, bounding_box: { x, y, width, height } }]
+const detections = await zia.detectObject(
+  fs.createReadStream('./sample.webp')
+);
+// [{ label: 'car', confidence: 0.94, ... }]
 ```
-
-Pricing: $0.003 per image. Free tier: 500 calls/month.
 
 ---
 
-## Barcode Reader
+## Barcode Scanner
 
 ```javascript
-const barcodeReader = zia.barcodeReader();
+const zia = catalystApp.zia();
 
-const barcodes = await barcodeReader.readBarcode(imageBuffer);
-// [{ type: 'QR_CODE', value: 'https://example.com' }]
+const barcodes = await zia.scanBarcode(
+  fs.createReadStream('./barcode.png'),
+  { format: 'code39' }  // optional; use 'ALL' for auto-detect
+);
 ```
 
 Supported formats: QR Code, Code 128, EAN, UPC, Data Matrix, PDF417, and more.
-Pricing: $0.002 per call. Free tier: 500 calls/month.
 
 ---
 
 ## Moderation
 
 ```javascript
-const moderation = zia.moderation();
+const zia = catalystApp.zia();
 
-const result = await moderation.moderateImage(imageBuffer);
-// { explicit: false, categories: { adult: 0.01, violence: 0.00 }, safe: true }
+const result = await zia.moderateImage(
+  fs.createReadStream('./image.png'),
+  { mode: 'moderate' }  // 'basic', 'moderate', or 'advanced' (default)
+);
 ```
 
 ---
@@ -116,23 +133,24 @@ const result = await moderation.moderateImage(imageBuffer);
 
 ```javascript
 module.exports = async (context, basicIO) => {
-  const { image_row_id } = basicIO.getArguments();
+  const { image_row_id } = basicIO.getArgument();  // singular, not getArguments()
   
   // Get image from Stratus
-  const fileContent = await catalystApp.stratus().getFileContent(bucketName, imagePath);
+  const bucket = catalystApp.stratus().bucket('myapp-files');
+  const imageStream = await bucket.getObject('images/doc.png');
   
   // Run OCR
   const zia = catalystApp.zia();
-  const ocrResult = await zia.OCR().extractText(fileContent);
+  const ocrResult = await zia.extractOpticalCharacters(imageStream);
   
   // Store extracted text
   await catalystApp.datastore().table('OCRResults').insertRow({
     SourceRowID: image_row_id,
-    ExtractedText: ocrResult.result,
+    ExtractedText: JSON.stringify(ocrResult),
     ProcessedAt: new Date().toISOString()
   });
   
-  basicIO.setOutput({ status: 'success', chars: ocrResult.result.length });
+  basicIO.write({ status: 'success' });  // write(), not setOutput()
   context.closeWithSuccess();
 };
 ```
@@ -141,7 +159,8 @@ module.exports = async (context, basicIO) => {
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| OCR returns empty string | Image resolution too low or file format not supported | Use JPG/PNG at ≥ 150 DPI; avoid scanned PDFs without embedded text |
+| OCR returns empty string | Image resolution too low or file format not supported | Use JPG/PNG/WEBP at ≥ 150 DPI; avoid scanned PDFs without embedded text |
 | `API limit exceeded` on Zia call | Free tier Zia API call quota exhausted | Upgrade plan; cache Zia results for identical inputs to reduce repeat calls |
-| `Invalid file format` on image analysis | Unsupported MIME type sent | Supported formats: JPG, PNG, BMP, GIF; convert before sending |
+| `Invalid file format` on image analysis | Unsupported MIME type sent | Supported formats: JPG, PNG, WEBP; convert before sending |
 | Zia response latency > 5s | Large image or complex document sent synchronously | For bulk processing, use a Job function + async dispatch rather than a Basic I/O function |
+| Identity Scanner or AutoML not available | DC restriction | Identity Scanner: IN DC only. AutoML/QuickML: not available in EU, AU, IN, JP, SA, CA |

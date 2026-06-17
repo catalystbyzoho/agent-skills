@@ -21,7 +21,7 @@ Claude Code picks up skills automatically from the `skills/` directory. To verif
 
 1. Open Claude Code in your Catalyst project directory
 2. Ask: "What Catalyst skills are available?"
-3. Claude will list the active skills from `skills/SKILL.md`
+3. Claude will list the active skills from `catalyst-by-zoho/SKILL.md`
 
 ## MCP Setup (Recommended)
 

@@ -8,11 +8,42 @@ metadata:
 
 ## How It Works
 
-1. **Identify the function type** — Basic I/O for simple request/response, Advanced I/O for raw HTTP control, Event for trigger-based, Cron/Job for scheduled, Integration for Zoho service events, Browser Logic for Puppeteer.
-2. **Load `references/functions-basics.md`** — for the matching handler signature, `catalyst-config.json` keys, SDK init pattern, and CORS setup.
-3. **Load `references/functions-advanced.md`** — for file uploads (busboy), streaming responses, error handling, or chaining functions.
-4. **Load `references/api-gateway.md`** — for routing rules, rate limiting, or gateway-level CORS.
-5. **Validate config** — Confirm `catalyst-config.json` uses `deployment` + `execution` keys only. Never use `function` or `entry_point`.
+1. **Establish MCP connection first — HARD STOP if not connected.**
+   Check whether `CatalystbyZoho_*` tools are available in the current tool list.
+   - **If available:** Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to set project context, then proceed to step 2.
+   - **If NOT available:** Do NOT write any code, scaffold any files, or run any CLI commands. Present the two options below and wait for the user to confirm `CatalystbyZoho_*` tools are visible before continuing.
+
+   ---
+
+   **To use Catalyst via AI, you need the Zoho MCP Global Server connected.**
+   Add a single URL to your AI client config, authorize once via browser, and you're done.
+
+   *Claude Desktop* — edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+   ```json
+   { "mcpServers": { "catalyst-by-zoho": { "type": "streamable-http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
+   ```
+   *Cursor* — create or edit `.cursor/mcp.json` in your project root:
+   ```json
+   { "mcpServers": { "catalyst-by-zoho": { "type": "streamable-http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
+   ```
+   *GitHub Copilot (VS Code)* — create `.vscode/mcp.json` in your workspace root:
+   ```json
+   { "servers": { "catalyst-by-zoho": { "type": "http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
+   ```
+   Restart your AI client → authorize via browser when prompted → look for `CatalystbyZoho_*` tools to confirm.
+
+   ---
+
+2. **Check local scaffold — never run interactive CLI commands.**
+   Verify `.catalystrc` and `catalyst.json` exist. If missing, do NOT run `catalyst init` yourself — the CLI uses interactive arrow-key menus that cannot be reliably controlled from a terminal session. Instead, ask the user to run it:
+   > Please run `catalyst init` in your terminal, select your project and choose **"Configure and deploy http/non-http functions"** when asked which features to set up. Come back once done.
+   Wait for confirmation before continuing.
+
+3. **Identify the function type** — Basic I/O for simple request/response, Advanced I/O for raw HTTP control, Event for trigger-based, Cron/Job for scheduled, Integration for Zoho service events, Browser Logic for Puppeteer.
+4. **Load `references/functions-basics.md`** — for the matching handler signature, `catalyst-config.json` keys, SDK init pattern, and CORS setup.
+5. **Load `references/functions-advanced.md`** — for file uploads (busboy), streaming responses, error handling, or chaining functions.
+6. **Load `references/api-gateway.md`** — for routing rules, rate limiting, or gateway-level CORS.
+7. **Validate config** — Confirm `catalyst-config.json` uses `deployment` + `execution` keys only. Never use `function` or `entry_point`.
 
 ## Security Checklist
 
@@ -21,12 +52,17 @@ metadata:
 
 ## Triggers
 
-Use this skill for: "write a function", "catalyst function", "Basic I/O", "Advanced I/O", "Event function", "Cron function", "Browser Logic", `catalyst-config.json`, "function handler", "API Gateway", "rate limiting", "busboy", "file upload in function", `catalyst deploy functions`, `catalyst functions:add`, "function CORS", or any function type or function configuration question.
+Use this skill for: "write a function", "catalyst function", "Basic I/O", "Advanced I/O", "Event function", "Cron function", "Browser Logic", `catalyst-config.json`, "function handler", "API Gateway", "rate limiting", "busboy", "file upload in function", `catalyst deploy --only functions:<function-name>`, `catalyst functions:add`, "function CORS", or any function type or function configuration question.
+
+Deployment command note:
+- Use `catalyst deploy --only functions:<function-name>` to deploy one function (where `functions:<name>` targets the function by its folder name).
+- Use `catalyst deploy --only functions` to deploy all functions at once.
 
 ## References
 
 | Reference | Load when the query is about… |
 |-----------|-------------------------------|
-| `references/functions-basics.md` | Function types, handler signatures, `catalyst-config.json`, SDK init, CORS, Security Rules |
-| `references/functions-advanced.md` | File uploads (busboy), streaming, error handling, local testing, function chaining |
-| `references/api-gateway.md` | API Gateway enable/disable, routing rules, rate limiting, CORS via gateway |
+| `references/functions-basics.md` | **Start here for any function question.** Function type selection, Basic I/O and Advanced I/O handler signatures, `catalyst-config.json`, user-scope vs admin-scope, CORS, Security Rules, execution limits |
+| `references/functions-advanced.md` | **Advanced I/O patterns only.** Express vs raw-http template differences, file uploads (busboy), streaming files from Stratus, error handling patterns, CORS for local dev, local testing, function chaining, ZCQL result unwrapping, HTTP payload limits |
+| `references/functions-templates.md` | **Event, Cron, Job, or Integration functions.** Handler templates for all background/scheduled types, SDK component reference, retry behavior, cold start data, and the full common errors table |
+| `references/api-gateway.md` | **API Gateway config only.** Enable/disable gateway, routing rules, rate limiting, CORS via gateway |

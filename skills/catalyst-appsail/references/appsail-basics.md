@@ -30,7 +30,9 @@ appsail/
 
 ## app-config.json
 
-Created automatically when you run `catalyst appsail:init` or `catalyst appsail:add`. Not created for standalone deploys or custom runtimes.
+Created automatically when you run `catalyst appsail:add`. Not created for standalone deploys or custom runtimes.
+
+> ⚠️ There is no `catalyst appsail:init` command. Only `catalyst appsail:add` exists (it links an existing AppSail to the project or creates a new one interactively).
 
 ```json
 {
@@ -47,7 +49,7 @@ Created automatically when you run `catalyst appsail:init` or `catalyst appsail:
 | Field | Required | Notes |
 |-------|----------|-------|
 | `command` | Yes | Startup command for the app |
-| `stack` | Yes | `node20`, `node18`, `java17`, `java11`, `python39`, or `docker` |
+| `stack` | Yes | `node24`, `node22`, `node20`, `node18`, `node16`, `node14`, `node12`, `java25`, `java21`, `java17`, `java11`, `java8`, `python_3_13`, `python_3_12`, `python_3_11`, `python_3_10` (managed runtimes only — Docker/container apps do NOT use `app-config.json`) |
 | `memory` | No | Default 512 MB; range 256–2048 MB |
 | `env_variables` | No | Applied at deploy time; merged into Console config |
 
@@ -108,17 +110,23 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 COPY . .
+# EXPOSE is Docker documentation only — it does NOT configure the AppSail listening port.
+# Catalyst uses X_ZOHO_CATALYST_LISTEN_PORT (default 9000) to determine the port to check.
 EXPOSE 9000
 CMD ["node", "app.js"]
 ```
+
+> **Docker apps do NOT use `app-config.json`** — all specifications are stored in `catalyst.json`.
 
 ---
 
 ## Deployment
 
-### Path A — Regular deploy (interactive init first)
+### Path A — Regular deploy (interactive add first)
 
 Run `catalyst appsail:add` (interactive — CLI will prompt for runtime type, protocol, image, name).
+
+> ⚠️ There is no `catalyst appsail:init` command. Only `catalyst appsail:add` exists.
 For Docker Image, select **Docker Image** → **Docker Image protocol** or **Docker Archive protocol** → provide image tag or archive path → name the service.
 After init, `catalyst.json` is updated. `app-config.json` is NOT created for Docker apps.
 
@@ -140,8 +148,28 @@ catalyst deploy appsail --name <service-name> --source docker-archive://./image.
 
 # Optional overrides
 catalyst deploy appsail --name <service-name> --source docker://<image>:<tag> \
+# --port sets the AppSail listening port (equivalent to X_ZOHO_CATALYST_LISTEN_PORT).
+# Catalyst verifies the process is bound to this port within 10 seconds — if not, the instance is killed.
+catalyst deploy appsail --name <service-name> --source docker://<image>:<tag> \
   --command "node server.js" --port 8080
 ```
+
+### Path C — Non-interactive standalone managed runtime deploy (agent/CI-safe)
+
+Run from the Catalyst project root (directory containing `catalyst.json`).
+
+```bash
+# --build-path MUST be an absolute path — relative paths (e.g. ./appsail) fail silently at runtime
+catalyst deploy appsail \
+  --name <service-name> \
+  --build-path /absolute/path/to/appsail \
+  --stack node20 \
+  --command "node app.js"
+```
+
+> ⚠️ **`--build-path` must be an absolute path.** Relative paths are accepted by the CLI (no error) but the deployed app fails to start at runtime with "Execution failed. Please check the startup command or port." This is confirmed by runtime testing.
+
+> ⚠️ **`--port` flag is only for custom (Docker) runtimes.** Do not use it for managed runtimes — the port is always controlled via `X_ZOHO_CATALYST_LISTEN_PORT`.
 
 > ⚠️ **OCI-only:** Catalyst only accepts Linux AMD64 (x86-64) OCI-compliant images. ARM64 or non-OCI images will be rejected.
 
@@ -158,7 +186,7 @@ catalyst deploy appsail --name <service-name> --source docker://<image>:<tag> \
 
 Two paths depending on how the app was deployed:
 
-**CLI-initialized apps** (`catalyst appsail:init` or `catalyst appsail:add`):
+**CLI-initialized apps** (`catalyst appsail:add`):
 - Set `env_variables` in `app-config.json` — values are applied at deploy time and reflected in Console
 - Console edits made post-deploy are also applied immediately
 - On the next `catalyst deploy appsail`, values in `app-config.json` push to Console again
@@ -169,7 +197,7 @@ Two paths depending on how the app was deployed:
 
 > ⚠️ **Verify env vars after every deploy.** Console values are overwritten by `app-config.json` on each deploy. Any secret you set manually in the Console may be silently replaced.
 
-> ⚠️ **Do not use `CATALYST` in env var key names.** Keys containing `CATALYST` (e.g. `MY_CATALYST_KEY`) are rejected by the AppSail runtime. Use `ZOHO_` or a non-prefixed name instead. This restriction is not documented by Zoho but is consistently observed in production deployments.
+> ⚠️ **Avoid `CATALYST` in user-defined env var key names.** The AppSail runtime injects its own `CATALYST_*` system vars (`CATALYST_PROJECT_ID`, `CATALYST_MAX_TIMEOUT`, `CATALYST_USER_ENVIRONMENT`, `CATALYST_PROJECT_TIMEZONE`). User-defined keys with `CATALYST` in the name may conflict or be rejected — use `ZOHO_` prefix or a plain name without `CATALYST` to be safe. Runtime-confirmed system vars injected automatically: `X_ZOHO_CATALYST_LISTEN_PORT`, `X_ZOHO_CATALYST_ENVIRONMENT`, `X_ZOHO_CATALYST_RESOURCE_ID`, `X_ZOHO_CATALYST_RUNTIME_MEMORY`, `X_ZOHO_CATALYST_ACCOUNTS_URL`, `X_ZOHO_CATALYST_CONSOLE_URL`, `CATALYST_PROJECT_ID`, `CATALYST_MAX_TIMEOUT`, `CATALYST_USER_ENVIRONMENT`, `CATALYST_PROJECT_TIMEZONE`.
 
 ---
 
@@ -218,7 +246,7 @@ Configure via Console → Domain Mapping.
 
 - **Instances**: 1–5 for auto-scaling
 - **Memory**: 256–2048 MB per instance
-- **Stacks**: `node20`, `node18`, `java17`, `java11`, `python39`, `docker`
+- **Stacks**: `node24`, `node22`, `node20`, `node18`, `node16`, `node14`, `node12`, `java25`, `java21`, `java17`, `java11`, `java8`, `python_3_13`, `python_3_12`, `python_3_11`, `python_3_10` (managed runtimes); Docker/container apps use `catalyst.json` — no `stack` field
 
 ---
 
@@ -227,8 +255,8 @@ Configure via Console → Domain Mapping.
 | Error | Cause | Fix |
 |-------|-------|-----|
 | Env var missing after deploy | `app-config.json` was redeployed with a different or empty `env_variables` block, overwriting Console-set values | Keep all env vars in `app-config.json`; treat Console as read-only verification |
-| Env var key rejected (`CATALYST` in name) | Keys containing `CATALYST` are rejected by the AppSail runtime (undocumented restriction) | Rename the key — use `ZOHO_` prefix or a plain name without `CATALYST` |
-| App fails to start — port not listening | App bound to a hardcoded port instead of `X_ZOHO_CATALYST_LISTEN_PORT` | Use `process.env.X_ZOHO_CATALYST_LISTEN_PORT \|\| 9000` as the port |
+| Env var key conflicts with system var | AppSail runtime injects its own `CATALYST_*` and `X_ZOHO_CATALYST_*` vars; user-defined keys with same name are overwritten | Avoid `CATALYST` in user-defined key names; use `ZOHO_` prefix or plain names |
+| App fails to start — port not listening | App bound to a hardcoded port instead of `X_ZOHO_CATALYST_LISTEN_PORT`, OR `--build-path` was a relative path | Use `process.env.X_ZOHO_CATALYST_LISTEN_PORT \|\| 9000` as the port; always use an **absolute path** for `--build-path` |
 | `catalyst deploy appsail` stalls or prompts | No `--source` flag provided — CLI defaults to interactive managed runtime menus | Use `--name` and `--source docker://...` flags for non-interactive Docker deploy |
 | Managed runtime initialized instead of Docker Image | Selected wrong option in `catalyst appsail:add` interactive menu | Delete the AppSail entry from `catalyst.json`, then re-run `catalyst appsail:add` and select **Docker Image** |
 | `catalyst deploy appsail` ignores code changes | Ran without `--source` flag and no prior init — CLI prompted for config | Use standalone flags `--name`/`--source`, or run `catalyst appsail:add` interactively first |

@@ -3,7 +3,7 @@
 > This file serves two purposes: (1) MCP tool routing for agents with Zoho MCP connected,
 > and (2) behavioral rules every agent should follow when working on Catalyst projects.
 > For complete SDK patterns, architecture guidance, and service details, use the full skill
-> at `skills/SKILL.md` and its reference files.
+> at `catalyst-by-zoho/SKILL.md` and its reference files.
 
 ---
 

@@ -176,11 +176,12 @@ catalyst functions:add    # ⚠️ ALWAYS interactive — no --name/--type/--sta
      }
    }
    ```
-   Valid `type` values: `basicio`, `advancedio`, `event`, `cron`, `job`, `integration`, `browserlogic`
+   Valid `type` values: `basicio`, `advancedio`, `cron`, `job`, `event`, `integration`, `browserlogic`
+   (`browserlogic` for Browser Logic — NOT `browselogic`)
    Valid `stack` values:
-     Node.js: `node24`, `node22`, `node20`, `node18`
+     Node.js: `node24`, `node22`, `node20`, `node18`, `node16`, `node14`, `node12`
      Java:    `java25`, `java21`, `java17`, `java11`, `java8`
-     Python:  `python310`, `python39`
+     Python:  `python_3_13`, `python_3_12`, `python_3_11`, `python_3_10`
    (Prefer `node24` for new Node.js projects)
 3. Adding the function name to `catalyst.json` → `functions.targets` array:
    ```json
@@ -215,7 +216,7 @@ catalyst appsail:add --name <name> --stack <stack> --source <dir> --build <cmd> 
 | Flag | Description |
 |------|-------------|
 | `--name` | Service name (required) |
-| `--stack` | Runtime stack, e.g. `node18`, `java17`, `python_3_9` (required) |
+| `--stack` | Runtime stack, e.g. `node24`, `node22`, `java25`, `java21`, `python_3_13`, `python_3_12`, `python_3_11`, `python_3_10` (required) |
 | `--source` | Source directory path |
 | `--build` | Build command |
 | `--platform` | Target platform |
@@ -353,8 +354,8 @@ catalyst appsail:add --name my-api --stack node18
 # Java 17 WAR
 catalyst appsail:add --name my-service --stack java17
 
-# Python 3.9
-catalyst appsail:add --name my-app --stack python_3_9
+# Python 3.13
+catalyst appsail:add --name my-app --stack python_3_13
 
 # With all options
 catalyst appsail:add --name my-api --stack node18 --source ./server --build "npm run build" --platform linux --overwrite-config

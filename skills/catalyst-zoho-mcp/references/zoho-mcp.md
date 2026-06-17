@@ -3,23 +3,7 @@
 
 ---
 
-## Setup — Choose Your Path
-
-Before showing setup steps, ask the user:
-
-> There are two ways to connect Zoho MCP. Which do you prefer?
->
-> **Option A — Global MCP Server** *(recommended, new)*
-> One URL, no console setup. Your AI client opens a browser login once and you're done.
-> Best for: anyone getting started, or who doesn't want to manage their own server.
->
-> **Option B — Personal MCP Server** *(existing flow)*
-> Create your own server at mcp.zoho.com, configure tools, get a custom URL with a token embedded.
-> Best for: teams needing a shared/org-level server, or custom tool selection.
-
----
-
-### Option A — Global MCP Server *(recommended)*
+## Setup — Global MCP Server
 
 **Step 1 — Add this single URL to your AI client:**
 
@@ -72,67 +56,13 @@ Look for `CatalystbyZoho_*` tools in your client's tool list. Done.
 
 ---
 
-### Option B — Personal MCP Server *(existing flow)*
-
-**Step 1 — Create your server:**
-1. Go to [mcp.zoho.com](https://mcp.zoho.com) and create or open an MCP server
-2. Under **Tools → Config Tools**, search for **"Catalyst by Zoho"** and add all Catalyst tools
-3. Under **Connections**, set authorization to **"On Demand"**
-4. Click **Connect** → copy your server URL
-   - Format: `https://<server-name>-<org-id>.zohomcp.com/mcp/<auth-token>/message`
-
-**Step 2 — Configure your AI client** using your copied URL:
-
-**For Claude Desktop:**
-```json
-{
-  "mcpServers": {
-    "catalyst-by-zoho": {
-      "type": "streamable-http",
-      "url": "https://<server-name>-<org-id>.zohomcp.com/mcp/<auth-token>/message"
-    }
-  }
-}
-```
-
-**For Cursor:**
-```json
-{
-  "mcpServers": {
-    "catalyst-by-zoho": {
-      "type": "streamable-http",
-      "url": "https://<server-name>-<org-id>.zohomcp.com/mcp/<auth-token>/message"
-    }
-  }
-}
-```
-
-**For GitHub Copilot (VS Code):**
-```json
-{
-  "servers": {
-    "catalyst-by-zoho": {
-      "type": "http",
-      "url": "https://<server-name>-<org-id>.zohomcp.com/mcp/<auth-token>/message"
-    }
-  }
-}
-```
-
-> You can also copy the `.mcp.json` file from this repo into your project root and replace the `<YOUR_ZOHO_MCP_URL>` placeholder with your URL.
-
-**Step 3 — Verify:**
-After restarting your AI client, look for tools prefixed with `CatalystbyZoho_` in the tool list. If they appear, the MCP server is connected.
-
----
-
 ## Pre-flight Sequence
 
-Always run these two calls before any other MCP operation to set project context:
+Always run these calls before any other MCP operation to set project context:
 
 1. `CatalystbyZoho_List_All_Organizations` → get your org ID
 2. `CatalystbyZoho_List_All_Projects` (with org ID) → get your project ID
-3. `CatalystbyZoho_List_All_Tables` → verify access and get table names
+3. `CatalystbyZoho_List_All_Tables` *(DataStore operations only)* → verify access and get table names
 
 If there is more than one org or project, ask the user which one to use before proceeding.
 
@@ -148,6 +78,8 @@ The tools available depend on which Catalyst tools are configured in your Zoho M
 | `CatalystbyZoho_List_All_Projects` | List all Catalyst projects in the organization |
 | `CatalystbyZoho_List_All_Tables` | List all Data Store tables in the project |
 | `CatalystbyZoho_List_Cache_Segments` | List all Cache segments in the project |
+| `CatalystbyZoho_List_All_Jobpools` | List all Job Scheduling pools in the project |
+| `CatalystbyZoho_Create_Job_Pool` | Create a new Job Scheduling pool |
 
 For the full catalog of available tools, check your AI client's tool list after connecting — all tools shown with the `CatalystbyZoho_` prefix are available to use.
 
@@ -173,6 +105,17 @@ The AI calls the query tool with a ZCQL query against the correct table ID.
 
 The AI calls `CatalystbyZoho_List_All_Tables` then describes the schema.
 
+### Submit an immediate job
+
+> "Run ProcessOrderFunction now as a job"
+
+**Required pre-flight — always do this before calling `CatalystbyZoho_Create_Immediate_Job`:**
+1. Call `CatalystbyZoho_List_All_Jobpools` to get existing pools and their IDs.
+2. If no pools exist, call `CatalystbyZoho_Create_Job_Pool` first (type `"Function"`, memory e.g. `"256"`).
+3. Pass the `jobpool_id` from step 1 or 2 to `CatalystbyZoho_Create_Immediate_Job`.
+
+`jobpool_id` is a required field — there is no default or fallback. Job submission fails immediately if it is omitted.
+
 ---
 
 ## Common Errors
@@ -185,3 +128,5 @@ The AI calls `CatalystbyZoho_List_All_Tables` then describes the schema.
 | MCP server shows red/error *(Option B)* | Token expired or URL invalid | Regenerate the authenticated URL at mcp.zoho.com |
 | Browser auth loop not completing *(Option A)* | AI client doesn't support OAuth 2.0 browser flow | Check client version supports MCP 2025-03; try a different supported client |
 | MCP targets wrong environment | Zoho MCP defaults to Development | Switch environment explicitly in the Zoho MCP console if production is needed (use caution) |
+| `INVALID_INPUT: job_name must contain only alphanumeric and underscore` on `CatalystbyZoho_Create_Immediate_Job` | `job_name` contains hyphens or spaces | Use underscores only — `doc_audit_run_1` not `doc-audit-run-1` |
+| Job submission fails with missing field error | `jobpool_id` not provided to `CatalystbyZoho_Create_Immediate_Job` | Call `CatalystbyZoho_List_All_Jobpools` first; if none exist, call `CatalystbyZoho_Create_Job_Pool` then use the returned ID |

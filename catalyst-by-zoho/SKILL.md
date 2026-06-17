@@ -54,6 +54,31 @@ Look for `CatalystbyZoho_*` tools in your tool list.
 
 ---
 
+## Catalyst at a Glance
+
+New to Catalyst? Here's what each service does in one line:
+
+| Service | What it is |
+|---------|-----------|
+| **Functions** | Serverless functions — Basic I/O (HTTP), Advanced I/O, Event, Cron, Integration, Email Parser, Push Notification. Per-invocation billing. |
+| **AppSail** | PaaS for long-running web apps — Node.js, Java, Python managed runtimes, or any Docker container. |
+| **Data Store** | Relational tables (rows + columns, foreign keys). Queried via ZCQL (SQL-like) or SDK. |
+| **Stratus** | Object/file storage (like S3). Buckets, folders, objects. Up to 250 GB per object. |
+| **Slate** | Frontend hosting (like Vercel). Deploys React, Next.js, Vue, Angular, Svelte, Preact, Astro, SolidJS, static HTML. |
+| **Cache** | In-memory key-value store. Divided into segments. TTL in hours, max 48 h. |
+| **NoSQL** | Document storage with flexible schema (no fixed columns). For unstructured/polymorphic data. |
+| **Authentication** | Built-in user sign-up/login (ZAID). OAuth Connections for third-party APIs. |
+| **Zia Services** | Pre-trained AI/ML: OCR, Face Analytics, Text Analytics, Object Detection, Barcode, Moderation. |
+| **QuickML** | AutoML — train models on your own data without writing ML code. *(Not in EU/AU/IN/JP/SA/CA)* |
+| **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
+| **Signals** | Event-driven triggers / pub-sub (replaces legacy Event Listeners). |
+| **Job Scheduling** | Recurring/scheduled function execution (replaces legacy Cron). |
+| **Zoho MCP** | AI tool integration — lets AI agents manage Catalyst infrastructure via `CatalystbyZoho_*` tools. |
+| **ZCQL** | SQL-like query language for Data Store. `SELECT`, `INSERT`, `UPDATE`, `DELETE`. Max 300 rows per SELECT. |
+| **ZAID** | Zoho Account ID — the built-in auth identity layer. Used with Web SDK for user auth flows. |
+
+---
+
 ## Skill Routing Table
 
 | When the query is about… | Load this skill |

@@ -1,5 +1,65 @@
-> **⚠️ PRE-FLIGHT CHECK:** Before writing any function code, confirm `.catalystrc` and `catalyst.json`
-> exist. If not, STOP and tell the user to run `catalyst init` first.
+> **⚠️ PRE-FLIGHT CHECK (in order):**
+>
+> **Step 1 — MCP connection (MUST come first).**
+> Check that `CatalystbyZoho_*` tools are available. If they are NOT, STOP immediately.
+> Do NOT check for `.catalystrc`, do NOT run any CLI commands, do NOT scaffold any files.
+> Guide the user to set up Zoho MCP first (see the SKILL.md setup instructions). Resume only after the user confirms MCP tools are visible.
+>
+> **Step 2 — Project context.**
+> Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to confirm which project you are working in.
+>
+> **Step 3 — Local scaffold check.**
+> Check whether `.catalystrc` and `catalyst.json` exist in the current directory.
+> - **If they exist:** proceed.
+> - **If they do NOT exist:** Do NOT run `catalyst init` yourself. The CLI uses interactive prompts (arrow-key menus, multi-select checkboxes) that cannot be reliably controlled from a terminal session. Instead, tell the user:
+>
+>   > Your project is not initialised yet. Please run the following command in your terminal and complete the prompts yourself, then come back:
+>   > ```
+>   > catalyst init
+>   > ```
+>   > When asked which features to set up, select **"Configure and deploy http/non-http functions"**. Once done, confirm here and I'll continue.
+>
+>   Wait for the user to confirm before proceeding.
+
+## `catalyst-config.json` — `type` Field Values
+
+The `type` field is set by the CLI when a function is created. **Do not change it manually** — it determines how Catalyst invokes the function.
+
+| Function Type | `"type"` value |
+|---------------|----------------|
+| Basic I/O | `"basicio"` |
+| Advanced I/O | `"advancedio"` |
+| Cron | `"cron"` |
+| Job | `"job"` |
+| Event | `"event"` |
+| Integration | `"integration"` |
+| Browser Logic | `"browserlogic"` |
+
+> `"browserlogic"` for Browser Logic — NOT `"browselogic"`. Basic I/O is `"basicio"` — NOT `"basiccron"`.
+
+---
+
+Required `catalyst.json` schema for a functions project:
+
+```json
+{
+  "functions": {
+    "folder_path": "functions",
+    "targets": ["<function-folder-name>"]
+  }
+}
+```
+
+- `folder_path` is the directory containing all function folders.
+- `targets` lists each function folder name to be deployed.
+- Add every new function folder to `targets` before running deploy.
+- `catalyst.json` is project structure metadata; `catalyst-config.json` is per-function runtime/deployment configuration.
+
+### Deployment Command Note
+
+- Use `catalyst deploy --only functions:<function-name>` to deploy one function.
+- `functions:<name>` targets a specific function by its folder name.
+- Use `catalyst deploy --only functions` to deploy all functions at once.
 
 ---
 
@@ -7,7 +67,7 @@
 
 | Type | Invocation | Handler Args (Node.js) | SDK Init |
 |------|-----------|----------------------|----------|
-| Basic I/O | HTTP GET | `(context, basicIO)` | `catalyst.initialize(context)` |
+| Basic I/O | HTTP GET | `(context, basicIO)` | Optional (only if using Catalyst services) |
 | Advanced I/O | HTTP any method | `(req, res)` | `catalyst.initialize(req)` |
 | Event | Signals/Event Listeners | `(event, context)` | `catalyst.initialize(context)` |
 | Cron | Scheduled | `(cronDetails, context)` | `catalyst.initialize(context)` |
@@ -45,18 +105,21 @@ const catalyst = require('zcatalyst-sdk-node');
 
 module.exports = (context, basicIO) => {
   try {
-    const catalystApp = catalyst.initialize(context);
-    const inputData = context.getArgument();
+    // catalyst.initialize(context) — optional, only needed if using Catalyst services (DataStore, ZIA, etc.)
+    const inputData = basicIO.getArgument('input');  // key name matches query param in URL
     const result = `Processed: ${inputData}`;
     basicIO.write(result);  // Can only call write() ONCE
   } catch (error) {
     console.error('Error:', error);
     basicIO.write(JSON.stringify({ error: error.message }));
   }
+  context.close();  // REQUIRED — without this, Catalyst waits until timeout (408)
 };
 ```
 
-Invocation: `GET /server/my_basic_io/execute?args=<input_string>`
+Invocation: `GET /server/my_basic_io/execute?input=<value>`
+
+> The query param key (`input` here) must match the string you pass to `basicIO.getArgument()`. There is no special `args` key.
 
 Limitations:
 - Returns **STRING only** — use Advanced I/O for JSON responses.
@@ -150,7 +213,8 @@ them automatically (if Slate domain is in Authorized Domains → CORS toggle ena
 Only set CORS headers for `localhost` (local dev):
 
 ```javascript
-app.use((req, res, next) => {
+// Raw-http template — no app.use() or next() here. Add directly in your handler:
+module.exports = async (req, res) => {
   const origin = req.headers.origin || '';
   if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -159,126 +223,15 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
   }
-  next();
-});
+  // ... rest of your handler
+};
 ```
+
+> For Express template, use `app.use((req, res, next) => { ... next(); })` — see `functions-advanced.md`.
 
 ### HTTP payload limits
 - Request body: **250 MB**
 - Response body: **250 MB**
-
----
-
-## Event Function Template
-
-```javascript
-'use strict';
-const catalyst = require('zcatalyst-sdk-node');
-
-module.exports = (event, context) => {
-  try {
-    const catalystApp = catalyst.initialize(context);
-    const eventData = JSON.parse(event.getArgument());
-    console.log('Event received:', eventData);
-    context.close();
-  } catch (error) {
-    console.error('Event processing error:', error);
-    context.close();
-  }
-};
-```
-
----
-
-## Cron Function Template
-
-```javascript
-'use strict';
-const catalyst = require('zcatalyst-sdk-node');
-
-module.exports = async (cronDetails, context) => {
-  try {
-    const catalystApp = catalyst.initialize(context);
-    context.closeWithSuccess();
-  } catch (error) {
-    context.closeWithFailure();
-  }
-};
-```
-
----
-
-## Job Function Template
-
-```javascript
-'use strict';
-const catalyst = require('zcatalyst-sdk-node');
-
-module.exports = async (jobData, context) => {
-  try {
-    // ALWAYS use admin scope — Job functions have no USER token.
-    // Using user scope (or omitting scope) for DataStore operations will
-    // silently hang with unauthenticated requests until the 15-min timeout.
-    const catalystApp = catalyst.initialize(context, { scope: 'admin' });
-    const jobDetails = jobData.getAllJobParams();
-    const maxMs = context.getMaxExecutionTimeMs(); // 15 minutes
-
-    // DataStore operations — safe with admin scope
-    const zcql = catalystApp.zcql();
-    const rows = await zcql.executeZCQLQuery('SELECT * FROM MyTable LIMIT 0, 300');
-
-    context.closeWithSuccess();
-  } catch (error) {
-    context.closeWithFailure();
-  }
-};
-```
-
-> ⚠️ **DataStore SDK in Job functions (Node.js):** Initialize with `{ scope: 'admin' }`. Without it, `zcql()` and `datastore()` methods make unauthenticated requests that silently hang for up to 60 s per attempt and burn toward the 15-minute timeout. The 15-minute limit is the same whether the job is scheduled, triggered from the Console, or submitted via the API.
-
----
-
-## Integration Function Template
-
-```javascript
-'use strict';
-const catalyst = require('zcatalyst-sdk-node');
-
-module.exports = (event, context) => {
-  try {
-    const catalystApp = catalyst.initialize(context);
-    const integrationData = JSON.parse(event.getArgument());
-    context.close();
-  } catch (error) {
-    context.close();
-  }
-};
-```
-
-> Integration functions are NOT available in EU, AU, IN, JP, SA, or CA data centers.
-
----
-
-## SDK Setup
-
-```bash
-npm install zcatalyst-sdk-node
-```
-
-```javascript
-// All components via catalystApp:
-const dataStore = catalystApp.datastore();
-const table = dataStore.table('TableName');
-const zcql = catalystApp.zcql();
-const cache = catalystApp.cache();
-const stratus = catalystApp.stratus();
-const email = catalystApp.email();
-const userManagement = catalystApp.userManagement();
-const pushNotification = catalystApp.pushNotification();
-const search = catalystApp.search();
-const nosql = catalystApp.nosql();
-const connection = catalystApp.connection();
-```
 
 ---
 
@@ -290,51 +243,3 @@ const connection = catalystApp.connection();
 ⚠️ Values like `no_auth`, `user_auth`, `admin_auth` do NOT exist.
 
 Security Rules are binary (public vs authenticated). For admin-only or per-route control, use API Gateway instead.
-
----
-
-## Retry Behavior
-
-| Function Type | Auto-retry on failure? |
-|---------------|----------------------|
-| Basic I/O | No |
-| Advanced I/O | No |
-| Event | Yes |
-| Cron | Yes |
-| Job | Yes |
-| Integration | No |
-| Browser Logic | No |
-
-Design background function handlers to be **idempotent** (safe to run multiple times).
-
----
-
-## Cold Starts
-
-| Runtime | Cold start | Warm invocation |
-|---------|-----------|-----------------|
-| Node.js | 500ms–2s | 50–200ms |
-| Java | 2–8s | 50–200ms |
-| Python | 500ms–2s | 50–200ms |
-
-**Mitigation:** Keep packages small, avoid heavy initialization outside the handler, use Job Scheduling to ping critical functions warm.
-
----
-
-## Common Errors
-
-| Mistake | Fix |
-|---------|-----|
-| `res.status()` / `res.json()` in node20 | Use `res.writeHead()` + `res.end()` |
-| `req.body` undefined | Manually parse with `getBody()` helper |
-| `req.query` undefined | Use `new URL(req.url, ...).searchParams` |
-| `basicIO.write()` called twice | Can only be called once per execution |
-| Admin-scope for `getCurrentUser()` | Use user-scope: `catalyst.initialize(req)` |
-| `req.headers['authorization']` is undefined | Gateway strips it; use `catalyst.initialize(req)` |
-| Using `cors()` middleware with Slate | Gateway owns CORS for production origins |
-| `new Date(row.CREATEDTIME)` wrong timezone | Append timezone offset before parsing |
-| Inserting emoji into Data Store | Store a string key instead |
-| Not paginating ZCQL | Max 300 rows per query; use `LIMIT offset, count` |
-| `is_deployed: false` in API responses | Not a reliable deployment indicator — all functions return this value regardless of whether they are live; verify status in the Console instead |
-| DataStore/ZCQL silently hangs in Job/Event/Cron functions | `catalyst.initialize(context)` without `scope: 'admin'` makes unauthenticated requests that stall 60 s each | Add `{ scope: 'admin' }`: `catalyst.initialize(context, { scope: 'admin' })` |
-| Need to read >300 rows in a Job function | ZCQL cap is 300 rows; paginating inside a 15-min limit is risky for large tables | Use the Bulk Read REST API (async CSV job) for large-volume reads outside the function |

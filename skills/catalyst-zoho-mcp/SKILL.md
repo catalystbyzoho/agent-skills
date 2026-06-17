@@ -37,4 +37,4 @@ Use this skill for: "Zoho MCP", "MCP tools", "catalyst MCP", "create table with 
 
 | Reference | Load when the query is about… |
 |-----------|-------------------------------|
-| `references/zoho-mcp.md` | Both MCP setup paths (Global server + Personal server), all available CatalystbyZoho_* tools, execution flow, org→project pre-flight sequence, common MCP errors |
+| `references/zoho-mcp.md` | Global MCP server setup (all 3 clients), all available CatalystbyZoho_* tools, execution flow, org→project pre-flight sequence, common MCP errors |

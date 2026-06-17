@@ -15,7 +15,7 @@ skills/
       {topic}.md                    ← detailed technical content loaded on demand
 ```
 
-The routing `skills/SKILL.md` routes queries to service-level skills. Service skills route to reference files. **Never inline detailed technical content in a SKILL.md** — it gets loaded on every match and bloats the context window.
+The routing `catalyst-by-zoho/SKILL.md` routes queries to service-level skills. Service skills route to reference files. **Never inline detailed technical content in a SKILL.md** — it gets loaded on every match and bloats the context window.
 
 ---
 
@@ -119,7 +119,7 @@ Brief one-line intro.
 
 1. Create `skills/catalyst-{service}/SKILL.md` following the format above.
 2. Create `skills/catalyst-{service}/references/{service}-basics.md` with the core technical content.
-3. Add a row to the routing table in `skills/SKILL.md`.
+3. Add a row to the routing table in `catalyst-by-zoho/SKILL.md`.
 4. Set `metadata.version: "2.0.0"` (inherit the current major version).
 5. Update `README.md` to list the new skill.
 
@@ -130,7 +130,7 @@ Brief one-line intro.
 - **Content fix** (wrong code, outdated API): bump patch version in the affected `SKILL.md` (`2.0.0` → `2.0.1`).
 - **New reference file added**: bump minor version (`2.0.0` → `2.1.0`).
 - **SKILL.md structure change** (new section, renamed heading): bump minor version.
-- **Breaking change** (skill renamed, routing changed): bump major version and update `skills/SKILL.md` routing table.
+- **Breaking change** (skill renamed, routing changed): bump major version and update `catalyst-by-zoho/SKILL.md` routing table.
 
 ---
 

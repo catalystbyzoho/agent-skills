@@ -28,10 +28,12 @@ catalyst whoami         # confirm logged-in user
 
 ### Step 2 — Find your Org ID
 
-Your Org ID appears in the Catalyst Console URL:
-`https://catalyst.zoho.com/org/<ORG_ID>/home`
+Open the Catalyst Console at `https://console.catalyst.zoho.com/baas/index`. Your Org ID appears in the URL once you're inside an org:
+`https://console.catalyst.zoho.com/baas/{OrgID}/index`
 
 Copy that number — you'll need it when prompted during `catalyst init`.
+
+> **First time?** If you haven't created a Catalyst project yet, go to the console → **Create Project** first. Then return here. `catalyst init` only links to existing projects — it cannot create them.
 
 ### Step 3 — Initialize the project
 
@@ -101,8 +103,8 @@ This creates:
 
 ### Step 4 — Find your Project ID
 
-After `catalyst init`, your Project ID is in the Catalyst Console URL when you open the project:
-`https://catalyst.zoho.com/org/<ORG_ID>/project/<PROJECT_ID>/`
+After `catalyst init`, open the Catalyst Console and navigate to your project. Your Project ID appears in the URL:
+`https://console.catalyst.zoho.com/baas/<ORG_ID>/project/<PROJECT_ID>/`
 
 ### Step 5 — Add a function
 
