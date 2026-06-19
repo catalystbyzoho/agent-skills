@@ -715,7 +715,11 @@ catalyst <command> --help
 ### Critical Rules
 
 - **`--production` flag warning**: Any command with `--production` targets the live production environment. Always double-check the project context before using this flag.
-- **Always confirm project before mutating**: Run `catalyst whoami` and verify the project context before running any destructive or deployment command.
+- **Always confirm project before mutating**: Run `catalyst whoami` and verify the project context before running any destructive or deployment command. Print org ID, project ID, project name, DC, component name, and target environment before deploy **or cleanup**.
+- **Timeout silent CLI**: If any `catalyst` command produces no output for ~60 seconds, stop retrying. Record `catalyst --version`, Node/runtime versions, and switch strategy.
+- **Non-interactive stdin**: In agent or CI terminals, pipe stdin closed when a command may wait for input: `catalyst deploy appsail ... </dev/null` or run from an interactive user terminal.
+- **Colima on macOS**: If Docker commands fail mysteriously, verify the active socket. For Colima: `export ZC_DOCKER_SOCK_PATH="$HOME/.colima/default/docker.sock"` (or your Colima socket path) before AppSail Docker deploy.
+- **CLI tokens ≠ REST OAuth**: Output from `catalyst token:generate` is for Catalyst CLI/automation — not a generic REST `Authorization: Bearer` token unless docs explicitly say otherwise.
 
 ---
 
@@ -737,6 +741,8 @@ catalyst <command> --help
 | Token expired | Stale auth token | Run `catalyst token:generate` or `catalyst login --force` |
 | IAC status stuck | Long-running import/export | Run `catalyst iac:status` to check progress |
 | DS import fails | Malformed CSV or schema mismatch | Verify CSV format matches table schema; run `catalyst ds:status` |
+| CLI hangs with 0% CPU, no stdout | Node/CLI pairing issue or open stdin in non-interactive terminal | Stop after ~60s; try supported Node LTS; close stdin with `</dev/null`; ask user to run manually if hang persists |
+| AppSail Docker build fails on Mac | Wrong Docker socket (Colima vs Docker Desktop) | Set `ZC_DOCKER_SOCK_PATH` to the active provider socket before deploy |
 
 ### Debugging
 
