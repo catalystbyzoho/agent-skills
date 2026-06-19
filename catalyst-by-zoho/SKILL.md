@@ -77,6 +77,21 @@ Look for `CatalystbyZoho_*` tools in your tool list.
 
 ---
 
+## Agent Danger Zone
+
+Before taking action in a Catalyst project, follow these hard rules:
+
+1. **Verify target identity before deploy or cleanup.** Print and verify org ID, project ID, project name, data center, component name, and target environment. Never infer these from memory or copied config. Run `catalyst whoami` and read `.catalystrc` before any destructive or deploy command.
+2. **Do not run interactive setup commands.** `catalyst init`, `catalyst login`, and menu-driven component-add flows can stall in agent/CI terminals. If required local config is missing, stop and ask the user to initialize it in their own terminal.
+3. **Timeout silent CLI commands.** If a Catalyst CLI command produces no output for about 60 seconds, stop retrying the same command. Record CLI version, Node/runtime context, and switch to a documented fallback or ask the user to complete the step manually.
+4. **Treat deployment success as untrusted.** Verify the deployed endpoint, logs, and one real behavior or artifact before declaring success. A green CLI exit code is not enough.
+5. **Treat cleanup as destructive.** Deleting, disabling, or overwriting Catalyst resources requires explicit user approval and a final target-ID check.
+6. **Capture product/docs/tool disagreements.** If docs, CLI behavior, SDK behavior, and MCP behavior disagree, document the discrepancy and ask for confirmation instead of guessing.
+
+For deploy/debug loops, also load `catalyst-by-zoho/references/agent-decision-tree.md`.
+
+---
+
 ## Catalyst at a Glance
 
 New to Catalyst? Here's what each service does in one line:

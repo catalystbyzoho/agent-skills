@@ -321,6 +321,43 @@ Configure via Console → Domain Mapping.
 
 ---
 
+## OAuth and Domain Architecture
+
+Catalyst services run on different host patterns. **Session cookies do not cross domains.**
+
+| Host pattern | Typical use |
+|--------------|-------------|
+| `*.catalystserverless.in` | Functions, OAuth callbacks on function domain |
+| `*.catalystappsail.in` | AppSail apps |
+| `*.onslate.in` | Slate-hosted frontends |
+
+**Rule:** An OAuth/login function on `catalystserverless.in` that sets a session cookie will **not** authenticate requests to an AppSail app on `catalystappsail.in`. Options:
+
+- Host OAuth inside the AppSail app (same origin)
+- Use Catalyst domain mapping so auth and app share one domain
+- Use server-side token exchange instead of cross-domain cookies
+
+---
+
+## Filesystem Durability
+
+AppSail container filesystem is **not durable production storage**. Local files written at runtime can disappear on restart, redeploy, or scale events. Use Stratus or Data Store for anything that must survive.
+
+---
+
+## Post-Deploy Verification
+
+Do not declare AppSail success after CLI success alone. Verify:
+
+- Hosted URL returns expected HTTP status
+- One real application route or API call succeeds
+- Logs do not show startup/port binding failure
+- Expected side effects (DB row, Stratus object, etc.) exist when applicable
+
+If the hosted URL briefly reports AppSail disabled immediately after deploy, wait briefly and recheck status before changing configuration.
+
+---
+
 ## Common Errors
 
 | Error | Cause | Fix |
