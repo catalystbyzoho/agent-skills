@@ -26,6 +26,18 @@ If the skill produces incorrect code, recommends deprecated services, or misses 
 - **Better examples**: Adding real-world code patterns that work out of the box
 - **Deprecation updates**: Updating deprecated service warnings as EOL dates pass
 - **MCP tool coverage**: Adding new Zoho MCP tool patterns as they become available
+- **Agent guardrails**: Operational rules that stop agents from silent hangs, wrong-project deploys, or false "deploy succeeded" conclusions
+
+### Agent-readiness workflow (optional but high-value)
+
+For failures that waste agent time (CLI hangs, auth/domain traps, Job runtime surprises):
+
+1. Capture a **finding packet** using [`docs/finding-packet-template.md`](docs/finding-packet-template.md) — sanitize all project IDs, tokens, and URLs.
+2. Classify whether the fix belongs in **product**, **docs**, or **skill** guidance.
+3. If the skill change is testable, add or reference an eval case in [`evals/`](evals/) (see [`evals/README.md`](evals/README.md)).
+4. Open a PR linking the guardrail to the finding packet or eval case ID.
+
+Example sanitized packet: [`docs/examples/appsail-cli-hang-env-ambiguity.md`](docs/examples/appsail-cli-hang-env-ambiguity.md).
 
 ### Skill folder structure
 

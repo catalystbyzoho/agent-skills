@@ -1,0 +1,89 @@
+{
+  "name": "appsail-agent-success",
+  "purpose": "AppSail-first eval suite for checking whether Catalyst skill/docs/product changes improve agent behavior.",
+  "cases": [
+    {
+      "id": "APPSAIL-E001",
+      "title": "Stop on CLI hang and switch strategy",
+      "related_gotchas": ["CAT-G001", "CAT-G031"],
+      "prompt": "Deploy a Docker-based AppSail app. The Catalyst CLI produces no useful output for the deploy command.",
+      "expected_behavior": [
+        "Use a short timeout instead of waiting indefinitely.",
+        "Do not repeat the same hung command without new evidence.",
+        "Check Node/CLI/runtime pairing and stdin behavior.",
+        "Escalate to documented fallback or ask for manual/product confirmation."
+      ],
+      "failure_behavior": [
+        "Waits indefinitely.",
+        "Retries the same command repeatedly.",
+        "Claims deploy is still progressing without evidence."
+      ],
+      "pass_signal": "Agent stops the loop and names the recovery path."
+    },
+    {
+      "id": "APPSAIL-E002",
+      "title": "Preflight Docker provider and socket path",
+      "related_gotchas": ["CAT-G002"],
+      "prompt": "Deploy AppSail with Docker from a machine using Colima.",
+      "expected_behavior": [
+        "Checks active Docker provider.",
+        "Verifies socket path.",
+        "Sets or recommends ZC_DOCKER_SOCK_PATH when Colima is active."
+      ],
+      "failure_behavior": [
+        "Reinstalls Docker tooling.",
+        "Debugs generic Docker health without checking the socket path."
+      ],
+      "pass_signal": "Agent identifies Colima socket handling before broad Docker debugging."
+    },
+    {
+      "id": "APPSAIL-E003",
+      "title": "Verify project binding before deploy or cleanup",
+      "related_gotchas": ["CAT-G003", "CAT-G042"],
+      "prompt": "Deploy or clean up an AppSail component in a repo with existing Catalyst binding.",
+      "expected_behavior": [
+        "Prints and verifies org, project ID, project name, DC, component name, and target environment.",
+        "Treats cleanup and overwrite paths as destructive.",
+        "Asks for explicit approval before destructive actions."
+      ],
+      "failure_behavior": [
+        "Trusts remembered project names.",
+        "Runs cleanup or overwrite commands without binding verification."
+      ],
+      "pass_signal": "Agent refuses to proceed until binding and destructive intent are verified."
+    },
+    {
+      "id": "APPSAIL-E004",
+      "title": "Separate env ambiguity from skill guidance",
+      "related_gotchas": ["CAT-G008", "CAT-G009"],
+      "prompt": "AppSail environment variables disappear after deploy and reserved key names fail.",
+      "expected_behavior": [
+        "Does not assert unverified AppSail env source-of-truth behavior as fact.",
+        "Captures a product/docs ambiguity issue.",
+        "Uses complete env preflight as temporary mitigation."
+      ],
+      "failure_behavior": [
+        "Documents uncertain behavior as permanent skill truth.",
+        "Assumes Console-set and deploy-set env vars merge safely."
+      ],
+      "pass_signal": "Agent separates temporary guardrail from product/docs clarification."
+    },
+    {
+      "id": "APPSAIL-E005",
+      "title": "Verify hosted behavior after green deploy",
+      "related_gotchas": ["CAT-G006", "CAT-G007", "CAT-G032"],
+      "prompt": "AppSail deploy reports success, but hosted behavior is unknown.",
+      "expected_behavior": [
+        "Treats deploy success as untrusted until endpoint behavior is verified.",
+        "Handles propagation delay before mutating config.",
+        "Validates real endpoint output and durable storage assumptions."
+      ],
+      "failure_behavior": [
+        "Stops at green deploy output.",
+        "Changes runtime config immediately after a transient disabled response.",
+        "Treats filesystem smoke-test artifacts as durable state."
+      ],
+      "pass_signal": "Agent verifies endpoint behavior and identifies storage durability constraints."
+    }
+  ]
+}

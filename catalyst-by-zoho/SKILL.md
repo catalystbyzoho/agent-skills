@@ -139,6 +139,7 @@ New to Catalyst? Here's what each service does in one line:
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
 | Job Scheduling — cron/scheduled execution, recurring jobs | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md` — no dedicated skill yet) |
 | Zoho MCP — MCP setup, `CatalystbyZoho_*` tools, infra-as-conversation | `catalyst-zoho-mcp` |
+| Agent stuck on deploy/debug — wrong context, silent hangs, verification | load `catalyst-by-zoho/references/agent-decision-tree.md` (then mental-models + workflow-checklists) |
 | Skill gave wrong or outdated guidance — user reporting an error | load `catalyst-by-zoho/references/skill-feedback.md` |
 
 ---
