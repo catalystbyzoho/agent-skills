@@ -3,7 +3,7 @@ name: catalyst-functions
 description: "Catalyst serverless functions — all 7 types (Basic I/O, Advanced I/O, Event, Cron, Job, Integration, Browser Logic), handler signatures, catalyst-config.json, Security Rules, API Gateway routing, file uploads, busboy, Express middleware, environment variables, function URL, and function testing. Trigger on 'write a function', 'catalyst function', 'API Gateway', 'Security Rules', 'function not found', 'function returns 401', 'busboy', 'middleware', 'function URL', 'environment variable in function', or any function type question. Do NOT use for persistent servers, long-running processes, WebSockets, or Docker deployments — use catalyst-appsail instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`) and Node.js v20 (recommended; v14–v18 also supported). Java functions also require JDK 8, 11, or 17. Python functions require Python 3.9."
 metadata:
-  version: "2.0.0"
+   version: "2.0.1"
 ---
 
 ## How It Works
@@ -11,26 +11,16 @@ metadata:
 1. **Establish MCP connection first — HARD STOP if not connected.**
    Check whether `CatalystbyZoho_*` tools are available in the current tool list.
    - **If available:** Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to set project context, then proceed to step 2.
-   - **If NOT available:** Do NOT write any code, scaffold any files, or run any CLI commands. Present the two options below and wait for the user to confirm `CatalystbyZoho_*` tools are visible before continuing.
+   - **If NOT available:** Do NOT write any code, scaffold any files, or run any CLI commands. Route setup to `catalyst-zoho-mcp` and wait for the user to confirm `CatalystbyZoho_*` tools are visible before continuing.
 
    ---
 
-   **To use Catalyst via AI, you need the Zoho MCP Global Server connected.**
-   Add a single URL to your AI client config, authorize once via browser, and you're done.
+   **To use Catalyst via AI, connect Zoho MCP first.**
+   Load `skills/catalyst-zoho-mcp/SKILL.md` and follow its setup flow.
+   - Option A: Global MCP Server (DC-specific endpoint)
+   - Option B: Personal MCP Server (mcp.zoho.com)
 
-   *Claude Desktop* — edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-   ```json
-   { "mcpServers": { "catalyst-by-zoho": { "type": "streamable-http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
-   ```
-   *Cursor* — create or edit `.cursor/mcp.json` in your project root:
-   ```json
-   { "mcpServers": { "catalyst-by-zoho": { "type": "streamable-http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
-   ```
-   *GitHub Copilot (VS Code)* — create `.vscode/mcp.json` in your workspace root:
-   ```json
-   { "servers": { "catalyst-by-zoho": { "type": "http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
-   ```
-   Restart your AI client → authorize via browser when prompted → look for `CatalystbyZoho_*` tools to confirm.
+   Use `skills/catalyst-zoho-mcp/references/zoho-mcp.md` for exact client config and verification steps.
 
    ---
 

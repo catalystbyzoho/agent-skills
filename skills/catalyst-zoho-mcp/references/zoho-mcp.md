@@ -5,7 +5,26 @@
 
 ## Setup — Global MCP Server
 
-**Step 1 — Add this single URL to your AI client:**
+**Step 1 — Choose your Data Center (DC) URL:**
+
+The Catalyst global MCP endpoint changes by data center. Use the URL that matches your Zoho account's DC.
+
+| DC | Region | Global MCP base URL |
+|------|------|------|
+| US | United States | `https://catalyst.zohomcp.com` |
+| EU | Europe | `https://catalyst.zohomcp.eu` |
+| IN | India | `https://catalyst.zohomcp.in` |
+| AU | Australia | `https://catalyst.zohomcp.com.au` |
+| CA | Canada | `https://catalyst.zohomcp.ca` |
+| SA | Saudi Arabia | `https://catalyst.zohomcp.sa` |
+| JP | Japan | `https://catalyst.zohomcp.jp` |
+| UAE | United Arab Emirates | `https://catalyst.zohomcp.ae` |
+
+For MCP client configs, append `/mcp/message` to the base URL.
+
+**Step 2 — Add your DC-specific URL to your AI client:**
+
+Replace `<dc-base-url>` with your DC base URL from the table above.
 
 **For Claude Desktop** — edit `claude_desktop_config.json`
 (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -16,7 +35,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "mcpServers": {
     "catalyst-by-zoho": {
       "type": "streamable-http",
-      "url": "https://catalyst.zohomcp.com/mcp/message"
+      "url": "<dc-base-url>/mcp/message"
     }
   }
 }
@@ -29,7 +48,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "mcpServers": {
     "catalyst-by-zoho": {
       "type": "streamable-http",
-      "url": "https://catalyst.zohomcp.com/mcp/message"
+      "url": "<dc-base-url>/mcp/message"
     }
   }
 }
@@ -42,16 +61,16 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "servers": {
     "catalyst-by-zoho": {
       "type": "http",
-      "url": "https://catalyst.zohomcp.com/mcp/message"
+      "url": "<dc-base-url>/mcp/message"
     }
   }
 }
 ```
 
-**Step 2 — Authorize:**
+**Step 3 — Authorize:**
 Restart your AI client. It will open a browser window and prompt you to log in to your Zoho account and grant access. This happens once — the token is stored automatically by the client.
 
-**Step 3 — Verify:**
+**Step 4 — Verify:**
 Look for `CatalystbyZoho_*` tools in your client's tool list. Done.
 
 ---
