@@ -11,7 +11,7 @@ Use this file when a user asks "which Catalyst service should I use for X?" or i
 | If you need… | Use | Do NOT use |
 |---|---|---|
 | Stateless HTTP endpoints, event-driven logic, scheduled jobs, or Zoho service integrations | **Functions** | AppSail |
-| A persistent server process, WebSockets, long-running background workers, or a custom Docker container | **AppSail** | Functions |
+| A persistent server process, long-running background workers, or a custom Docker container | **AppSail** | Functions |
 | Visual workflow orchestration across multiple functions (parallel/sequential) | **Circuits** | Manual function chaining in code — *check DC restriction first* |
 
 **Rule:** Default to Functions. Reach for AppSail only when the process genuinely cannot be stateless. Functions bill per invocation; AppSail bills per instance uptime.

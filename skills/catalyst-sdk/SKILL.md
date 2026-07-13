@@ -2,7 +2,7 @@
 name: catalyst-sdk
 description: "Catalyst SDKs — initialization patterns, service access, and method reference for Node.js, Web (browser), Python, Java, Android, iOS, and Flutter. Trigger on 'SDK', 'zcatalyst-sdk-node', 'Node.js SDK', 'Web SDK', 'Python SDK', 'Java SDK', 'Android SDK', 'iOS SDK', 'Flutter SDK', or 'initialize SDK'."
 metadata:
-  version: "2.0.0"
+  version: "2.0.2"
 ---
 
 ## How It Works

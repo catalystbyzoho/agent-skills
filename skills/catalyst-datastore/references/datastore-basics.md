@@ -177,6 +177,62 @@ JOINs are subject to the same 300-row result limit.
 - `encrypted text` — for sensitive data; `search_index_enabled` NOT allowed
 - `text area` — for large text
 
+### Boolean Columns — Critical Behavior
+
+⚠️ **Boolean columns in Catalyst DataStore are stored as TEXT strings `"true"` and `"false"`, not as JavaScript booleans.**
+
+This is one of the most common silent bugs in DataStore apps. In JavaScript, the string `"false"` is **truthy** — so any boolean check against an unconverted value will behave incorrectly.
+
+```javascript
+// ❌ WRONG — string "false" is truthy, all booleans appear true
+const { data } = await table.getPagedRows({ maxRows: 200 });
+// data[0].completed === "false"  (string, not boolean)
+if (data[0].completed) {
+  // This block EXECUTES even though the value is "false"!
+}
+
+// ❌ WRONG — storing a JS boolean; DataStore coerces it to the string "false"
+await table.insertRow({ title: 'Buy milk', completed: false });
+// Stored as: "false" (string) — not a bug, but makes reading back consistent
+```
+
+```javascript
+// ✅ CORRECT — always convert boolean columns on read
+const { data } = await table.getPagedRows({ maxRows: 200 });
+const rows = data.map(todo => ({
+  ...todo,
+  completed: todo.completed === 'true' || todo.completed === true
+}));
+
+// ✅ CORRECT — explicit string on write (self-documenting)
+await table.insertRow({ title: 'Buy milk', completed: 'false' });
+
+// ✅ CORRECT — convert boolean to string on update
+await table.updateRow({
+  ROWID: id,
+  completed: isCompleted ? 'true' : 'false'
+});
+```
+
+**Reusable helper (recommended for any table with boolean columns):**
+```javascript
+function convertBooleanFields(row, booleanColumns = []) {
+  const result = { ...row };
+  booleanColumns.forEach(col => {
+    if (col in result) {
+      result[col] = result[col] === 'true' || result[col] === true;
+    }
+  });
+  return result;
+}
+
+// Usage
+const { data } = await table.getPagedRows({ maxRows: 200 });
+const todos = data.map(row => convertBooleanFields(row, ['completed', 'isActive']));
+```
+
+**Why this happens:** DataStore maps the `boolean` column type to TEXT internally for compatibility across SDK and ZCQL query methods. The values `"true"` and `"false"` are always strings at the API boundary.
+
 ---
 
 ## Data Store Permissions
@@ -255,6 +311,6 @@ Data Store does NOT support multi-statement transactions.
 |-------|-------|-----|
 | `HTTP 429 Too Many Requests` on bulk write | Bulk write queue is full | Reduce batch size; implement exponential backoff; contact Catalyst support to increase limit |
 | ZCQL returns fewer rows than expected | ZCQL SELECT hard limit is **300 rows** per query (not 200) | Paginate with `LIMIT offset, 300` — e.g., `LIMIT 0, 300`, then `LIMIT 300, 300`; for full-table scans use `getPagedRows()` (default: 200 rows per page; returns `{ data, next_token, more_records }`) |
-| ZCQL silently hangs in Job/Cron/Event function | `catalyst.initialize(context)` without `scope: 'admin'` makes unauthenticated requests | Use `catalyst.initialize(context, { scope: 'admin' })` in non-HTTP function types |
 | `Column not found` on insert | Column name case mismatch or column not yet created | Column names are case-sensitive; verify in Console → Data Store |
 | `ZCQL query exceeds 20-column SELECT limit` | ZCQL limits SELECT to 20 columns per query | Split into multiple queries or use `SELECT *` (counts as 1) |
+| Boolean field is always `true` in frontend | DataStore boolean columns return strings `"true"`/`"false"` — string `"false"` is truthy in JavaScript | Convert on read: `row.completed === 'true' \|\| row.completed === true`; use `convertBooleanFields()` helper |

@@ -59,6 +59,8 @@ const dataStore = adminApp.datastore();
 
 ## Web SDK Auth (Client-Side)
 
+### For Legacy Web Client Hosting
+
 ```javascript
 // Sign up
 await catalyst.auth.signUp({
@@ -66,16 +68,41 @@ await catalyst.auth.signUp({
   last_name: lastName,
   email_id: email,
   platform_type: 'web',
-  redirect_url: window.location.origin + '/app/index.html'
+  redirect_url: window.location.origin + '/app/index.html'  // Legacy path
 });
 
-// Check if logged in
-const isLoggedIn = catalyst.auth.isUserAuthenticated();
-// Returns user object on success, rejects with 401 on failure
+// Logout
+catalyst.auth.signOut(window.location.origin + '/app/index.html');
+```
+
+### For Slate (Modern Frontend Hosting)
+
+```javascript
+// Sign up
+await catalyst.auth.signUp({
+  first_name: firstName,
+  last_name: lastName,
+  email_id: email,
+  platform_type: 'web',
+  redirect_url: window.location.origin + '/'  // Root path for Slate
+});
+
+// Embedded login widget
+catalyst.auth.signIn('login-container', {
+  login_redirect: window.location.origin + '/'  // Root path for Slate
+});
 
 // Logout
-catalyst.auth.signOut(window.location.origin);  // Must pass redirect URL
-// NOT: catalyst.auth.signOut()  — crashes with "Cannot read properties of undefined"
+catalyst.auth.signOut(window.location.origin);
+```
+
+**IMPORTANT:** Do NOT use `/app/` paths with Slate. Slate serves from root `/`, not `/app/`.
+
+### Check if logged in
+
+```javascript
+const isLoggedIn = catalyst.auth.isUserAuthenticated();
+// Returns user object on success, rejects with 401 on failure
 ```
 
 **Embedded sign-in widget has no built-in signup flow.** `catalyst.auth.signIn("divId", config)` renders a login iframe only — there is no sign-up button inside it. For signup, build a custom form and call `catalyst.auth.signUp()`.
@@ -152,8 +179,81 @@ X-My-App-Token: <secret>
 `catalyst.auth.signOut()` requires a redirect URL argument.
 
 ```javascript
-// Correct:
+// Correct for Slate:
 catalyst.auth.signOut(window.location.origin);
-// For legacy Web Client:
+
+// Correct for legacy Web Client:
 catalyst.auth.signOut(window.location.origin + '/app/index.html');
 ```
+
+---
+
+## Embedded Auth on Slate (Non-Legacy Hosting)
+
+### Redirect URL Patterns
+
+For **Slate apps**, authentication redirects must NOT include `/app/` path:
+
+```javascript
+// ✅ CORRECT for Slate
+await catalyst.auth.signUp({
+  first_name: firstName,
+  last_name: lastName,
+  email_id: email,
+  platform_type: 'web',
+  zaid: ZAID,
+  redirect_url: window.location.origin + '/'  // Root path
+});
+
+// Embedded login widget
+catalyst.auth.signIn('login-container', {
+  login_redirect: window.location.origin + '/'  // Root path
+});
+```
+
+```javascript
+// ❌ INCORRECT for Slate (legacy pattern)
+redirect_url: window.location.origin + '/app/index.html'  // 404 on Slate
+```
+
+### SDK Initialization Order (Critical)
+
+The `/__catalyst/sdk/init.js` script must load BEFORE your app calls `catalyst.auth` methods. Poll for SDK availability:
+
+```javascript
+useEffect(() => {
+  const checkSDK = setInterval(() => {
+    const sdk = (window as any).catalyst;
+    if (sdk?.auth?.signIn) {
+      clearInterval(checkSDK);
+      sdk.auth.signIn('login-container', {
+        login_redirect: window.location.origin + '/'
+      });
+    }
+  }, 100);
+
+  return () => clearInterval(checkSDK);
+}, []);
+```
+
+### ZAID Environment Differences
+
+**Critical:** ZAID differs between Development and Production. For Slate apps, set ZAID as build-time environment variable:
+
+```bash
+# .env.development
+VITE_CATALYST_ZAID=dev_zaid_value
+
+# .env.production  
+VITE_CATALYST_ZAID=prod_zaid_value
+```
+
+Rebuild when promoting to production: `npm run build && catalyst deploy slate`
+
+### Common Error: PATTERN_NOT_MATCHED
+
+If you see this error after authentication, the SDK is redirecting to a path that doesn't exist in your router. Common causes:
+
+1. **SDK redirecting to `/app/`** → Add `/app/*` catch-all route (see catalyst-slate skill)
+2. **`client-package.json` has `login_redirect` without leading `/`** → Change to `"/"`
+3. **Console Authentication Type still set to Hosted** → Change to Embedded

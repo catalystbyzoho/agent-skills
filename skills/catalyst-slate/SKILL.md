@@ -2,7 +2,7 @@
 name: catalyst-slate
 description: "Catalyst Slate — Git-based frontend hosting for React, Next.js, Vue, Angular, Svelte, Astro, SolidJS, Preact and other frameworks with preview deploys. Trigger on 'Slate', 'frontend hosting', 'slate-config.toml', 'deploy React app', or 'cross-domain Slate to function'. Do NOT use for backend APIs or server-side logic — use catalyst-appsail or catalyst-functions instead."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 ## Prerequisites

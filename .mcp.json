@@ -1,9 +1,3 @@
 {
-  "mcpServers": {
-    "catalyst-by-zoho": {
-      "type": "streamable-http",
-      "url": "<YOUR_ZOHO_MCP_URL>",
-      "_setup": "Get your URL from https://mcp.zoho.com → select your MCP server → click connect from side menu → copy the authenticated URL. Format: https://<server-name>-<org-id>.zohomcp.com/mcp/<auth-token>/message"
-    }
-  }
+  "mcpServers": {}
 }

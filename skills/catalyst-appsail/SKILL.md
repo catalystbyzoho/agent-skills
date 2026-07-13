@@ -3,7 +3,7 @@ name: catalyst-appsail
 description: "Catalyst AppSail — persistent backend PaaS with managed runtimes (Node.js, Java, Python) and custom Docker containers. Trigger on 'AppSail', 'persistent server', 'Docker on Catalyst', 'X_ZOHO_CATALYST_LISTEN_PORT', or 'long-running process on Catalyst'. Do NOT use for stateless request/response handlers, event-driven functions, or scheduled jobs — use catalyst-functions instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`). Custom Docker deployments additionally require Docker Desktop."
 metadata:
-  version: "2.0.0"
+  version: "2.0.2"
 ---
 
 ## How It Works
@@ -16,13 +16,13 @@ metadata:
    | | Catalyst Functions | AppSail |
    |---|---|---|
    | Code structure | Catalyst-specific templates required | Any framework, any format, fully independent |
-   | Use case | HTTP handlers, events, cron, Zoho integrations | Persistent servers, WebSockets, long-running processes, Docker |
+   | Use case | HTTP handlers, events, cron, Zoho integrations | Persistent servers, long-running processes, Docker |
    | Billing | Per API call | Per instance uptime |
    | Dependency management | Handled by Catalyst | You manage all libraries and frameworks |
 
 ## Triggers
 
-Use this skill for: "AppSail", "persistent server", "Docker on Catalyst", "backend hosting", `X_ZOHO_CATALYST_LISTEN_PORT`, `appsail:add`, "catalyst managed runtime", "deploy Express app", "WebSockets on Catalyst", "AppSail vs Functions", "long-running process on Catalyst", or "containerized app on Catalyst".
+Use this skill for: "AppSail", "persistent server", "Docker on Catalyst", "backend hosting", `X_ZOHO_CATALYST_LISTEN_PORT`, `appsail:add`, "catalyst managed runtime", "deploy Express app", "AppSail vs Functions", "long-running process on Catalyst", or "containerized app on Catalyst".
 
 ## References
 

@@ -2,7 +2,7 @@
 name: catalyst-by-zoho
 description: "Expert coding assistant for Catalyst by Zoho — Zoho's full-stack serverless cloud platform. Use for any question about Catalyst services, CLI, SDKs, architecture, pricing, or Zoho MCP tool-based infrastructure management."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # Catalyst by Zoho — Skill Index
@@ -15,7 +15,7 @@ This is the routing layer. Load the most specific matching skill — do not answ
 
 - **Prefer MCP over asking.** If `CatalystbyZoho_*` tools are available, use them. Never ask the user to copy IDs from the console.
 - **Default to Development.** Always target the Development environment unless the user explicitly says "production" or "deploy to prod".
-- **Prefer Functions over AppSail for simple HTTP.** Functions are cheaper (per-invocation billing), simpler to deploy, and require no infrastructure management. Reach for AppSail only when the use case genuinely requires a persistent process, WebSockets, or a custom runtime.
+- **Prefer Functions over AppSail for simple HTTP.** Functions are cheaper (per-invocation billing), simpler to deploy, and require no infrastructure management. Reach for AppSail only when the use case genuinely requires a persistent process, or a custom runtime.
 - **Show cost before building.** For any new infrastructure (functions, AppSail, Stratus buckets), load `catalyst-pricing` and give a brief estimate before writing code. Most small projects stay within free tier — say so when true.
 - **Recommend the current service, not the deprecated one.** File Store → Stratus. Event Listeners → Signals. Cron → Job Scheduling. Never mention the deprecated name in generated code or config.
 - **Warn before the region bites.** Circuits and Integration Functions do not work in most data centers. Check the user's DC before suggesting them.
@@ -68,6 +68,7 @@ New to Catalyst? Here's what each service does in one line:
 | **Cache** | In-memory key-value store. Divided into segments. TTL in hours, max 48 h. |
 | **NoSQL** | Document storage with flexible schema (no fixed columns). For unstructured/polymorphic data. |
 | **Authentication** | Built-in user sign-up/login (ZAID). OAuth Connections for third-party APIs. |
+| **SmartBrowz** | Headless browser automation, PDF/screenshot generation, Browser Logic functions, Browser Grid (parallel browsers), and Dataverse (web scraping). |
 | **Zia Services** | Pre-trained AI/ML: OCR, Face Analytics, Text Analytics, Object Detection, Barcode, Moderation. |
 | **QuickML** | AutoML — train models on your own data without writing ML code. *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
@@ -96,7 +97,8 @@ New to Catalyst? Here's what each service does in one line:
 | Pricing — free tier, pay-as-you-go, GB-seconds, cost estimation | `catalyst-pricing` |
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `catalyst-sdk` |
 | Zia Services, QuickML — OCR, ML predictions, AutoML | `catalyst-zia` |
-| Signals — event-driven triggers, publish/subscribe, event listeners | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md` — no dedicated skill yet) |
+| Signals — event-driven triggers, publish/subscribe, event listeners, custom publisher, webhook target, dispatch policy | `catalyst-signals` |
+| SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
 | Job Scheduling — cron/scheduled execution, recurring jobs | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md` — no dedicated skill yet) |
 | Zoho MCP — MCP setup, `CatalystbyZoho_*` tools, infra-as-conversation | `catalyst-zoho-mcp` |
 | Skill gave wrong or outdated guidance — user reporting an error | load `catalyst-by-zoho/references/skill-feedback.md` |

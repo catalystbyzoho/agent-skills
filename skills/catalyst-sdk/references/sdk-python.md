@@ -254,11 +254,11 @@ screenshot = smart_browz.take_screenshot({
     "navigation_options": {"wait_until": "networkidle2", "timeout": 60000}
 })
 
-output = smart_browz.generate_output_from_template({
-    "template_id": template_id,
-    "template_data": {"name": "Alice", "amount": "$100"},
-    "output_type": "pdf"
-})
+output = smart_browz.generate_from_template(
+    "153000000009001",  # template_id
+    template_data={"name": "Alice", "amount": "$100"},
+    output_options={"output_type": "pdf"}
+)
 ```
 
 > ⚠️ APM (Application Performance Monitoring) is NOT available for Python functions. Use logs only for Python performance monitoring.

@@ -31,12 +31,16 @@ module.exports = async (event, context) => {
 // Cron function
 module.exports = async (cronDetails, context) => {
   const catalystApp = catalyst.initialize(context);
+  const maxMs = context.getMaxExecutionTimeMs(); // "900000" (STRING) = 15 minutes
+  const remainingMs = context.getRemainingExecutionTimeMs(); // decrements as function runs
   context.close();
 };
 
 // Job function — MUST use admin scope; USER token is absent in the Job runtime
 module.exports = async (jobData, context) => {
   const catalystApp = catalyst.initialize(context, { scope: 'admin' });
+  const maxMs = context.getMaxExecutionTimeMs(); // "900000" (STRING) = 15 minutes
+  const remainingMs = context.getRemainingExecutionTimeMs(); // decrements as function runs
   context.closeWithSuccess();
 };
 
@@ -46,6 +50,11 @@ const adminApp = catalyst.initialize(req, { scope: 'admin' });
 // User scope
 const userApp = catalyst.initialize(req, { scope: 'user' });
 ```
+
+**Cron/Job Context APIs:**
+- `context.getMaxExecutionTimeMs()` — Returns `"900000"` (STRING, not number) for both Cron and Job functions (15-minute limit)
+- `context.getRemainingExecutionTimeMs()` — Decrements as the function runs; ~500ms startup overhead consumed before handler starts
+- `context.closeWithSuccess()` / `context.closeWithFailure()` — Required for Cron/Job functions to signal completion
 
 ---
 
@@ -140,6 +149,7 @@ stream.pipe(res);
 // Upload
 const fs = require('fs');
 await bucket.putObject('uploads/file.pdf', fs.createReadStream('/path/to/file.pdf'));
+// ⚠️ Default overwrite: false — 409 key_already_exists if key exists and versioning is OFF
 await bucket.putObject('uploads/file.pdf', fs.createReadStream('/path'), {
   overwrite: true, ttl: 86400,
   metaData: { uploadedBy: 'automation' }
@@ -151,7 +161,8 @@ const uploadId = initRes['upload_id'];  // snake_case, not uploadId
 await bucket.uploadPart('uploads/huge.mp4', uploadId, fs.createReadStream('/path/part1'), 1);
 await bucket.completeMultipartUpload('uploads/huge.mp4', uploadId);  // no parts array needed
 
-// Pre-signed URLs — positional: (key, action, options?); returns { signature: url }
+// Pre-signed URLs — requires admin scope; positional: (key, action, options?); returns { signature: url }
+// 'GET' action = download-only URL (HTTP GET); 'PUT' action = upload-only URL (HTTP PUT). Cannot cross-use.
 const getResult = await bucket.generatePreSignedUrl('uploads/file.pdf', 'GET', { expiryIn: 3600 });
 const getUrl = getResult.signature;
 const putResult = await bucket.generatePreSignedUrl('uploads/new.pdf', 'PUT', { expiryIn: 3600 });
@@ -241,26 +252,48 @@ await table.deleteItems([{ partitionKey: 'user_001', sortKey: 1700000000001 }]);
 const jobScheduling = catalystApp.jobScheduling();
 const cron = jobScheduling.cron();
 
-// Create crons
-const oneTimeCron = await cron.createCron({
-  cron_name: 'one-time-report', jobpool_name: 'ReportPool',
-  cron_type: 'OneTime', schedule: { time: '2025-12-31T23:59:00Z' }
+// job_meta defines WHAT to execute — jobpool_name (or jobpool_id) lives here, not at cron level
+const jobMeta = {
+  job_name: 'process_orders',          // alphanumeric + underscores only; hyphens rejected
+  target_type: 'Function',
+  target_name: 'ProcessOrderFunction', // or use target_id
+  jobpool_name: 'OrderPool',           // or jobpool_id
+  params: { batchSize: 50 },           // optional
+  job_config: { number_of_retries: 2, retry_interval: 15 * 60 * 1000 } // number, NOT String()
+};
+
+// OneTime: fires once — time_of_execution is UNIX timestamp in ms, passed as a string
+await cron.createCron({
+  cron_name: 'one_time_report', cron_status: true,
+  cron_type: 'OneTime',
+  cron_detail: { time_of_execution: Date.now() + (60 * 60 * 1000) + '' }, // 1h from now
+  job_meta: jobMeta
 });
 
-const periodicCron = await cron.createCron({
-  cron_name: 'health-check', jobpool_name: 'MonitorPool',
-  cron_type: 'Periodic', schedule: { every: 15, unit: 'minutes' }
+// Periodic: repeats every N h/m/s — use cron_detail with repetition_type: 'every'
+// ⚠️ NOT schedule: { every, unit } — that shape is wrong and will fail
+await cron.createCron({
+  cron_name: 'health_check', cron_status: true,
+  cron_type: 'Periodic',
+  cron_detail: { hour: 0, minute: 15, second: 0, repetition_type: 'every' }, // every 15 min
+  job_meta: jobMeta
 });
 
-const dailyCron = await cron.createCron({
-  cron_name: 'daily-digest', jobpool_name: 'EmailPool',
+// Calendar daily: fixed time each day — use cron_detail with repetition_type: 'daily'
+// ⚠️ NOT schedule: { time, timezone, days_of_week } — that shape is wrong and will fail
+await cron.createCron({
+  cron_name: 'daily_digest', cron_status: true,
   cron_type: 'Calendar',
-  schedule: { time: '09:00', timezone: 'Asia/Kolkata', days_of_week: ['MON','TUE','WED','THU','FRI'] }
+  cron_detail: { hour: 9, minute: 0, second: 0, repetition_type: 'daily' },
+  job_meta: jobMeta
 });
 
-const exprCron = await cron.createCron({
-  cron_name: 'custom', jobpool_name: 'CustomPool',
-  cron_type: 'CronExpression', schedule: { cron_expression: '0 */6 * * *' }
+// CronExpression
+await cron.createCron({
+  cron_name: 'custom', cron_status: true,
+  cron_type: 'CronExpression',
+  cron_detail: { cron_expression: '0 */6 * * *' },
+  job_meta: jobMeta
 });
 
 // Cron management
@@ -270,15 +303,16 @@ await cron.runCron(cronId);     // manual trigger
 await cron.deleteCron(cronId);
 
 // Submit an immediate job
-// Step 1: get a jobpool instance by name — you must do this first, there is no default.
-// job_name: alphanumeric and underscores only — hyphens are rejected.
-const jobpool = await jobScheduling.getJobpool({ name: 'OrderPool' });
-const job = await jobpool.submitJob({
-  job_name: 'process_orders',       // alphanumeric + underscores only
+// ⚠️ Use job().submitJob({...}) — pass jobpool_name inside the payload
+// retry_interval is a number (ms), NOT String()
+const job = jobScheduling.job();
+await job.submitJob({
+  job_name: 'process_orders',          // alphanumeric + underscores only
+  jobpool_name: 'OrderPool',           // or jobpool_id
   target_type: 'Function',
   target_name: 'ProcessOrderFunction', // or use target_id
   params: { batchSize: 50 },
-  job_config: { number_of_retries: 2, retry_interval: String(15 * 60 * 1000) }
+  job_config: { number_of_retries: 2, retry_interval: 15 * 60 * 1000 } // number, NOT String()
 });
 ```
 
@@ -288,8 +322,15 @@ const job = await jobpool.submitJob({
 
 ```javascript
 const circuit = catalystApp.circuit();
-const result = await circuit.execute(circuitId, { key1: 'value1' });
+// Node.js SDK: 3 arguments — circuitId, executionName, inputJSON
+const result = await circuit.execute(circuitId, 'execution-name', { key1: 'value1' });
 ```
+
+> **Node.js vs Python SDK difference:**
+> - **Node.js**: `circuit.execute(circuitId, executionName, inputJSON)` — 3 arguments
+> - **Python**: `circuit.execute(circuit_id, input_json)` — 2 arguments (execution name auto-generated)
+>
+> `executionName` is a user-defined string label for this execution (used for tracking and logs).
 
 ---
 
@@ -330,6 +371,6 @@ await mobileNotif.sendIOSNotification({ message: 'Update available', recipients:
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| DataStore/ZCQL silently hangs in Job functions | `catalyst.initialize(context)` without `scope: 'admin'` makes unauthenticated requests that stall 60 s each, silently burning toward the 15-minute timeout | Use `catalyst.initialize(context, { scope: 'admin' })` in all Job/Event/Cron functions that access DataStore or ZCQL |
 | `getCurrentUser()` throws in admin scope | `getCurrentUser()` requires user credentials; admin scope has none | Switch to user scope: `catalyst.initialize(req)` before calling `getCurrentUser()` |
+| Timeout calculations fail | `context.getMaxExecutionTimeMs()` returns STRING `"900000"`, not number | Use `parseInt(context.getMaxExecutionTimeMs())` for arithmetic |
 ```

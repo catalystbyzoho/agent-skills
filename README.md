@@ -21,6 +21,8 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | Slate (frontend hosting, Git deploy, SSR) | `catalyst-slate` |
 | Data Store + ZCQL | `catalyst-datastore` |
 | Stratus (object storage, signed URLs) | `catalyst-stratus` |
+| Signals (event bus, publishers, rules, webhooks) | `catalyst-signals` |
+| SmartBrowz (headless browser, PDF & Screenshot, Browser Logic, Browser Grid, Dataverse) | `catalyst-smartbrowz` |
 | NoSQL (document storage) | `catalyst-nosql` |
 | Authentication + Connections (OAuth) | `catalyst-authentication` |
 | Cache (in-memory key-value, TTL) | `catalyst-cache` |
@@ -32,7 +34,7 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 
 ### Also covered (via reference files, no dedicated skill)
 
-Signals (event bus), Circuits (workflows), Job Scheduling, Pipelines (CI/CD), ConvoKraft (chatbots), SmartBrowz (headless browser), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
+Circuits (workflows), Job Scheduling, Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
 
 ## Installation
 

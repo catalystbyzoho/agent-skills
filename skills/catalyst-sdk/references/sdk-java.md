@@ -134,58 +134,63 @@ LOGGER.info("{\"action\":\"createUser\",\"userId\":\"12345\"}");
 
 ---
 
-## SmartBrowz — Headless Browser (Selenium / Java)
+## SmartBrowz — PDF & Screenshot (Java)
 
 ```java
-SmartBrowz smartBrowz = catalystApp.smartBrowz();
-JSONObject browserDetails = smartBrowz.open();
+import com.zc.component.smartbrowz.ZCSmartBrowz;
+import com.zc.component.smartbrowz.ZCSmartBrowzConvertDetails;
+import com.zc.component.smartbrowz.ZCSmartBrowzPDFOptions;
+import com.zc.component.smartbrowz.ZCSmartBrowzNavigationOptions;
 
-ChromeOptions options = new ChromeOptions();
-WebDriver driver = new RemoteWebDriver(
-    new URL(browserDetails.getString("browser_http_url")),
-    options
-);
+// Initialize SmartBrowz (static getInstance, not catalystApp)
+ZCSmartBrowz smartBrowz = ZCSmartBrowz.getInstance();
 
-driver.get("https://example.com");
-String title = driver.getTitle();
-driver.quit();
+// Convert HTML to PDF
+ZCSmartBrowzConvertDetails convertDetails = ZCSmartBrowzConvertDetails.getInstance();
+ZCSmartBrowzPDFOptions pdfOptions = ZCSmartBrowzPDFOptions.getInstance();
+pdfOptions.setFormat("A4");
+pdfOptions.setPrintBackground(true);
+ZCSmartBrowzNavigationOptions navigationOptions = new ZCSmartBrowzNavigationOptions();
+navigationOptions.setWaitUntil("domcontentloaded");
+navigationOptions.setTimeout(30000);
+convertDetails.setHtml("<html><body><h1>Hello</h1></body></html>");
+convertDetails.setPdfDetails(pdfOptions);
+convertDetails.setNavigationDetails(navigationOptions);
+InputStream outputStream = smartBrowz.convertToPdf(convertDetails);
+
+// Generate from template
+ZCSmartBrowzTemplateOptions templateOptions = ZCSmartBrowzTemplateOptions.getInstance();
+templateOptions.setTemplateId(2075000000021001L);
+templateOptions.setOutputType(ZC_CONVERT_OUTPUT_TYPE.PDF);
+templateOptions.setPdfDetails(pdfOptions);
+templateOptions.setNavigationDetails(navigationOptions);
+InputStream templateOutput = smartBrowz.generateFromTemplate(templateOptions);
 ```
 
 ### Browser Logic Function (Java — Selenium pre-initialized)
 
 ```java
-public class BrowserLogicFunction implements ZCBrowserFunction {
-    public void runner(CatalystApp catalystApp, Context context, BrowserData browserData) throws Exception {
-        String input = browserData.getArgument();
-        WebDriver driver = browserData.getDriver();  // Pre-initialized
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.openqa.selenium.chrome.ChromeDriver;
+import com.catalyst.browserlogic.SeleniumHandler;
+import org.json.simple.JSONObject;
 
-        driver.get("https://example.com");
-        String title = driver.getTitle();
-
-        context.close(new JSONObject().put("title", title));
+public class BrowserLogicExample implements SeleniumHandler {
+    @Override
+    public void runner(HttpServletRequest request, HttpServletResponse response,
+                       ChromeDriver driver) throws Exception {
+        JSONObject responseData = new JSONObject();
+        driver.get("https://www.example.com");
+        responseData.put("message", "Title: " + driver.getTitle());
+        response.setContentType("application/json");
+        response.getWriter().write(responseData.toString());
+        response.setStatus(200);
     }
 }
 ```
 
-### PDF Generation (Java)
-
-```java
-JSONObject pdfOptions = new JSONObject();
-pdfOptions.put("format", "A4");
-pdfOptions.put("print_background", true);
-
-JSONObject navigationOptions = new JSONObject();
-navigationOptions.put("wait_until", "networkidle0");
-navigationOptions.put("timeout", 30000);
-
-byte[] pdfBytes = smartBrowz.generatePdf("https://example.com", pdfOptions, navigationOptions);
-
-// Screenshot from HTML
-byte[] imageBytes = smartBrowz.captureScreenshot(
-    "<html><body><h1>Hello</h1></body></html>",
-    new JSONObject().put("full_page", true).put("type", "png")
-);
-```
+> `ChromeDriver driver` is injected by SmartBrowz — do not connect to the browser manually.
 
 ---
 

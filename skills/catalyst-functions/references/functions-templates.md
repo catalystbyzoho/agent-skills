@@ -54,6 +54,10 @@ const catalyst = require('zcatalyst-sdk-node');
 module.exports = async (cronDetails, context) => {
   try {
     const catalystApp = catalyst.initialize(context);
+    const maxMs = context.getMaxExecutionTimeMs(); // "900000" (STRING) = 15 minutes
+    
+    // Your scheduled task logic here
+    
     context.closeWithSuccess();
   } catch (error) {
     context.closeWithFailure();
@@ -65,7 +69,7 @@ module.exports = async (cronDetails, context) => {
 
 ## Job Function Template
 
-Triggered via Job Scheduling. **Always use `{ scope: 'admin' }`** — Job functions have no user token, so any DataStore or ZCQL call without admin scope will silently hang until the 15-minute timeout.
+Triggered via Job Scheduling. Use `{ scope: 'admin' }` for system-level DataStore/ZCQL operations that don't need a specific user context.
 
 ```javascript
 'use strict';
@@ -75,7 +79,7 @@ module.exports = async (jobData, context) => {
   try {
     const catalystApp = catalyst.initialize(context, { scope: 'admin' });
     const jobDetails = jobData.getAllJobParams();
-    const maxMs = context.getMaxExecutionTimeMs(); // 15 minutes
+    const maxMs = context.getMaxExecutionTimeMs(); // "900000" (STRING) = 15 minutes
 
     const zcql = catalystApp.zcql();
     const rows = await zcql.executeZCQLQuery('SELECT * FROM MyTable LIMIT 0, 300');
@@ -87,9 +91,41 @@ module.exports = async (jobData, context) => {
 };
 ```
 
-> ⚠️ `catalyst.initialize(context)` without `{ scope: 'admin' }` in Job/Cron/Event functions makes unauthenticated DataStore requests that stall 60 s each and burn toward the 15-minute timeout.
-
 > **Using Zoho MCP to submit a job?** Always call `CatalystbyZoho_List_All_Jobpools` before `CatalystbyZoho_Create_Immediate_Job`. `jobpool_id` is required — there is no default. If no pools exist, call `CatalystbyZoho_Create_Job_Pool` (type `"Function"`, memory e.g. `"256"`) first.
+
+### Python Job Function Template
+
+```python
+import logging
+import zcatalyst_sdk
+
+def handler(job_request, context):
+    logger = logging.getLogger()
+    try:
+        # catalyst.initialize(context) defaults to Admin scope in non-HTTP functions
+        app = zcatalyst_sdk.initialize(req=context)
+
+        max_ms = context.get_max_execution_time_ms()        # "900000" (STRING) = 15 minutes
+        remaining_ms = context.get_remaining_execution_time_ms()  # decrements as function runs
+
+        all_params = job_request.get_all_job_params()
+        job_details = job_request.get_job_details()
+
+        zcql = app.zcql()
+        rows = zcql.execute_query('SELECT * FROM MyTable LIMIT 0, 300')
+        logger.info(f'Fetched {len(rows)} rows')
+
+        context.close_with_success()
+    except Exception as e:
+        logger.error(f'Job failed: {e}')
+        context.close_with_failure()
+```
+
+**Python context API (Job and Cron):**
+- `context.get_max_execution_time_ms()` — returns `"900000"` (STRING, 15 min)
+- `context.get_remaining_execution_time_ms()` — decrements live
+- `context.close_with_success()` — mark job succeeded
+- `context.close_with_failure()` — mark job failed
 
 ---
 
@@ -150,17 +186,21 @@ const connection = catalystApp.connection();
 
 ## Retry Behavior
 
-| Function Type | Auto-retry on failure? |
-|---------------|----------------------|
-| Basic I/O | No |
-| Advanced I/O | No |
-| Event | Yes |
-| Cron | Yes |
-| Job | Yes |
-| Integration | No |
-| Browser Logic | No |
+| Function Type | Auto-retry on failure? | Notes |
+|---------------|----------------------|-------|
+| Basic I/O | No | |
+| Advanced I/O | No | |
+| Event | Yes | Platform retries automatically |
+| Cron | **No** | Failures trigger Application Alerts only — no automatic retry. Manual review and rerun required. |
+| Job | Configurable | Retry is set in `job_config.number_of_retries` when submitting the job (0–10 retries, min 1-min interval) |
+| Integration | No | |
+| Browser Logic | No | |
 
-Design Event/Cron/Job handlers to be **idempotent** (safe to run multiple times).
+> **Cron failure handling**: Configure Application Alerts (Console → Cloud Scale → Cron → Alerts) to receive email notifications when a cron fails, times out, or throws an exception. Review execution history from the console to debug and rerun.
+>
+> **50-consecutive-failures auto-disable** applies ONLY to crons associated with a **third-party URL** target — NOT to function-based crons. Function-based crons never auto-disable regardless of repeated failures.
+
+Design **Event** and **Job** handlers to be **idempotent** (safe to run multiple times). Cron handlers should also be idempotent to safely support manual reruns.
 
 ---
 
@@ -191,10 +231,10 @@ Design Event/Cron/Job handlers to be **idempotent** (safe to run multiple times)
 | Inserting emoji into Data Store | Unsupported character in column type | Store a string key instead |
 | Not paginating ZCQL | Max 300 rows per query | Use `LIMIT offset, count` |
 | `is_deployed: false` in API responses | All functions return this value regardless of live status | Verify deployment status in the Console |
-| DataStore/ZCQL silently hangs in Job/Event/Cron | `catalyst.initialize(context)` without `scope: 'admin'` makes unauthenticated requests | Add `{ scope: 'admin' }`: `catalyst.initialize(context, { scope: 'admin' })` |
 | Need to read >300 rows in a Job function | ZCQL cap is 300 rows; paginating inside 15-min limit is risky | Use the Bulk Read REST API for large-volume reads |
 | `INVALID_INPUT: job_name must contain only alphanumeric and underscore` | `job_name` contains hyphens or spaces | Use underscores only — `doc_audit_run_1` not `doc-audit-run-1` |
 | `busboy` never emits `finish` event | Pipe not set up before response end | Ensure `req.pipe(bb)` and `finish` listener registered before piping |
 | File upload silently truncated | Function memory limit exceeded mid-stream | Use pre-signed Stratus URL for files > 50 MB |
 | Chained function call times out | Inner function cold start exceeds outer timeout | Use `invokeType: 'async'` for fire-and-forget; Job functions for long pipelines |
 | `Cannot read properties of undefined (reading 'files')` | `express-fileupload` not added as middleware before route | Add `app.use(fileUpload())` before route definitions |
+| Timeout math fails in Cron/Job | `context.getMaxExecutionTimeMs()` returns STRING | Use `parseInt(context.getMaxExecutionTimeMs())` for calculations |

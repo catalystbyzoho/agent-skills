@@ -2,7 +2,13 @@
 
 Connections manages OAuth2 tokens (and other auth types) for third-party service integrations. It auto-handles token refresh, so you never write refresh logic.
 
-Supports: Zoho services, Google APIs, GitHub, Slack, HubSpot, Salesforce, custom OAuth2 providers.
+**Built-in Default Services (25+ pre-configured):**
+- **Zoho services**: All Zoho products (CRM, Desk, Books, Projects, etc.)
+- **Third-party services**: Google, MailChimp, Dropbox, DocuSign, Adobe Sign, GoToMeeting
+
+**Custom Service (manual setup required):**
+- Any OAuth2, API Key, or Basic Auth provider not in the default list (e.g., GitHub, Slack, HubSpot, Salesforce, Stripe)
+- You provide: Client ID/Secret, Authorization URL, Token URL, scopes
 
 ---
 

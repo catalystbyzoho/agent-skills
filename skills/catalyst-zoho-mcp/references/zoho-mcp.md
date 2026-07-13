@@ -5,7 +5,26 @@
 
 ## Setup — Global MCP Server
 
-**Step 1 — Add this single URL to your AI client:**
+**Step 1 — Choose your Data Center (DC) URL:**
+
+The Catalyst global MCP endpoint changes by data center. Use the URL that matches your Zoho account's DC.
+
+| DC | Region | Global MCP base URL |
+|------|------|------|
+| US | United States | `https://catalyst.zohomcp.com` |
+| EU | Europe | `https://catalyst.zohomcp.eu` |
+| IN | India | `https://catalyst.zohomcp.in` |
+| AU | Australia | `https://catalyst.zohomcp.com.au` |
+| CA | Canada | `https://catalyst.zohomcp.ca` |
+| SA | Saudi Arabia | `https://catalyst.zohomcp.sa` |
+| JP | Japan | `https://catalyst.zohomcp.jp` |
+| UAE | United Arab Emirates | `https://catalyst.zohomcp.ae` |
+
+For MCP client configs, append `/mcp/message` to the base URL.
+
+**Step 2 — Add your DC-specific URL to your AI client:**
+
+Replace `<dc-base-url>` with your DC base URL from the table above.
 
 **For Claude Desktop** — edit `claude_desktop_config.json`
 (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -16,7 +35,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "mcpServers": {
     "catalyst-by-zoho": {
       "type": "streamable-http",
-      "url": "https://catalyst.zohomcp.com/mcp/message"
+      "url": "<dc-base-url>/mcp/message"
     }
   }
 }
@@ -29,7 +48,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "mcpServers": {
     "catalyst-by-zoho": {
       "type": "streamable-http",
-      "url": "https://catalyst.zohomcp.com/mcp/message"
+      "url": "<dc-base-url>/mcp/message"
     }
   }
 }
@@ -42,16 +61,16 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "servers": {
     "catalyst-by-zoho": {
       "type": "http",
-      "url": "https://catalyst.zohomcp.com/mcp/message"
+      "url": "<dc-base-url>/mcp/message"
     }
   }
 }
 ```
 
-**Step 2 — Authorize:**
+**Step 3 — Authorize:**
 Restart your AI client. It will open a browser window and prompt you to log in to your Zoho account and grant access. This happens once — the token is stored automatically by the client.
 
-**Step 3 — Verify:**
+**Step 4 — Verify:**
 Look for `CatalystbyZoho_*` tools in your client's tool list. Done.
 
 ---
@@ -82,6 +101,72 @@ The tools available depend on which Catalyst tools are configured in your Zoho M
 | `CatalystbyZoho_Create_Job_Pool` | Create a new Job Scheduling pool |
 
 For the full catalog of available tools, check your AI client's tool list after connecting — all tools shown with the `CatalystbyZoho_` prefix are available to use.
+
+---
+
+## MCP-First Workflow
+
+### Golden Rule: "MCP First, Console Fallback"
+
+When an AI agent needs to create or manage Catalyst infrastructure (tables, cache segments, buckets, job pools), **always try MCP tools first**. Only fall back to the Catalyst Console UI if MCP is unavailable or fails.
+
+| Approach | Time | Repeatable | Auditable |
+|----------|------|-----------|-----------|
+| ✅ MCP tools | ~30 seconds | Yes | Yes (in conversation) |
+| ❌ Console UI | 5+ minutes | No | No |
+
+### Decision Tree
+
+```
+Need to create Catalyst infrastructure?
+        │
+        ▼
+Are CatalystbyZoho_* tools visible in tool list?
+        │
+   YES──┘──NO
+   │          │
+   ▼          ▼
+Use MCP    Guide user to set up Zoho MCP first
+tools      (see Setup section above)
+  ✅        Then retry with MCP tools
+```
+
+**Only instruct manual Console steps when:**
+- MCP config is not set up AND user cannot set it up right now
+- MCP tools fail with an unresolvable error
+- User explicitly requests a manual UI walkthrough
+
+### Example: Table Creation
+
+❌ **Manual Console (5+ minutes)**
+```
+1. Open https://console.catalyst.zoho.com
+2. Navigate to project → Data Store
+3. Click Create Table, enter name
+4. Add each column manually via the UI
+5. Click Create
+```
+
+✅ **MCP (30 seconds)**
+```javascript
+// One tool call — everything automated
+CatalystbyZoho_Create_Table({
+  table_name: "Todos",
+  columns: [
+    { name: "title", data_type: "text", mandatory: true },
+    { name: "completed", data_type: "boolean", default_value: "false" }
+  ]
+})
+```
+
+### Pre-flight Check for AI Agents
+
+Before instructing a user to open the Catalyst Console for any infrastructure task:
+
+1. Check if `CatalystbyZoho_*` tools are in the available tool list
+2. If YES → use the appropriate `CatalystbyZoho_*` tool directly
+3. If NO → load `references/zoho-mcp.md` and guide the user through MCP setup first
+4. Only after exhausting MCP options → provide manual Console instructions
 
 ---
 
@@ -130,3 +215,4 @@ The AI calls `CatalystbyZoho_List_All_Tables` then describes the schema.
 | MCP targets wrong environment | Zoho MCP defaults to Development | Switch environment explicitly in the Zoho MCP console if production is needed (use caution) |
 | `INVALID_INPUT: job_name must contain only alphanumeric and underscore` on `CatalystbyZoho_Create_Immediate_Job` | `job_name` contains hyphens or spaces | Use underscores only — `doc_audit_run_1` not `doc-audit-run-1` |
 | Job submission fails with missing field error | `jobpool_id` not provided to `CatalystbyZoho_Create_Immediate_Job` | Call `CatalystbyZoho_List_All_Jobpools` first; if none exist, call `CatalystbyZoho_Create_Job_Pool` then use the returned ID |
+

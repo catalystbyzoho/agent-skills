@@ -3,7 +3,7 @@
 ## Overview
 
 - **Pay-per-use** model with generous monthly free tiers.
-- **Free trial:** New customers get **$250 USD** in credits valid for 180 days.
+- **Free trial:** New customers get **$250 USD** in credits, valid for **60 days from the date claimed**.
 - **Minimum billing:** $5/project/month once any free tier limit is exceeded.
 - **No upfront commitments.** Subscription option also available.
 - Free tier is **account-wide** (shared across all projects).

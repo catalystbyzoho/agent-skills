@@ -2,7 +2,7 @@
 name: catalyst-pricing
 description: "Catalyst pricing — free tier limits, pay-as-you-go rates, GB-seconds calculation, and cost estimation for functions, storage, and other services. Trigger on 'pricing', 'cost', 'free tier', 'how much does Catalyst cost', 'GB-seconds', 'billing', or 'will this be free'."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 ## How It Works

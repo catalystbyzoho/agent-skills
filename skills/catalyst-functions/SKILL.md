@@ -1,49 +1,23 @@
 ---
 name: catalyst-functions
-description: "Catalyst serverless functions — all 7 types (Basic I/O, Advanced I/O, Event, Cron, Job, Integration, Browser Logic), handler signatures, catalyst-config.json, Security Rules, API Gateway routing, file uploads, busboy, Express middleware, environment variables, function URL, and function testing. Trigger on 'write a function', 'catalyst function', 'API Gateway', 'Security Rules', 'function not found', 'function returns 401', 'busboy', 'middleware', 'function URL', 'environment variable in function', or any function type question. Do NOT use for persistent servers, long-running processes, WebSockets, or Docker deployments — use catalyst-appsail instead."
+description: "Catalyst serverless functions — all 7 types (Basic I/O, Advanced I/O, Event, Cron, Job, Integration, Browser Logic), handler signatures, catalyst-config.json, Security Rules, API Gateway routing, file uploads, busboy, Express middleware, environment variables, function URL, and function testing. Requires MCP connection — check for CatalystbyZoho_* tools before any operation. Trigger on 'write a function', 'catalyst function', 'API Gateway', 'Security Rules', 'function not found', 'function returns 401', 'busboy', 'middleware', 'function URL', 'environment variable in function', 'duplicate CORS headers', 'CORS error in browser', 'Access-Control-Allow-Origin multiple values', 'function URL 404', 'execute suffix', 'function timeout', 'function hangs', or any function type question. Do NOT use for persistent servers, long-running processes, or Docker deployments — use catalyst-appsail instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`) and Node.js v20 (recommended; v14–v18 also supported). Java functions also require JDK 8, 11, or 17. Python functions require Python 3.9."
 metadata:
-  version: "2.0.0"
+   version: "2.0.1"
 ---
 
 ## How It Works
 
-1. **Establish MCP connection first — HARD STOP if not connected.**
-   Check whether `CatalystbyZoho_*` tools are available in the current tool list.
-   - **If available:** Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to set project context, then proceed to step 2.
-   - **If NOT available:** Do NOT write any code, scaffold any files, or run any CLI commands. Present the two options below and wait for the user to confirm `CatalystbyZoho_*` tools are visible before continuing.
-
-   ---
-
-   **To use Catalyst via AI, you need the Zoho MCP Global Server connected.**
-   Add a single URL to your AI client config, authorize once via browser, and you're done.
-
-   *Claude Desktop* — edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-   ```json
-   { "mcpServers": { "catalyst-by-zoho": { "type": "streamable-http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
-   ```
-   *Cursor* — create or edit `.cursor/mcp.json` in your project root:
-   ```json
-   { "mcpServers": { "catalyst-by-zoho": { "type": "streamable-http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
-   ```
-   *GitHub Copilot (VS Code)* — create `.vscode/mcp.json` in your workspace root:
-   ```json
-   { "servers": { "catalyst-by-zoho": { "type": "http", "url": "https://catalyst.zohomcp.com/mcp/message" } } }
-   ```
-   Restart your AI client → authorize via browser when prompted → look for `CatalystbyZoho_*` tools to confirm.
-
-   ---
-
-2. **Check local scaffold — never run interactive CLI commands.**
-   Verify `.catalystrc` and `catalyst.json` exist. If missing, do NOT run `catalyst init` yourself — the CLI uses interactive arrow-key menus that cannot be reliably controlled from a terminal session. Instead, ask the user to run it:
+1. **Verify local scaffold — never run interactive CLI commands.**
+   Check whether `.catalystrc` and `catalyst.json` exist. If missing, do NOT run `catalyst init` yourself — the CLI uses interactive arrow-key menus that cannot be reliably controlled from a terminal session. Instead, ask the user to run it:
    > Please run `catalyst init` in your terminal, select your project and choose **"Configure and deploy http/non-http functions"** when asked which features to set up. Come back once done.
    Wait for confirmation before continuing.
 
-3. **Identify the function type** — Basic I/O for simple request/response, Advanced I/O for raw HTTP control, Event for trigger-based, Cron/Job for scheduled, Integration for Zoho service events, Browser Logic for Puppeteer.
-4. **Load `references/functions-basics.md`** — for the matching handler signature, `catalyst-config.json` keys, SDK init pattern, and CORS setup.
-5. **Load `references/functions-advanced.md`** — for file uploads (busboy), streaming responses, error handling, or chaining functions.
-6. **Load `references/api-gateway.md`** — for routing rules, rate limiting, or gateway-level CORS.
-7. **Validate config** — Confirm `catalyst-config.json` uses `deployment` + `execution` keys only. Never use `function` or `entry_point`.
+2. **Identify the function type** — Basic I/O for simple request/response, Advanced I/O for raw HTTP control, Event for trigger-based, Cron/Job for scheduled, Integration for Zoho service events, Browser Logic for Puppeteer.
+3. **Load `references/functions-basics.md`** — for the matching handler signature, `catalyst-config.json` keys, SDK init pattern, and CORS setup.
+4. **Load `references/functions-advanced.md`** — for file uploads (busboy), streaming responses, error handling, or chaining functions.
+5. **Load `references/api-gateway.md`** — for routing rules, rate limiting, or gateway-level CORS.
+6. **Validate config** — Confirm `catalyst-config.json` uses `deployment` + `execution` keys only. Never use `function` or `entry_point`.
 
 ## Security Checklist
 
