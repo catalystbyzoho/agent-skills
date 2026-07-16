@@ -270,3 +270,5 @@ output = smart_browz.generate_from_template(
 | Error | Cause | Fix |
 |-------|-------|-----|
 | DataStore methods hang silently in Job functions | `zcatalyst_sdk` Table methods (`get_paged_rows`, `delete_rows`, `insert_rows`, etc.) use `CredentialUser.USER` internally. Job functions have no USER token — every call makes an unauthenticated request, waits 60 s per attempt, raises no exception, and silently burns toward the 15-minute timeout | Initialize with `scope='admin'`: `zcatalyst_sdk.initialize(req=context, scope='admin')` |
+| `CatalystAppError: Catalyst headers are empty` in Python Job | Incorrect scope or missing admin initialization | Verify `scope='admin'` is passed to `zcatalyst_sdk.initialize()` in Job functions |
+| Pinning mismatch after CLI scaffold | CLI may suggest a newer `zcatalyst-sdk` than the function stack supports | Pin `zcatalyst-sdk` to a version compatible with the selected Python stack (e.g. `python_3_9`) |

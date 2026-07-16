@@ -127,6 +127,12 @@ def handler(job_request, context):
 - `context.close_with_success()` — mark job succeeded
 - `context.close_with_failure()` — mark job failed
 
+### Local test vs deployed runtime
+
+`catalyst functions:execute` does not prove deployed environment variables, scheduled timing, or Job pool behavior. Verify long-running Job logic with a remote scheduled run after local smoke tests.
+
+Clear stale build artifacts before local execute loops: `rm -rf functions/<name>/.build` when edited source does not appear in execute output.
+
 ---
 
 ## Integration Function Template

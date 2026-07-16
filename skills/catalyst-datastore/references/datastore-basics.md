@@ -299,6 +299,16 @@ Data Store does NOT support multi-statement transactions.
 
 ---
 
+## Row Operation Exactness
+
+- **ROWID is a string** in SDK calls — preserve string shape; do not coerce large IDs to numbers.
+- **Use table row scopes** appropriate to the operation — do not assume a broad table scope covers row-level CRUD.
+- **Avoid reserved/system column names** in custom schemas (`ROWID`, `CREATORID`, `CREATEDTIME`, `MODIFIEDTIME` are system-managed).
+- **Bulk delete**: respect documented batch limits; pass comma-separated ROWID strings where required by the API.
+- **Smoke-test** single-row create → read → delete before bulk seed or reset scripts.
+
+---
+
 ## Concurrency Limits
 
 - Default: **10 concurrent executions** per function per environment

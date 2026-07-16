@@ -72,6 +72,8 @@ deployment_name = "default"
 "slate": [{ "name": "my-frontend", "source": "/absolute/path/to/client" }]
 ```
 
+> ⚠️ **Verify Slate source paths before deploy.** Root path, install command, build command, and `catalyst.json` `source` must point at the directory that contains the built artifact (often `dist/`). Use repo-relative paths in documentation examples but absolute paths in local `catalyst.json` when required by the CLI. After deploy, confirm the hosted Slate URL serves fresh assets (not a stale prior build).
+
 **Step 3** — Deploy:
 ```bash
 catalyst deploy slate -m "initial deploy"

@@ -157,6 +157,17 @@ if (!currentUser || !currentUser.user_id) {
 }
 ```
 
+### OAuth exactness checklist
+
+Agents should verify before debugging "mystery auth failures":
+
+- Redirect/callback URL matches **exactly** across env vars, auth URL, and API Console (including trailing slash rules).
+- `SESSION_SECRET` (or equivalent) is identical across functions that share auth cookies.
+- Cookie settings are compatible with the OAuth redirect flow.
+- `APP_ORIGIN` is domain-only without a trailing slash when docs require it.
+- Data-center env vars (`CATALYST_DATA_CENTER`, accounts URL) are set **before** importing/requiring the SDK when the SDK reads them at import time.
+- Use request-bound `catalyst.initialize(req)` inside handlers; use explicit app initialization only outside function context.
+
 ### `Authorization` header is `undefined`
 
 The Catalyst gateway strips the `Authorization` header after validation and injects `x-zc-*` internal headers. Do not read `req.headers['authorization']` — it will be `undefined`. The SDK reads `x-zc-*` headers automatically via `catalyst.initialize(req)`.

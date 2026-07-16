@@ -655,6 +655,16 @@ catalyst deploy slate <name> --no-wait -ni       # Don't wait for completion
 | `-m` | Deployment message (for Slate) |
 | `--production` | Deploy to production environment (CAUTION) |
 
+### Deploy guardrails for agents
+
+- **Prefer repo deploy scripts** when present (`scripts/deploy.sh`, `Makefile` targets). Inspect them first — they may sync shared files, validate targets, or pin SDK versions before raw `catalyst deploy`.
+- **Verify deploy output lists every expected component** (Functions, Client, Slate, AppSail). Missing sections mean a partial deploy even when the CLI exits 0.
+- **Function packaging**: each function deploys as its own package. Copy shared modules into every function directory before deploy when the repo uses a sync step.
+- **Function registration**: adding a name to `catalyst.json` alone does not register a new function. The user must run `catalyst functions:add` interactively once, or follow the documented manual scaffold workaround in this file.
+- **Exact stack values**: use documented strings such as `python_3_9`, not guessed forms like `python39`.
+- **Destructive overwrite**: treat `functions:add --overwrite` and remote delete commands as destructive — require explicit user approval.
+- **Stale local execute**: when `catalyst functions:execute` runs old code, delete `functions/<name>/.build` and retry.
+
 ---
 
 ## Other Commands
