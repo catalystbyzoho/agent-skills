@@ -11,16 +11,15 @@ The Catalyst global MCP endpoint changes by data center. Use the URL that matche
 
 | DC | Region | Global MCP base URL |
 |------|------|------|
-| US | United States | `https://catalyst.zohomcp.com` |
-| EU | Europe | `https://catalyst.zohomcp.eu` |
-| IN | India | `https://catalyst.zohomcp.in` |
-| AU | Australia | `https://catalyst.zohomcp.com.au` |
-| CA | Canada | `https://catalyst.zohomcp.ca` |
-| SA | Saudi Arabia | `https://catalyst.zohomcp.sa` |
-| JP | Japan | `https://catalyst.zohomcp.jp` |
-| UAE | United Arab Emirates | `https://catalyst.zohomcp.ae` |
+| US | United States | `https://catalyst.zohomcp.com/mcp/message` |
+| EU | Europe | `https://catalyst.zohomcp.eu/mcp/message` |
+| IN | India | `https://catalyst.zohomcp.in/mcp/message` |
+| AU | Australia | `https://catalyst.zohomcp.com.au/mcp/message` |
+| CA | Canada | `https://catalyst.zohomcp.ca/mcp/message` |
+| SA | Saudi Arabia | `https://catalyst.zohomcp.sa/mcp/message` |
+| JP | Japan | `https://catalyst.zohomcp.jp/mcp/message` |
+| UAE | United Arab Emirates | `https://catalyst.zohomcp.ae/mcp/message` |
 
-For MCP client configs, append `/mcp/message` to the base URL.
 
 **Step 2 — Add your DC-specific URL to your AI client:**
 
@@ -73,19 +72,6 @@ Restart your AI client. It will open a browser window and prompt you to log in t
 **Step 4 — Verify:**
 Look for `CatalystbyZoho_*` tools in your client's tool list. Done.
 
----
-
-## Pre-flight Sequence
-
-Always run these calls before any other MCP operation to set project context:
-
-1. `CatalystbyZoho_List_All_Organizations` → get your org ID
-2. `CatalystbyZoho_List_All_Projects` (with org ID) → get your project ID
-3. `CatalystbyZoho_List_All_Tables` *(DataStore operations only)* → verify access and get table names
-
-If there is more than one org or project, ask the user which one to use before proceeding.
-
----
 
 ## How to Call Tools Correctly
 
@@ -170,22 +156,6 @@ Are CatalystbyZoho_* tools visible in tool list?
 Use MCP    Guide user to set up Zoho MCP first
 tools      (see Setup section above)
   ✅        Then retry with MCP tools
-```
-
-**Only instruct manual Console steps when:**
-- MCP config is not set up AND user cannot set it up right now
-- MCP tools fail with an unresolvable error
-- User explicitly requests a manual UI walkthrough
-
-### Example: Table Creation
-
-❌ **Manual Console (5+ minutes)**
-```
-1. Open https://console.catalyst.zoho.com
-2. Navigate to project → Data Store
-3. Click Create Table, enter name
-4. Add each column manually via the UI
-5. Click Create
 ```
 
 ✅ **MCP (30 seconds)**
