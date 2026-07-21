@@ -6,20 +6,24 @@
 > Guide the user to set up Zoho MCP first (see the SKILL.md setup instructions). Resume only after the user confirms MCP tools are visible.
 >
 > **Step 2 — Project context.**
-> Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to confirm which project you are working in.
+> Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to confirm which org ID and project ID you are working with.
 >
 > **Step 3 — Local scaffold check.**
 > Check whether `.catalystrc` and `catalyst.json` exist in the current directory.
 > - **If they exist:** proceed.
-> - **If they do NOT exist:** Do NOT run `catalyst init` yourself. The CLI uses interactive prompts (arrow-key menus, multi-select checkboxes) that cannot be reliably controlled from a terminal session. Instead, tell the user:
+> - **If they do NOT exist:** Run `catalyst init` non-interactively using the org ID and project ID from Step 2:
+>   ```bash
+>   catalyst init --org <orgId> -p <projectId> -ni
+>   ```
+>   **Never ask the user to run `catalyst init` interactively. Never create these files yourself.**
 >
->   > Your project is not initialised yet. Please run the following command in your terminal and complete the prompts yourself, then come back:
->   > ```
->   > catalyst init
->   > ```
->   > When asked which features to set up, select **"Configure and deploy http/non-http functions"**. Once done, confirm here and I'll continue.
->
->   Wait for the user to confirm before proceeding.
+> **Step 3b — Adding functions (non-interactive, CLI v1.27.0+).**
+> Once `catalyst.json` exists, add functions without any user interaction:
+> ```bash
+> catalyst functions:add --name <name> --type <type> --stack <stack> -ni
+> ```
+> Valid `--type` values: `bio`, `aio`, `event`, `cron`, `job`, `integ`, `browserlogic`
+> Valid `--stack` values: `node24`/`node22`/`node20`/`node18`, `java25`/`java21`/`java17`/`java11`/`java8`, `python_3_13`/`python_3_12`/`python_3_11`/`python_3_10`
 
 ## `catalyst-config.json` — `type` Field Values
 

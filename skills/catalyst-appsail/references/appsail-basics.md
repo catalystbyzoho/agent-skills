@@ -37,7 +37,7 @@ Created automatically when you run `catalyst appsail:add`. Not created for stand
 ```json
 {
   "command": "node app.js",
-  "buildPath": "./build",
+  "build_path": "./build",
   "stack": "node20",
   "memory": 512,
   "env_variables": {
@@ -51,7 +51,6 @@ Created automatically when you run `catalyst appsail:add`. Not created for stand
     "postserve": "npm run clean",
     "postdeploy": "npm run clean"
   },
-  "raw": {},
   "catalyst_auth": false,
   "login_redirect": "/index.html"
 }
@@ -60,13 +59,12 @@ Created automatically when you run `catalyst appsail:add`. Not created for stand
 | Field | Required | Notes |
 |-------|----------|-------|
 | `command` | Yes | Startup command for the app |
-| `buildPath` | Yes (for linked deploys) | Path to the directory containing deployable build files. **Do NOT use `"/"` as the value** — it resolves to filesystem root and will attempt to zip the entire disk (`EACCES` errors). Use `"./build"`, `"./target"`, or an absolute path. |
+| `build_path` | Yes (for linked deploys) | Path to the directory containing deployable build files. **Do NOT use `"/"` as the value** — it resolves to filesystem root and will attempt to zip the entire disk (`EACCES` errors). Use `"./build"`, `"./target"`, or an absolute path. |
 | `stack` | Yes | `node24`, `node22`, `node20`, `node18`, `node16`, `node14`, `node12`, `java25`, `java21`, `java17`, `java11`, `java8`, `python_3_13`, `python_3_12`, `python_3_11`, `python_3_10` (managed runtimes only — Docker/container apps do NOT use `app-config.json`) |
 | `memory` | No | Default 512 MB; range 256–2048 MB |
 | `env_variables` | No | Applied at deploy time; replaces Console-set vars on redeploy |
 | `platform` | No | Java only: `"javase"` or `"javawar"` |
 | `scripts` | No | Lifecycle hooks: `preserve` (before serve), `predeploy` (before deploy), `postserve` (after serve), `postdeploy` (after deploy) |
-| `raw` | No | Reserved for advanced config; leave as `{}` unless instructed otherwise |
 | `catalyst_auth` | No | **Security-sensitive.** `true` = Catalyst's own auth layer wraps the AppSail service (users must log in via Catalyst SSO). `false` (default) = service is publicly accessible / uses your own auth. **Set to `false` for apps with custom OAuth** — `true` silently intercepts requests and breaks custom auth flows. |
 | `login_redirect` | No | Post-authentication redirect path. Only meaningful when `catalyst_auth: true`. Example: `"/index.html"`. |
 
@@ -164,17 +162,18 @@ catalyst deploy appsail
 
 > ⚠️ **`catalyst deploy appsail` on a linked app is safe and non-interactive** — it deploys using `app-config.json` from the source directory. This is the correct path for linked apps; the "already exists" error only occurs if you run `catalyst appsail:add` again on an app that is already registered.
 
-> ℹ️ **There is no `catalyst deploy --only appsail` or `--only appsail:<name>` command.** AppSail uses the subcommand pattern, not the `--only` flag. Unlike functions (`--only functions:<name>`) and Slate (`--only slate:<name>`), AppSail can only be **excluded** — not isolated — with the `--only` flag. Use `catalyst deploy appsail` from the app's source directory for single-app deploys.
+> ⚠️ **Always include `--name <service-name>` when running `catalyst deploy appsail`.** If `--name` is omitted, the CLI defaults the service name to `AppSail`, which can cause unexpected behavior if your actual service has a different name.
 
 ```bash
-catalyst deploy --except appsail   # Deploy everything in the project EXCEPT AppSail
-catalyst deploy appsail            # Deploy ONLY AppSail (from the app's source directory)
+catalyst deploy --except appsail                    # Deploy everything EXCEPT AppSail
+catalyst deploy appsail --name <service-name>       # Deploy ONLY this AppSail service
+catalyst deploy --only appsail:<service-name>       # Alternative: deploy specific AppSail by name
 ```
 
 ```bash
 # Example: link app first (interactive), then deploy
-catalyst appsail:add            # interactive — agent cannot drive this autonomously
-catalyst deploy appsail         # non-interactive deploy using app-config.json
+catalyst appsail:add                                        # interactive — agent cannot drive this autonomously
+catalyst deploy appsail --name <service-name>               # non-interactive deploy using app-config.json
 ```
 
 ### Path B — Non-interactive standalone Docker deploy (agent/CI-safe)
@@ -234,8 +233,6 @@ catalyst deploy appsail \
 - **With any variables defined** in `env_variables`: Console-set vars not in the file are **wiped completely**
 - **With `"env_variables": {}`** (empty): Console UI still shows vars, but they are **not applied to the runtime** — the service cannot see them
 - **Rule:** For linked services, define ALL env vars in `app-config.json`. Never rely on Console-set vars surviving a redeploy.
-
-> ⚠️ `app-config.json` presence alone is **not sufficient** — the app must also be registered in `catalyst.json`. A standalone deploy will ignore any `app-config.json` in the build path and prompt interactively for config instead.
 
 ```json
 {
@@ -328,8 +325,8 @@ Configure via Console → Domain Mapping.
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `Invalid Build Path: "undefined"` | `buildPath` key missing from `app-config.json` | Add `"buildPath": "./your-build-dir"` to `app-config.json`. This field is required for linked managed-runtime deploys. |
-| `EACCES` errors during deploy / CLI attempts to zip entire disk | `buildPath` (or `--build-path`) set to `"/"` (filesystem root) | Set `buildPath` to the actual build directory (e.g. `"./build"` or an absolute path to the build folder), never `"/"` |
+| `Invalid Build Path: "undefined"` | `build_path` key missing from `app-config.json` | Add `"build_path": "./your-build-dir"` to `app-config.json`. This field is required for linked managed-runtime deploys. |
+| `EACCES` errors during deploy / CLI attempts to zip entire disk | `build_path` (or `--build-path`) set to `"/"` (filesystem root) | Set `build_path` to the actual build directory (e.g. `"./build"` or an absolute path to the build folder), never `"/"` |
 | Runtime env var missing after CLI deploy (var was set in Console) | `app-config.json` redeploy replaces runtime env vars with exactly what's in `env_variables` — Console-set vars not in the file are wiped from the runtime | Add ALL required vars to `app-config.json`; never rely on Console-only vars for linked services |
 | Console UI shows env vars but runtime can't see them | `"env_variables": {}` is empty — Console UI preserves display values but does NOT apply them to the runtime on deploy | Add the vars to `env_variables` in `app-config.json` and redeploy |
 | Env var key conflicts with system var | AppSail runtime injects its own `CATALYST_*` and `X_ZOHO_CATALYST_*` vars; user-defined keys with same name are overwritten | Avoid `CATALYST` in user-defined key names; use `ZOHO_` prefix or plain names |

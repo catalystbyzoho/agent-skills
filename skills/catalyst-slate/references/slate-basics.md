@@ -120,7 +120,8 @@ Slate → AppSail calls get blocked by Catalyst's auth layer. **Solution:** serv
 
 | Aspect | Slate | Legacy Web Client Hosting |
 |--------|-------|---------------------------|
-| **Serves from** | Root `/` | `/app/` path |
+| **Serves from** | Root `/` — `*.onslate.com` | `/app/` path — same domain as functions |
+| **Function call URLs** | **Must be absolute** — `https://<project>.catalystserverless.com/server/<fn>/execute` | Can be relative — `/server/<fn>/execute` |
 | **Routing controlled by** | Framework router + `_redirects` | `client-package.json` |
 | **`client-package.json` role** | Optional, SDK hints only | Required, defines routing |
 | **SPA fallback** | `_redirects` or `.catalyst/slate-config.toml` | Automatic |
@@ -128,6 +129,8 @@ Slate → AppSail calls get blocked by Catalyst's auth layer. **Solution:** serv
 | **Deployment command** | `catalyst deploy slate` | `catalyst deploy` (deploys client) |
 | **Environment variables** | Build-time only (no runtime config) | Build-time only |
 | **Modern framework support** | React, Next.js, Vue, Angular, Svelte, etc. | Basic HTML/CSS/JS |
+
+> ⚠️ **Migrating from legacy client hosting to Slate?** Relative function URLs like `/server/fn/execute` that worked before **silently break on Slate** — Slate is served from `*.onslate.com` while functions live on `*.catalystserverless.com`. Find and replace every relative `/server/...` path with its absolute `https://<project>.catalystserverless.com/server/...` equivalent, and add `generateAuthToken()` headers to each call.
 
 ### client-package.json for Slate
 

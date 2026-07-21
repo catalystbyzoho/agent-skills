@@ -8,10 +8,16 @@ metadata:
 
 ## How It Works
 
-1. **Verify local scaffold — never run interactive CLI commands.**
-   Check whether `.catalystrc` and `catalyst.json` exist. If missing, do NOT run `catalyst init` yourself — the CLI uses interactive arrow-key menus that cannot be reliably controlled from a terminal session. Instead, ask the user to run it:
-   > Please run `catalyst init` in your terminal, select your project and choose **"Configure and deploy http/non-http functions"** when asked which features to set up. Come back once done.
-   Wait for confirmation before continuing.
+1. **Verify local scaffold — both `catalyst init` and `functions:add` support non-interactive mode (CLI v1.27.0+).**
+   Check whether `.catalystrc` and `catalyst.json` exist. If missing, use MCP tools to get the org ID and project ID, then run:
+   ```bash
+   catalyst init --org <orgId> -p <projectId> -ni
+   ```
+   Never ask the user to run `catalyst init` interactively. NI mode can only link an existing project — if none exists, tell the user to create one in the console first. Once initialized, add functions non-interactively:
+   ```bash
+   catalyst functions:add --name <name> --type <type> --stack <stack> -ni
+   # e.g. catalyst functions:add --name api --type aio --stack node20 -ni
+   ```
 
 2. **Identify the function type** — Basic I/O for simple request/response, Advanced I/O for raw HTTP control, Event for trigger-based, Cron/Job for scheduled, Integration for Zoho service events, Browser Logic for Puppeteer.
 3. **Load `references/functions-basics.md`** — for the matching handler signature, `catalyst-config.json` keys, SDK init pattern, and CORS setup.
