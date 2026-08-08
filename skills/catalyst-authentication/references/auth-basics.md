@@ -25,7 +25,7 @@ await userMgmt.deleteUser(USER_ID);
 // Register a new user (sends invite email)
 const signupConfig = {
   platform_type: 'web',
-  zaid: 'YOUR_ZAID'  // Get from Settings → Environments
+  zaid: 'YOUR_ZAID'
 };
 const userConfig = {
   email_id: 'newuser@example.com',
@@ -89,7 +89,7 @@ await catalyst.auth.signUp({
 
 // Embedded login widget
 catalyst.auth.signIn('login-container', {
-  login_redirect: window.location.origin + '/'  // Root path for Slate
+  service_url: window.location.origin + '/'  // Root path for Slate
 });
 
 // Logout
@@ -101,11 +101,27 @@ catalyst.auth.signOut(window.location.origin);
 ### Check if logged in
 
 ```javascript
-const isLoggedIn = catalyst.auth.isUserAuthenticated();
-// Returns user object on success, rejects with 401 on failure
+const result = await catalyst.auth.isUserAuthenticated();
+// ⚠️ User is nested under result.content — NOT result directly
+// result.content.email_id, result.content.user_id, result.content.first_name
+// Rejects with 401 when not authenticated
 ```
 
 **Embedded sign-in widget has no built-in signup flow.** `catalyst.auth.signIn("divId", config)` renders a login iframe only — there is no sign-up button inside it. For signup, build a custom form and call `catalyst.auth.signUp()`.
+
+> ⚠️ **`public_signup` is OFF by default.** After enabling auth via MCP or console, `public_signup` is `false`. Any call to `catalyst.auth.signUp()` will silently fail for new users until you enable it: Console → Authentication → Settings → enable **Allow Public Signup**. There is no MCP tool to change this — must be done in the console.
+
+---
+
+## Finding ZAID Locally
+
+While `catalyst serve` is running, ZAID is readable from the local init script:
+
+```bash
+curl http://localhost:3000/__catalyst/sdk/init.js | grep -o 'zaid:"[^"]*"'
+```
+
+This only works during local development — use the console for production ZAID: Console → Authentication → App Settings → Application ID.
 
 ---
 
@@ -135,12 +151,23 @@ By default, App Users have **Read-only** access. For Insert/Update/Delete:
 
 ---
 
-## ZAID (Zoho Application ID)
+## First App User — Create One Before Testing Auth
 
-- **Different in Development and Production** — the #1 source of auth issues on prod deploy
-- **Where:** Console → Settings → Environments → General tab
-- **Always pass as a string** (JavaScript loses precision on large integers)
-- Reconfigure social logins and redirect URIs with the **Production ZAID** after deployment
+**Every new Catalyst project has zero app users.** The console admin account is a project collaborator, not an app user. `getCurrentUser()` returns `null` for collaborators — auth will appear broken until at least one app user exists.
+
+### Step 1 — Get the App User role_id
+
+Call `CatalystbyZoho_List_All_Roles`. Every project has exactly two auto-created roles. Find the entry with `"is_default": true` — that is the App User role. Copy its `role_id` (it is project-specific and differs per project).
+
+### Step 2 — Add the first app user via MCP
+
+Call `CatalystbyZoho_Add_User` with:
+- `platform_type`: `"web"`
+- `redirect_url`: your Slate URL (e.g. `https://your-app.onslate.com/`)
+- `user_details.email_id`, `user_details.first_name`, `user_details.last_name`
+- `user_details.role_id`: value from Step 1 — **required**, omitting it is a validation error
+
+> The user receives an invite email and must click the confirmation link before `isUserAuthenticated()` will return a valid session. Pending-confirmation accounts are rejected at login.
 
 ---
 
@@ -160,10 +187,6 @@ if (!currentUser || !currentUser.user_id) {
 ### `Authorization` header is `undefined`
 
 The Catalyst gateway strips the `Authorization` header after validation and injects `x-zc-*` internal headers. Do not read `req.headers['authorization']` — it will be `undefined`. The SDK reads `x-zc-*` headers automatically via `catalyst.initialize(req)`.
-
-### ZAID mismatch between environments
-
-Production ZAID differs from Development ZAID. This is the #1 cause of auth failures after prod deploy. Always use environment variables for ZAIDs.
 
 ### `Authorization: Bearer` intercepted before handler
 
@@ -196,6 +219,7 @@ For **Slate apps**, authentication redirects must NOT include `/app/` path:
 
 ```javascript
 // ✅ CORRECT for Slate
+// ZAID: Console → Authentication → App Settings → Application ID (no MCP tool returns it)
 await catalyst.auth.signUp({
   first_name: firstName,
   last_name: lastName,
@@ -207,8 +231,10 @@ await catalyst.auth.signUp({
 
 // Embedded login widget
 catalyst.auth.signIn('login-container', {
-  login_redirect: window.location.origin + '/'  // Root path
+  service_url: window.location.origin + '/'  // Root path
 });
+/* Required CSS — Catalyst injects an iframe with no default height; it renders invisible without this */
+/* #login-container iframe { width: 100% !important; height: 500px !important; border: none !important; } */
 ```
 
 ```javascript
@@ -217,6 +243,17 @@ redirect_url: window.location.origin + '/app/index.html'  // 404 on Slate
 ```
 
 ### SDK Initialization Order (Critical)
+
+Two scripts are required, in this exact order:
+
+```html
+<!-- 1. Main Catalyst CDN bundle — MUST come first; init.js depends on globals it sets -->
+<script src="https://static.zohocdn.com/catalyst/sdk/js/4.6.1/catalystWebSDK.js"></script>
+<!-- 2. Project-specific init -->
+<script src="/__catalyst/sdk/init.js"></script>
+```
+
+Without `catalystWebSDK.js`, `init.js` crashes immediately with `Uncaught ReferenceError: I18N is not defined` and `window.catalyst` is never set.
 
 The `/__catalyst/sdk/init.js` script must load BEFORE your app calls `catalyst.auth` methods. Poll for SDK availability:
 
@@ -227,7 +264,7 @@ useEffect(() => {
     if (sdk?.auth?.signIn) {
       clearInterval(checkSDK);
       sdk.auth.signIn('login-container', {
-        login_redirect: window.location.origin + '/'
+        service_url: window.location.origin + '/'
       });
     }
   }, 100);
@@ -235,20 +272,6 @@ useEffect(() => {
   return () => clearInterval(checkSDK);
 }, []);
 ```
-
-### ZAID Environment Differences
-
-**Critical:** ZAID differs between Development and Production. For Slate apps, set ZAID as build-time environment variable:
-
-```bash
-# .env.development
-VITE_CATALYST_ZAID=dev_zaid_value
-
-# .env.production  
-VITE_CATALYST_ZAID=prod_zaid_value
-```
-
-Rebuild when promoting to production: `npm run build && catalyst deploy slate`
 
 ### Common Error: PATTERN_NOT_MATCHED
 

@@ -14,12 +14,17 @@ metadata:
 ## How It Works
 
 1. **MCP check first** — Before reading any local files, look for `CatalystbyZoho_*` tools. If available, use MCP to get org ID, project ID, and all resource IDs instead of asking the user.
-2. **New to Catalyst?** — If the user is setting up Catalyst for the first time or asking "how do I start", load `references/quick-start.md` for the full walkthrough.
-3. **Console navigation** — If the user asks how to find IDs, create tables, set permissions, or configure CORS in the console, load `references/console-ui-guide.md`.
-4. **Pre-flight** — Confirm `.catalystrc` and `catalyst.json` exist. If missing, use MCP to get org/project IDs and run `catalyst init --org <orgId> -p <projectId> -ni`. Never use interactive `catalyst init`.
-5. **Project structure** — Load `references/project-basics.md` for directory layout, `catalyst.json`, IDs, and dev-to-prod checklist.
-6. **CLI questions** — Load `references/cli.md` for the exact command, flags, and safety rules.
-7. **Answer** — Provide the specific ID path or CLI command needed. Never ask the user to manually look up IDs when MCP is connected.
+2. **Account alignment check — do this before `catalyst init`** — MCP and CLI can be authenticated as different accounts. Before running `catalyst init --org <id>`, verify they match:
+   ```bash
+   catalyst whoami
+   ```
+   Compare the org name shown to the result of `CatalystbyZoho_List_All_Organizations`. If they differ, run `catalyst login --force` to re-authenticate the CLI before proceeding.
+3. **New to Catalyst?** — If the user is setting up Catalyst for the first time or asking "how do I start", load `references/quick-start.md` for the full walkthrough.
+4. **Console navigation** — If the user asks how to find IDs, create tables, set permissions, or configure CORS in the console, load `references/console-ui-guide.md`.
+5. **Pre-flight** — Confirm `.catalystrc` and `catalyst.json` exist. If missing, use MCP to get org/project IDs and run `catalyst init --org <orgId> -p <projectId> -ni`. Never use interactive `catalyst init`.
+6. **Project structure** — Load `references/project-basics.md` for directory layout, `catalyst.json`, IDs, and dev-to-prod checklist.
+7. **CLI questions** — Load `references/cli.md` for the exact command, flags, and safety rules.
+8. **Answer** — Provide the specific ID path or CLI command needed. Never ask the user to manually look up IDs when MCP is connected.
 
 ## Triggers
 

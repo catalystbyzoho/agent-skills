@@ -129,23 +129,46 @@ catalyst project:reset
 
 ## Initialization & Setup
 
+### CLI Version Pre-flight
+
+All `-ni` (non-interactive) flags require CLI **v1.27.0 or later**. Verify before using any `-ni` command:
+
+```bash
+catalyst --version
+```
+
+If the version is below 1.27.0, upgrade first:
+
+```bash
+npm install -g zcatalyst-cli
+```
+
 ### `catalyst init`
 Initialize a Catalyst project in the current directory. **Supports non-interactive mode in CLI v1.27.0+** — use `--org`, `-p`, and `-ni` flags.
 
+Both `--org` and `-p` are required in NI mode. Always get both IDs before running init:
+
 ```bash
-# ✅ Non-interactive (CLI v1.27.0+) — preferred for agents and CI/CD
+# Step 1: get org ID and project ID
+catalyst project:list
+
+# Step 2: initialize — both flags required
 catalyst init --org <orgId> -p <projectId> -ni
 catalyst init --org <orgId> -p <projectId> -ni --force        # Re-initialize
 ```
 
+If `catalyst init --org <orgId> -ni` is run without `-p`, the CLI errors and prints a list labelled `"The following orgs are available:"` — that label is wrong; the list contains **project names and IDs**. Use those IDs as the `-p` value, not as `--org`.
+
 | Flag | Description |
 |------|-------------|
 | `--project`, `-p` | Project name or ID to link — **required** in NI mode |
-| `--org` | Organization name or ID — conditional; required when more than one org exists |
+| `--org` | Organization name or ID — **required** in NI mode |
 | `-ni` | Non-interactive mode (CLI v1.27.0+) |
 | `--force` | Overwrite existing `.catalystrc` |
 
 > **NI mode limitation:** only linking an existing project is supported. Creating a new project requires the browser flow — create the project in the Catalyst console first, then run `catalyst init -ni` to link it.
+
+> **NI mode output:** `catalyst init -ni` creates only `.catalystrc`. `catalyst.json` is created by the first feature command — `catalyst functions:add -ni`, `catalyst slate:create -ni`, etc. Its absence after `init -ni` is expected, not an error.
 
 ### `catalyst functions:setup`
 **DISABLED in non-interactive mode.** Use `catalyst functions:add -ni` instead — it creates the directory structure and adds the function in one step.
@@ -596,7 +619,8 @@ Start the local development server. Serves functions, client, and AppSail locall
 
 ```bash
 catalyst serve                          # Start with defaults
-catalyst serve --http                   # Force HTTP (no HTTPS)
+catalyst serve --http <port>            # Force HTTP on a specific port (stable, recommended)
+catalyst serve --http                   # Force HTTP, dynamic port
 catalyst serve --debug                  # Enable debug mode
 catalyst serve --proxy                  # Enable proxy mode
 catalyst serve --only functions         # Serve only functions
@@ -608,7 +632,7 @@ catalyst serve --no-open                # Don't auto-open browser
 
 | Flag | Description |
 |------|-------------|
-| `--http` | Use HTTP instead of HTTPS |
+| `--http <port>` | Use HTTP on a fixed port — recommended for stable local development (e.g. `--http 3000`) |
 | `--debug` | Enable debug/verbose output |
 | `--proxy` | Enable proxy mode for API calls |
 | `--only <component>` | Serve only the specified component(s) |
@@ -734,9 +758,30 @@ catalyst <command> --help
 | Env vars missing after deploy | `catalyst deploy` overwrites env vars with `catalyst-config.json` values — Console-set vars are lost | Move all env vars into `catalyst-config.json` before deploying |
 | Functions not found | Missing `catalyst-config.json` or wrong directory structure | Verify `functions/<name>/catalyst-config.json` exists |
 | Port conflicts | Another process using the port | Stop other servers; `catalyst serve` assigns ports dynamically |
+| Function missing from serve output | Node binary path for the function's stack is invalid or not configured | See below — set `node24.bin` (or equivalent stack) via `catalyst config:set` |
 | Token expired | Stale auth token | Run `catalyst token:generate` or `catalyst login --force` |
 | IAC status stuck | Long-running import/export | Run `catalyst iac:status` to check progress |
 | DS import fails | Malformed CSV or schema mismatch | Verify CSV format matches table schema; run `catalyst ds:status` |
+
+### Function missing from `catalyst serve` output
+
+If a function doesn't appear in the serve URL table, check the output for:
+
+```
+⚠ skipping serve of function [api] since Invalid NodeJS binary path set for stack node24
+⚠ functions: No targets are ready to be served in local
+✖ Invalid NodeJS binary path set for stack node24
+```
+
+Slate and AppSail continue serving normally — only the function is skipped. Fix by pointing the CLI at the actual Node binary:
+
+```bash
+catalyst config:set node24.bin=$(which node)
+# Verify:
+catalyst config:get node24.bin
+```
+
+Replace `node24` with the stack value in your function's `catalyst-config.json`.
 
 ### Debugging
 

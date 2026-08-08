@@ -255,7 +255,7 @@ screenshot = smart_browz.take_screenshot({
 })
 
 output = smart_browz.generate_from_template(
-    "153000000009001",  # template_id
+    "YOUR_TEMPLATE_ID",  # template_id
     template_data={"name": "Alice", "amount": "$100"},
     output_options={"output_type": "pdf"}
 )

@@ -127,6 +127,13 @@ The tools available depend on which Catalyst tools are configured in your Zoho M
 | `CatalystbyZoho_List_All_Jobpools` | List all Job Scheduling pools in the project |
 | `CatalystbyZoho_Create_Job_Pool` | Create a new Job Scheduling pool |
 
+| `CatalystbyZoho_List_All_Functions` | List all functions in the project — each entry includes the numeric `id` field |
+| `CatalystbyZoho_Get_Logs` | Fetch function execution logs — see usage note below |
+
+> ⚠️ **`CatalystbyZoho_Get_Logs` — `resource_list` requires the numeric function ID, not the function name.**
+> Call `CatalystbyZoho_List_All_Functions` first and use the `id` field (e.g. `"101341000000019004"`).
+> Passing the function name (e.g. `"api"`) returns `INVALID_INPUT: "For input string: \"api\""` — a leaked Java NumberFormatException, not a useful error.
+
 For the full catalog of available tools, check your AI client's tool list after connecting — all tools shown with the `CatalystbyZoho_` prefix are available to use.
 
 ---

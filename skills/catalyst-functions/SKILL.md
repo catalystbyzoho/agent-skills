@@ -8,12 +8,16 @@ metadata:
 
 ## How It Works
 
-1. **Verify local scaffold — both `catalyst init` and `functions:add` support non-interactive mode (CLI v1.27.0+).**
-   Check whether `.catalystrc` and `catalyst.json` exist. If missing, use MCP tools to get the org ID and project ID, then run:
+**Intent check — do this first:**
+- If the user is asking a how-to or conceptual question ("how do I write a function", "show me a Basic I/O handler", "how does Security Rules work"), answer directly with the correct code or explanation. Do NOT inspect the working directory, do NOT generate a CLAUDE.md, do NOT switch into codebase-analysis mode. Empty directory = fine for how-to questions.
+- Only inspect the filesystem when the user explicitly asks to scaffold, add, or deploy something in their project.
+
+1. **Verify local scaffold (only when scaffolding, not for how-to questions).**
+   Check whether `.catalystrc` exists. If missing, use MCP tools to get the org ID and project ID, then run:
    ```bash
    catalyst init --org <orgId> -p <projectId> -ni
    ```
-   Never ask the user to run `catalyst init` interactively. NI mode can only link an existing project — if none exists, tell the user to create one in the console first. Once initialized, add functions non-interactively:
+   Never ask the user to run `catalyst init` interactively. NI mode can only link an existing project — if none exists, tell the user to create one in the console first. `catalyst.json` does not exist yet after `init -ni` — that is expected. Add functions next (this creates `catalyst.json`):
    ```bash
    catalyst functions:add --name <name> --type <type> --stack <stack> -ni
    # e.g. catalyst functions:add --name api --type aio --stack node20 -ni
@@ -24,6 +28,15 @@ metadata:
 4. **Load `references/functions-advanced.md`** — for file uploads (busboy), streaming responses, error handling, or chaining functions.
 5. **Load `references/api-gateway.md`** — for routing rules, rate limiting, or gateway-level CORS.
 6. **Validate config** — Confirm `catalyst-config.json` uses `deployment` + `execution` keys only. Never use `function` or `entry_point`.
+
+## Response Syntax Default
+
+**Always default to native Node.js response syntax.** Advanced I/O exposes raw `http.ServerResponse` — Express methods (`res.status()`, `res.json()`) do not exist unless the user explicitly chose the Express template.
+
+- Native (default): `res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data));`
+- Express (opt-in only): `res.status(200).json(data)` — only if the user has `express` installed and wired as middleware
+
+If you don't know which template the user has, ask or default to native.
 
 ## Security Checklist
 
