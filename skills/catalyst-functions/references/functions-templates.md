@@ -127,6 +127,14 @@ def handler(job_request, context):
 - `context.close_with_success()` — mark job succeeded
 - `context.close_with_failure()` — mark job failed
 
+### Local execute vs deployed runtime
+
+`catalyst functions:execute` proves your handler logic — it does NOT prove deployed environment variables, scheduled timing, or Job pool behavior. After local smoke tests, verify long-running Job logic with a real remote/scheduled run before declaring it working.
+
+If edited source doesn't appear in `functions:execute` output, delete the stale build cache: `rm -rf functions/<name>/.build` and re-run.
+
+Note: Job **pool** memory and **function** memory are separate settings — raising the pool size alone does not raise the function's execution memory. The job function's allocated memory must be **less than** the job pool's allocated memory, or jobs suffer dispatch delays.
+
 ---
 
 ## Integration Function Template

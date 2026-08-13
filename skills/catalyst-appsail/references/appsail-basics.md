@@ -149,6 +149,30 @@ CMD ["node", "app.js"]
 > if (!user) return res.status(401).json({ error: 'Unauthorized' });
 > ```
 
+## Session Cookies and Cross-Domain Auth
+
+Catalyst services run on different host patterns, and **session cookies do not cross these domains** (DC-specific TLD variants — `.com`, `.in`, `.eu`, `.au`, `.jp`, `.sa`, `.ca` — follow the same split):
+
+| Host pattern | Typical use |
+|--------------|-------------|
+| `*.catalystserverless.com` | Functions, OAuth callbacks on the function domain |
+| `*.catalystappsail.com` | AppSail apps |
+| `*.onslate.com` | Slate-hosted frontends |
+
+An OAuth/login function on `catalystserverless.com` that sets a session cookie will **not** authenticate requests to an AppSail app on `catalystappsail.com`. Options:
+
+- Host the OAuth flow inside the AppSail app (same origin)
+- Use Catalyst domain mapping so auth and app share one custom domain
+- Use server-side token exchange instead of cross-domain cookies
+
+---
+
+## Filesystem Durability
+
+The AppSail container filesystem is **not durable storage**. Files written at runtime can disappear on restart, redeploy, or scale events. Use Stratus (files/objects) or Data Store (structured data) for anything that must survive; treat the local filesystem as scratch space only.
+
+---
+
 ## Common Errors
 
 | Error | Cause | Fix |
@@ -158,3 +182,5 @@ CMD ["node", "app.js"]
 | App fails to start — port not listening | App bound to a hardcoded port instead of `X_ZOHO_CATALYST_LISTEN_PORT` | Use `process.env.X_ZOHO_CATALYST_LISTEN_PORT \|\| 9000` |
 | DataStore operations return HTTP 500 with empty error `{}` | `zcatalyst-sdk-node` version is v1.x (deprecated) — old SDK gives no useful error message | Change to `"zcatalyst-sdk-node": "^2.5.0"` in `package.json` and redeploy |
 | Managed runtime initialized instead of Docker Image | Selected wrong option in `catalyst appsail:add` interactive menu | Delete the AppSail entry from `catalyst.json`, then re-run `catalyst appsail:add` and select **Docker Image** |
+| Hosted URL reports "AppSail disabled" right after a deploy | Transient propagation delay — the service is still activating | Wait briefly and recheck before changing any configuration; do not react to the first response after deploy |
+| Logs query returns empty via Logs API / MCP `Get_Logs` | **Access** and **Application** logs are separate views — you cannot see both combined, and the API requires an explicit `logType` and `resource_list` filter | Query with `logType: "application"` for app output (stdout/console) and `logType: "access"` for requests; verify the resource filter matches your service name. Cross-check Console → Logs (which covers Functions and AppSail) before concluding the app produced no output |

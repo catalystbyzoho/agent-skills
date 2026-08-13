@@ -77,6 +77,8 @@ deployment_name = "default"
 catalyst deploy slate -m "initial deploy"
 ```
 
+> After deploying, load the hosted Slate URL and confirm it serves the **fresh build** — a successful deploy of the wrong `source` directory silently re-serves the previous build's assets.
+
 ## Local Development — Calling Functions from Slate
 
 `catalyst serve` starts three servers on separate ports:

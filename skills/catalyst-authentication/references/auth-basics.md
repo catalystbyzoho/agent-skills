@@ -188,6 +188,19 @@ if (!currentUser || !currentUser.user_id) {
 
 The Catalyst gateway strips the `Authorization` header after validation and injects `x-zc-*` internal headers. Do not read `req.headers['authorization']` — it will be `undefined`. The SDK reads `x-zc-*` headers automatically via `catalyst.initialize(req)`.
 
+### Session cookies don't cross Catalyst service domains
+
+Functions (`*.catalystserverless.com`), AppSail (`*.catalystappsail.com`), and Slate (`*.onslate.com`) live on separate domains — a session cookie set by a login function will not authenticate requests to an AppSail or Slate app. Host the auth flow on the same origin as the app, use domain mapping to unify domains, or use server-side token exchange. (See the catalyst-appsail skill for the full domain table.)
+
+### Development environment user limit
+
+The Development environment allows a **maximum of 25 app users**. Plan Production deployment for anything beyond that — after deploying to production, there is no user-count restriction.
+
+### Custom session setup gotchas
+
+- If multiple functions share a session cookie, the signing secret (e.g. `SESSION_SECRET`) must be **identical** across all of them — a mismatched secret in one function invalidates sessions it didn't create.
+- For external/portal auth flows, the accounts portal base URL is configured via SDK initialization options (`accountsPortalBaseURL` / `setAccountsPortalBaseURL('https://accounts.zohoportal.com')`) — configure it there rather than relying on ambient environment variables.
+
 ### `Authorization: Bearer` intercepted before handler
 
 Catalyst validates `Authorization: Bearer <token>` at the gateway level — even for `authentication: optional` endpoints. Don't use `Authorization: Bearer` for custom app-level secrets.
