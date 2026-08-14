@@ -31,7 +31,7 @@ jobs:
           cd skills && zip -r ../catalyst-skills-only.zip . --exclude "*.DS_Store" && cd .. && zip catalyst-skills-only.zip README.md
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: "Release ${{ steps.tag.outputs.tag }}"
@@ -43,7 +43,7 @@ jobs:
             | Artifact | Contents |
             |----------|----------|
             | `catalyst-agent-skills.zip` | Full repository (excludes `.git`, `.github`) |
-            | `catalyst-skills-only.zip` | `skills/` directory only |
+            | `catalyst-skills-only.zip` | Skill folders + `README.md` at root (no `skills/` wrapper) |
           files: |
             catalyst-agent-skills.zip
             catalyst-skills-only.zip
