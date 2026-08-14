@@ -162,7 +162,7 @@ If `catalyst init --org <orgId> -ni` is run without `-p`, the CLI errors and pri
 | Flag | Description |
 |------|-------------|
 | `--project`, `-p` | Project name or ID to link — **required** in NI mode |
-| `--org` | Organization name or ID — **required** in NI mode |
+| `--org` | Organization name or ID — **required** in NI mode (some setups only enforce this when more than one org is associated with the account, but passing it is always safe) |
 | `-ni` | Non-interactive mode (CLI v1.27.0+) |
 | `--force` | Overwrite existing `.catalystrc` |
 

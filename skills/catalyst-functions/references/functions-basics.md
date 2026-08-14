@@ -15,11 +15,11 @@
 >   ```bash
 >   catalyst init --org <orgId> -p <projectId> -ni
 >   ```
->   Never create `.catalystrc` or `catalyst.json` manually.
+>   **Never ask the user to run `catalyst init` interactively. Never create `.catalystrc` or `catalyst.json` manually.**
 >
 > `catalyst init -ni` only creates `.catalystrc`. `catalyst.json` is absent at this point — that is expected.
 >
-> **Step 3b — Adding functions.**
+> **Step 3b — Adding functions (non-interactive, CLI v1.27.0+).**
 > Run this to add a function — it creates `catalyst.json` on first run:
 > ```bash
 > catalyst functions:add --name <name> --type <type> --stack <stack> -ni

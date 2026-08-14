@@ -160,7 +160,7 @@ InputStream outputStream = smartBrowz.convertToPdf(convertDetails);
 
 // Generate from template
 ZCSmartBrowzTemplateOptions templateOptions = ZCSmartBrowzTemplateOptions.getInstance();
-templateOptions.setTemplateId(YOUR_TEMPLATE_IDL);
+templateOptions.setTemplateId(2075000000021001L);
 templateOptions.setOutputType(ZC_CONVERT_OUTPUT_TYPE.PDF);
 templateOptions.setPdfDetails(pdfOptions);
 templateOptions.setNavigationDetails(navigationOptions);

@@ -288,7 +288,7 @@ ZCSmartBrowzTemplateOptions templateOptions = ZCSmartBrowzTemplateOptions.getIns
 templateOptions.setPdfDetails(pdfOptions);
 templateOptions.setNavigationDetails(navOptions);
 templateOptions.setTemplateInput(templateData);
-templateOptions.setTemplateId(YOUR_TEMPLATE_IDL);
+templateOptions.setTemplateId(2075000000021001L);
 InputStream outputStream = smartBrowz.generateFromTemplate(templateOptions);
 ```
 
@@ -320,7 +320,7 @@ const result = await smartbrowz.convertToPdf('<html>Hello</html>', {
 const result = await smartbrowz.convertToPdf('https://example.com', { pdf_options: { format: 'A4' } });
 
 // Generate from Template
-const result = await smartbrowz.generateFromTemplate('YOUR_TEMPLATE_ID', {
+const result = await smartbrowz.generateFromTemplate('2075000000021001', {
   pdf_options: { format: 'A4', landscape: false },
   page_options: { javascript_enabled: true },
   navigation_options: { timeout: 30000, wait_until: 'domcontentloaded' },
@@ -443,7 +443,7 @@ Design and store templates for generating multiple documents with dynamic conten
 ```javascript
 const smartbrowz = app.smartbrowz();
 
-const result = await smartbrowz.generateFromTemplate('YOUR_TEMPLATE_ID', {
+const result = await smartbrowz.generateFromTemplate('2075000000021001', {
   output_options: { output_type: 'pdf' },
   pdf_options: { format: 'A4' },
   template_data: {

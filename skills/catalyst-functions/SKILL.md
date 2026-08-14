@@ -12,7 +12,7 @@ metadata:
 - If the user is asking a how-to or conceptual question ("how do I write a function", "show me a Basic I/O handler", "how does Security Rules work"), answer directly with the correct code or explanation. Do NOT inspect the working directory, do NOT generate a CLAUDE.md, do NOT switch into codebase-analysis mode. Empty directory = fine for how-to questions.
 - Only inspect the filesystem when the user explicitly asks to scaffold, add, or deploy something in their project.
 
-1. **Verify local scaffold (only when scaffolding, not for how-to questions).**
+1. **Verify local scaffold (only when scaffolding, not for how-to questions) — both `catalyst init` and `functions:add` support non-interactive mode (CLI v1.27.0+).**
    Check whether `.catalystrc` exists. If missing, use MCP tools to get the org ID and project ID, then run:
    ```bash
    catalyst init --org <orgId> -p <projectId> -ni
