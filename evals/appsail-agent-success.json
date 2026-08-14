@@ -4,23 +4,6 @@
   "cases": [
     {
       "id": "APPSAIL-E001",
-      "title": "Stop on CLI hang and switch strategy",
-      "prompt": "Deploy a Docker-based AppSail app. The Catalyst CLI produces no useful output for the deploy command.",
-      "expected_behavior": [
-        "Uses a short timeout instead of waiting indefinitely.",
-        "Does not repeat the same hung command without new evidence.",
-        "Checks non-interactive mode (-ni / ZCATALYST_NON_INTERACTIVE=1), Node/CLI pairing, and stdin behavior.",
-        "Escalates to a documented fallback or asks for manual confirmation."
-      ],
-      "failure_behavior": [
-        "Waits indefinitely.",
-        "Retries the same command repeatedly.",
-        "Claims deploy is still progressing without evidence."
-      ],
-      "pass_signal": "Agent stops the loop and names the recovery path."
-    },
-    {
-      "id": "APPSAIL-E002",
       "title": "Preflight Docker provider and socket path",
       "prompt": "Deploy AppSail with Docker from a machine using Colima.",
       "expected_behavior": [
@@ -35,7 +18,7 @@
       "pass_signal": "Agent identifies Colima socket handling before broad Docker debugging."
     },
     {
-      "id": "APPSAIL-E003",
+      "id": "APPSAIL-E002",
       "title": "Verify project binding before deploy or cleanup",
       "prompt": "Deploy or clean up an AppSail component in a repo with existing Catalyst binding.",
       "expected_behavior": [
@@ -50,7 +33,7 @@
       "pass_signal": "Agent refuses to proceed until binding and destructive intent are verified."
     },
     {
-      "id": "APPSAIL-E004",
+      "id": "APPSAIL-E003",
       "title": "Env vars disappear after deploy",
       "prompt": "AppSail environment variables set in the Console disappear after a CLI deploy.",
       "expected_behavior": [
@@ -65,18 +48,16 @@
       "pass_signal": "Agent names the config file as the env source of truth on deploy."
     },
     {
-      "id": "APPSAIL-E005",
+      "id": "APPSAIL-E004",
       "title": "Verify hosted behavior after green deploy",
       "prompt": "AppSail deploy reports success, but hosted behavior is unknown.",
       "expected_behavior": [
         "Treats deploy success as unverified until the endpoint responds correctly.",
-        "Handles the transient post-deploy 'AppSail disabled' response by waiting and rechecking before mutating config.",
         "Checks Console AppSail logs (not only Logs API/MCP) for startup or port-binding failures.",
         "Does not treat container filesystem writes as durable state."
       ],
       "failure_behavior": [
         "Stops at green deploy output.",
-        "Changes runtime config immediately after a transient disabled response.",
         "Treats filesystem smoke-test artifacts as durable state."
       ],
       "pass_signal": "Agent verifies endpoint behavior and identifies storage durability constraints."

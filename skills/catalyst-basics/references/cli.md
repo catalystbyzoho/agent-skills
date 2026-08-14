@@ -743,7 +743,6 @@ catalyst <command> --help
 - **Exit code 0 ≠ full deploy**: `catalyst deploy` can succeed while silently skipping components. Read the deploy output and confirm every expected component (Functions, Client, Slate, AppSail) is listed before declaring the deploy complete.
 - **Functions are packaged flat, one zip per function**: shared local modules are NOT resolved across function directories. Copy (or sync) shared files into every function directory before deploying.
 - **CLI tokens are not REST OAuth tokens**: output from `catalyst token:generate` authenticates the Catalyst CLI/automation — it is not a generic `Authorization: Bearer` token for Catalyst REST APIs.
-- **Bound a silent command**: if a `catalyst` command produces no output for ~60 seconds, don't keep waiting or re-running it. Prefer `-ni` / `ZCATALYST_NON_INTERACTIVE=1` so prompts fail fast, record `catalyst --version` and Node version, and switch approach (see Common Issues below).
 
 ---
 
@@ -766,9 +765,8 @@ catalyst <command> --help
 | Token expired | Stale auth token | Run `catalyst token:generate` or `catalyst login --force` |
 | IAC status stuck | Long-running import/export | Run `catalyst iac:status` to check progress |
 | DS import fails | Malformed CSV or schema mismatch | Verify CSV format matches table schema; run `catalyst ds:status` |
-| CLI hangs — 0% CPU, no stdout | A prompt is waiting on stdin in a non-interactive terminal, or a Node/CLI version pairing issue | Stop after ~60s. Re-run with `-ni` (or `ZCATALYST_NON_INTERACTIVE=1`); close stdin with `</dev/null` as a fallback on older CLIs; try a supported Node LTS; ask the user to run the step manually if the hang persists |
 | `catalyst functions:execute` runs old code | Stale build artifacts cached in `functions/<name>/.build` | Delete `functions/<name>/.build` and re-run |
-| AppSail Docker build fails on macOS | Docker socket points at the wrong provider (Colima vs Docker Desktop) | Set `ZC_DOCKER_SOCK_PATH` to the active provider's socket (Colima default: `$HOME/.colima/default/docker.sock`) before deploying |
+| AppSail Docker build fails on macOS | Docker socket points at the wrong provider (Colima vs Docker Desktop) | Set `ZC_DOCKER_SOCK_PATH` (supported since CLI v1.22.0) to the active provider's socket (Colima default: `$HOME/.colima/default/docker.sock`) before deploying |
 
 ### Function missing from `catalyst serve` output
 
