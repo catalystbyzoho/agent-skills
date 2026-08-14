@@ -9,16 +9,18 @@
 > Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to confirm which org ID and project ID you are working with.
 >
 > **Step 3 — Local scaffold check.**
-> Check whether `.catalystrc` and `catalyst.json` exist in the current directory.
-> - **If they exist:** proceed.
-> - **If they do NOT exist:** Run `catalyst init` non-interactively using the org ID and project ID from Step 2:
+> Check whether `.catalystrc` exists in the current directory.
+> - **If `.catalystrc` exists:** project is initialized — proceed.
+> - **If `.catalystrc` does NOT exist:** use org ID and project ID from Step 2:
 >   ```bash
 >   catalyst init --org <orgId> -p <projectId> -ni
 >   ```
->   **Never ask the user to run `catalyst init` interactively. Never create these files yourself.**
+>   **Never ask the user to run `catalyst init` interactively. Never create `.catalystrc` or `catalyst.json` manually.**
+>
+> `catalyst init -ni` only creates `.catalystrc`. `catalyst.json` is absent at this point — that is expected.
 >
 > **Step 3b — Adding functions (non-interactive, CLI v1.27.0+).**
-> Once `catalyst.json` exists, add functions without any user interaction:
+> Run this to add a function — it creates `catalyst.json` on first run:
 > ```bash
 > catalyst functions:add --name <name> --type <type> --stack <stack> -ni
 > ```
@@ -42,6 +44,8 @@ The `type` field is set by the CLI when a function is created. **Do not change i
 > `"browserlogic"` for Browser Logic — NOT `"browselogic"`. Basic I/O is `"basicio"` — NOT `"basiccron"`.
 
 ---
+
+> ⚠️ **Never use `npm install --silent` inside function directories.** The `--silent` flag suppresses `ETARGET` errors (no matching package version), so the install appears to succeed. The missing package only surfaces at runtime as `MODULE_NOT_FOUND` — after deploy, with no clear link to the install step.
 
 Required `catalyst.json` schema for a functions project:
 
@@ -180,22 +184,26 @@ function getBody(req) {
   });
 }
 
+// ⚠️ req.url includes the /execute prefix — strip it before routing.
+// A call to .../server/api/execute/users arrives as req.url = '/execute/users'.
+// Without the strip, pathname === '/users' never matches and every route returns 404.
 module.exports = async (req, res) => {
   try {
     const catalystApp = catalyst.initialize(req);
     const method = req.method;
     const parsedUrl = new URL(req.url, `https://${req.headers.host}`);
+    const path = parsedUrl.pathname.replace(/^\/execute/, ''); // '/execute/users' → '/users'
     const query = Object.fromEntries(parsedUrl.searchParams);
 
-    if (method === 'GET') {
+    if (method === 'GET' && path === '/') {
       sendJson(res, 200, { message: 'GET request', id: query.id });
-    } else if (method === 'POST') {
+    } else if (method === 'POST' && path === '/') {
       const body = await getBody(req);
       sendJson(res, 201, { message: 'Created', data: body });
-    } else if (method === 'PUT') {
+    } else if (method === 'PUT' && path === '/') {
       const body = await getBody(req);
       sendJson(res, 200, { message: 'Updated', data: body });
-    } else if (method === 'DELETE') {
+    } else if (method === 'DELETE' && path === '/') {
       sendJson(res, 200, { message: 'Deleted' });
     } else {
       sendJson(res, 405, { error: 'Method not allowed' });
@@ -233,6 +241,8 @@ Catalyst provides **two mutually exclusive** ways to handle CORS. Using both at 
 #### Option 1: Authorized Domains (Recommended for Slate apps)
 
 Console → Authentication → Authorized Domains → add your Slate domain.
+
+> **Authorized Domains applies to AppSail too** — not just Functions. If your frontend calls an AppSail backend, register the Slate domain using `CatalystbyZoho_Create_CORS_Domain` (pass the bare domain, no `https://` prefix) and remove any manual CORS headers from your AppSail Express code. See `catalyst-appsail/references/appsail-crossorigin.md` for the full setup.
 
 ⚠️ **When using Authorized Domains, do NOT add any CORS headers in your function code.** Catalyst injects them automatically. Adding headers manually causes:
 ```

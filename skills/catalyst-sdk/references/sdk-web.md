@@ -101,10 +101,17 @@ catalyst.auth.signOut(window.location.origin);
 
 For cross-domain calls (Slate → Functions or AppSail):
 
+> ⚠️ `generateAuthToken()` requires an active session. Without one it makes two HTTP calls (Catalyst backend + Zoho IAM) before rejecting with a cryptic IAM error — not a clear "not authenticated" message. Always call `isUserAuthenticated()` first:
+
 ```javascript
-const tokenResponse = await catalyst.auth.generateAuthToken();
-const token = tokenResponse.access_token;
-// ⚠️ Token is at tokenResponse.access_token — NOT tokenResponse.content.token
+try {
+  await catalyst.auth.isUserAuthenticated(); // fast 401 if not signed in
+  const tokenRes = await catalyst.auth.generateAuthToken();
+  const token = tokenRes.access_token; // NOT tokenRes.content.token
+} catch (err) {
+  // redirect to login
+  window.location.href = '/__catalyst/auth/login';
+}
 ```
 
 ---

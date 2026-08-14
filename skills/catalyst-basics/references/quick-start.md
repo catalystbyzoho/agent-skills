@@ -37,6 +37,21 @@ Copy that number — you'll need it when prompted during `catalyst init`.
 
 ### Step 3 — Initialize the project
 
+#### Non-interactive mode (agents / CI)
+
+```bash
+# Step 1: get your project ID
+catalyst project:list --org <orgId>
+
+# Step 2: initialize — both --org and -p are required
+mkdir my-app && cd my-app
+catalyst init --org <orgId> -p <projectId> -ni
+```
+
+This creates **only** `.catalystrc`. `catalyst.json` does **not** exist yet — it is created automatically the first time you run `catalyst functions:add -ni` (or another feature command like `catalyst slate:create -ni`). This is expected; do not treat the absence of `catalyst.json` after `init -ni` as an error.
+
+#### Interactive mode
+
 ```bash
 mkdir my-app && cd my-app
 catalyst init
@@ -97,7 +112,7 @@ catalyst init
 #      Development command → press Enter to accept default
 ```
 
-This creates:
+Interactive `catalyst init` creates both files when features are selected in the prompts:
 - `catalyst.json` — project metadata (do not edit manually)
 - `.catalystrc` — org/env config (do not edit manually)
 
@@ -199,6 +214,7 @@ If your Slate frontend calls a function and you get a CORS error in production:
 | Error | Cause | Fix |
 |-------|-------|-----|
 | `catalyst: command not found` | CLI not installed globally | Run `npm install -g zcatalyst-cli` |
-| `catalyst.json` is `{}` after init | No project linked yet | Run `catalyst project:use <project-name>` in the project directory |
+| `catalyst.json` missing after `init -ni` | Expected — NI init only creates `.catalystrc` | Run `catalyst functions:add --name <n> --type <t> --stack <s> -ni` to create it |
+| `catalyst.json` is `{}` after interactive init | No features selected during init prompts | Re-run `catalyst init` and select at least one feature, or run `catalyst functions:add` |
 | Function 401 in browser but works with curl | Authentication required in Security Rules | Add `"authentication": "open"` to `catalyst-config.json` for public endpoints |
 | CORS error in production frontend | Domain not in Authorized Domains | Add the Slate/frontend domain in Console → Settings → Authorized Domains and enable CORS toggle |

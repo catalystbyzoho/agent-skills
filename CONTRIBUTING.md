@@ -26,6 +26,7 @@ If the skill produces incorrect code, recommends deprecated services, or misses 
 - **Better examples**: Adding real-world code patterns that work out of the box
 - **Deprecation updates**: Updating deprecated service warnings as EOL dates pass
 - **MCP tool coverage**: Adding new Zoho MCP tool patterns as they become available
+- **Agent guardrails**: Catalyst-specific operational facts that prevent agents from silent hangs, wrong-project deploys, or false "deploy succeeded" conclusions. Prefer concrete platform behavior ("deploy replaces env vars from the config file") over generic advice ("verify your deploy"). If the change is testable, add or reference an eval case in [`evals/`](evals/) (see [`evals/README.md`](evals/README.md)) so reviewers can check it changes agent behavior.
 
 ### Skill folder structure
 

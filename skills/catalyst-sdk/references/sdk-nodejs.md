@@ -118,7 +118,7 @@ const stats = await zcql.executeOLAPQuery('SELECT Status, COUNT(ROWID) AS cnt FR
 const segment = catalystApp.cache().segment(segmentId);
 
 await segment.put('key', 'value');                        // default 48h TTL
-await segment.put('key', 'value', 3600000);               // 1 hour TTL (ms)
+await segment.put('key', 'value', 1);                     // 1 hour TTL (hours)
 const value = await segment.getValue('key');               // string value
 const item = await segment.get('key');                     // full cache item
 await segment.update('key', 'newValue');
@@ -130,7 +130,7 @@ await segment.delete('key');                               // sets to null, does
 ## Stratus (Object Storage)
 
 ```javascript
-const bucket = catalystApp.stratus().bucket('myapp-files-70699');
+const bucket = catalystApp.stratus().bucket('your-bucket-name');
 
 // ⚠️ Bucket names are globally unique across ALL Catalyst projects
 
@@ -210,6 +210,8 @@ await catalystApp.email().sendMail({
   attachments: [{ name: 'invoice.pdf', content: fs.createReadStream('/path/invoice.pdf') }]
 });
 ```
+
+> ⚠️ **Sender domain must be verified before emails are delivered.** Since 1 Feb 2026, Catalyst Mail rejects sends from unverified domains — the API call succeeds (no error thrown) but the email is never delivered. Add DKIM and SPF records for your sender domain first: Console → Mail → Sender Domains → Add Domain → follow the DNS verification steps.
 
 ---
 

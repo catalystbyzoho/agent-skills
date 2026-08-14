@@ -77,7 +77,44 @@ deployment_name = "default"
 catalyst deploy slate -m "initial deploy"
 ```
 
+> After deploying, load the hosted Slate URL and confirm it serves the **fresh build** — a successful deploy of the wrong `source` directory silently re-serves the previous build's assets.
+
+## Local Development — Calling Functions from Slate
+
+`catalyst serve` starts three servers on separate ports:
+
+| What | URL |
+|------|-----|
+| Function (API gateway) | `http://localhost:3000/server/api/` |
+| Slate (catalyst proxy) | `http://localhost:3001` |
+| Slate (Vite HMR — what you open in the browser) | `http://localhost:4800` |
+
+**The silent failure:** relative paths like `/server/api/execute` resolve against the Vite port (4800). Vite's SPA fallback returns `index.html` with status 200 — not a function response, not an error. Your fetch succeeds but you get HTML, not JSON.
+
+**Fix — use environment-specific base URLs:**
+
+```bash
+# client/ui/.env.development
+VITE_API_BASE=http://localhost:3000/server/api/execute
+
+# client/ui/.env.production
+VITE_API_BASE=https://<project>.development.catalystserverless.com/server/api/execute
+```
+
+```javascript
+const API = import.meta.env.VITE_API_BASE;
+const res = await fetch(API, { credentials: 'include' });
+```
+
+> Port 3000 (the function) is stable. Port 4800 (Vite) may increment if already in use — never hardcode it. Always point `VITE_API_BASE` at port 3000.
+
+---
+
 ## Common Errors
+
+### Deploy succeeds in CLI but app is not updated
+
+`catalyst deploy slate` can exit with a success status even when the build failed on the server side. Always verify the deployment actually completed by checking: Console → Slate → your app → Deployments → confirm the latest entry shows **Success** and the build log has no errors.
 
 ### `slate-config.toml` wiped by clean builds
 
@@ -108,9 +145,9 @@ If your build config has a `baseUrl` or `basePath` set to a non-root path, all J
 2. **Do NOT set CORS headers in function code for production origins** — gateway injects them automatically
 3. Only set CORS headers for `localhost` (local dev)
 
-### Slate + AppSail (does NOT work without same-origin trick)
+### Slate + AppSail (cross-domain)
 
-Slate → AppSail calls get blocked by Catalyst's auth layer. **Solution:** serve the frontend from AppSail itself using `express.static()` so all calls are same-origin.
+Slate (`*.onslate.com`) and AppSail (`*.catalystappsail.com`) run on separate domains. Register the Slate domain via MCP and remove any manual CORS headers from AppSail code — Catalyst injects them automatically. See `catalyst-appsail/references/appsail-crossorigin.md` for the full setup.
 
 ---
 
@@ -258,6 +295,21 @@ Build: `ng build --configuration production`
 ### Key Principle
 
 **Build-time only.** Changing variables requires rebuilding and redeploying. This is different from serverless functions which support runtime environment variables in the Console.
+
+---
+
+## Web SDK Setup (Required for Auth)
+
+Two scripts are required, in this exact order:
+
+```html
+<!-- 1. Main Catalyst CDN bundle — MUST come first -->
+<script src="https://static.zohocdn.com/catalyst/sdk/js/4.6.1/catalystWebSDK.js"></script>
+<!-- 2. Project-specific init -->
+<script src="/__catalyst/sdk/init.js"></script>
+```
+
+Without `catalystWebSDK.js`, `init.js` crashes immediately and `window.catalyst` is never set — auth calls fail silently.
 
 ---
 

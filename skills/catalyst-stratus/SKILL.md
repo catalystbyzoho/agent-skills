@@ -12,6 +12,13 @@ metadata:
 3. **Large files** — Multipart upload is recommended (not required) for files ≥ 100 MB. Single-shot upload supports up to 250 GB per object. Load the multipart section of `stratus-basics.md`.
 4. **Signed URLs** — For user-facing direct downloads/uploads, generate a signed URL server-side and return it to the client.
 
+## Response Syntax Default
+
+When writing function code that returns a Stratus result to the client, **default to native Node.js response syntax** — not Express. Advanced I/O exposes raw `http.ServerResponse`; `res.status()` and `res.json()` do not exist unless the user explicitly chose the Express template.
+
+- Native (default): `res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data));`
+- Express (opt-in only): only if the user has `express` installed and wired as middleware
+
 ## Triggers
 
 Use this skill for: "Stratus", "object storage", "file storage", "upload file", "download file", "signed URL", "pre-signed URL", "multipart upload", `putObject`, `getObject`, "bucket", "Stratus bucket", "store files on Catalyst", "Stratus vs File Store", "250GB limit", or "file download link".

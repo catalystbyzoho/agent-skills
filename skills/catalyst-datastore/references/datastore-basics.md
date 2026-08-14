@@ -1,4 +1,4 @@
-> **⚠️ PRE-FLIGHT CHECK:** Confirm `.catalystrc` and `catalyst.json` exist before writing any code.
+> **⚠️ PRE-FLIGHT CHECK:** Confirm `.catalystrc` exists before writing any code. `catalyst.json` is created automatically by the first feature command (`catalyst functions:add -ni`, `catalyst slate:create -ni`, etc.) — its absence before that step is expected and not an error.
 
 ## System Columns (auto-managed, in every table)
 
@@ -119,6 +119,22 @@ function unwrapZcql(result, tableName) {
 
 The table name key is **case-sensitive** and must match the console exactly.
 
+### Reserved Column Names
+
+`priority` is a reserved keyword — `CatalystbyZoho_Create_Column` returns `INVALID_OPERATION: Column name cannot contain reserved keywords`. Rename the column (e.g. `task_priority`, `urgency`) before retrying.
+
+### ZCQL Silent Failures
+
+> ⚠️ **Two features accepted without error but not supported:**
+>
+> **`LIKE` wildcards (`%`) are not functional.**
+> `WHERE title LIKE 'A%'` returns `[]` — no error, no rows.
+> Use `=` for exact match. For prefix/substring search, fetch with `getPagedRows()` and filter in application code.
+>
+> **`AS` column aliases are silently dropped.**
+> `SELECT title AS t FROM Todos` returns the key `title`, not `t` — no error thrown.
+> Use original column names in all downstream code; remap keys in application code if needed.
+
 ### ZCQL Differences from SQL
 
 - Table/column names are **case-sensitive**
@@ -169,7 +185,7 @@ JOINs are subject to the same 300-row result limit.
 
 ## Column Types
 
-- `varchar` — requires `max_length` (e.g., 255)
+- `varchar` — requires `max_length`; **hard cap is 255** — values above 255 are silently clamped to 255 by the API with no error. Use `text` for anything longer.
 - `text` — large text, auto max 10,000 chars
 - `int`, `bigint`, `double`, `decimal`
 - `boolean`, `date`, `datetime`
