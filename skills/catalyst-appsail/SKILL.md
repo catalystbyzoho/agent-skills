@@ -3,7 +3,7 @@ name: catalyst-appsail
 description: "Catalyst AppSail — persistent backend PaaS with managed runtimes (Node.js, Java, Python) and custom Docker containers. Trigger on 'AppSail', 'persistent server', 'Docker on Catalyst', 'X_ZOHO_CATALYST_LISTEN_PORT', or 'long-running process on Catalyst'. Do NOT use for stateless request/response handlers, event-driven functions, or scheduled jobs — use catalyst-functions instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`). Custom Docker deployments additionally require Docker Desktop."
 metadata:
-  version: "2.0.2"
+  version: "2.1.0"
 ---
 
 ## How It Works
@@ -28,4 +28,6 @@ Use this skill for: "AppSail", "persistent server", "Docker on Catalyst", "backe
 
 | Reference | Load when the query is about… |
 |-----------|-------------------------------|
-| `references/appsail-basics.md` | Runtimes, Docker setup, PORT env var, env variables, deploy commands, AppSail vs Functions decision table |
+| `references/appsail-basics.md` | Runtimes, project structure, app-config.json fields, Node.js/Docker templates, SDK version |
+| `references/appsail-deploy.md` | Deployment commands (Path A/B/C), env variables, health checks, AppSail URL pattern, configurations |
+| `references/appsail-crossorigin.md` | Slate + AppSail cross-origin errors, CORS setup via MCP, `catalyst_auth`, custom domain SSL |

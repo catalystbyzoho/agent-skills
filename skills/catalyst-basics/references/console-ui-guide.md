@@ -3,7 +3,7 @@
 Step-by-step navigation for the most common console tasks.
 
 > **Coverage note:** This guide documents the most commonly needed console flows. The following areas are **not yet documented here** and require consulting the [official Catalyst docs](https://docs.catalyst.zoho.com):
-> - Hosted Authentication (ZAID configuration, OAuth providers, custom login pages)
+> - Hosted Authentication (OAuth providers, custom login pages)
 > - Billing activation and plan upgrades
 > - Cache segment creation (Cloud Scale → Cache → New Segment)
 > - NoSQL collection and table creation (Cloud Scale → NoSQL)
@@ -13,19 +13,12 @@ Step-by-step navigation for the most common console tasks.
 
 ---
 
-## Finding Project ID, ZAID, and Table ID
+## Finding Project ID and Table ID
 
 ### Project ID
 1. Open [console.catalyst.zoho.com](https://console.catalyst.zoho.com/baas/index) and click your project
 2. Look at the browser URL: `https://console.catalyst.zoho.com/baas/<ORG_ID>/project/<PROJECT_ID>/`
 3. `PROJECT_ID` is the numeric segment after `/project/`
-
-### ZAID (Zoho Application ID)
-1. Console → your project → **Settings** → **App Settings**
-2. `ZAID` is listed under **Application ID**
-
-> **Critical:** ZAID differs between Development and Production environments.
-> Always copy the ZAID for the environment you are configuring.
 
 ### Table ID
 1. Console → your project → **Data Store** → click your table
@@ -116,7 +109,6 @@ catalyst whoami          # shows logged-in user
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| Can't find ZAID in Settings | Wrong environment or viewing the wrong project | Confirm you are in the correct project AND environment (Dev vs Prod) |
 | Table ID not visible in URL | Some console versions show it differently | Use MCP tool `CatalystbyZoho_GetTableID` or run `catalyst datastore:list` |
 | CORS error despite domain being in Authorized Domains | CORS toggle is OFF, or protocol mismatch (`http` vs `https`) | Ensure toggle is ON; domain must include exact protocol |
 | App User Insert returns 403 | Insert not enabled in Scopes and Permissions | Enable Insert for App User in Data Store → table → Scopes and Permissions |

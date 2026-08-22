@@ -22,7 +22,7 @@ Creates one or more columns in an existing DataStore table. Supports batch creat
 
 ```json
 // Text column — max_length supported; search_index_enabled NOT supported
-{ "column_name": "description", "data_type": "text", "is_mandatory": "false", "max_length": 1000, "audit_consent": "false" }
+{ "column_name": "notes", "data_type": "text", "is_mandatory": "false", "max_length": 1000, "audit_consent": "false" }
 
 // Bigint column — requires is_unique; supports search_index_enabled
 { "column_name": "count", "data_type": "bigint", "default_value": "0", "is_mandatory": "false", "is_unique": "false", "search_index_enabled": "false", "audit_consent": "false" }
@@ -54,3 +54,4 @@ Creates one or more columns in an existing DataStore table. Supports batch creat
 | `Missing required field is_unique` | `bigint` type requires `is_unique` | Add `"is_unique": "false"` (or `"true"`) to the column object |
 | `Invalid max_length for bigint` | `max_length` only applies to text/email types | Remove `max_length` from non-text column objects |
 | Column path variable wrong | Passing `tableId` instead of `id` in path_variables | Use `"id"` as the key name, not `"tableId"` |
+| `INVALID_OPERATION: Column name cannot contain reserved keywords` | Column name is a reserved keyword (e.g. `priority`) — entire batch fails if any one column triggers this | Rename the column (e.g. `task_priority`, `urgency`); when batch-creating columns, bisect to one column at a time to identify which name caused the failure |

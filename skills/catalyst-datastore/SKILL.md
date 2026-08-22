@@ -31,6 +31,15 @@ metadata:
 4. **Permissions** — App User permissions are OFF by default. If the query involves a logged-in user reading data, check Console → Table → Scopes & Permissions.
 5. **Pagination** — ZCQL max 300 rows per query. Use `LIMIT offset, count` for larger datasets.
 
+## Hallucination Guards
+
+**Never assert project-specific values from an empty or unread directory.** If the working directory has no project files, do not invent or assume timezone, table names, project ID, environment names, or any other project-specific detail. Ask the developer to supply them.
+
+- Timezone: do not state a timezone for ZCQL date queries unless you have read it from a real project config file. Ask the developer what timezone their project uses.
+- Table names / column names: only use names returned by `CatalystbyZoho_List_All_Tables` or explicitly provided by the user.
+
+**Default to native Node.js response syntax.** When writing function code alongside Data Store operations, use `res.writeHead()` + `res.end()` — not Express methods (`res.status()`, `res.json()`), unless the user explicitly chose the Express template.
+
 ## Security Checklist
 
 - **App User write permissions are off by default.** The App User role has SELECT enabled by default, but INSERT, UPDATE, and DELETE must be manually enabled per table. Go to Console → Table → Scopes and Permissions → App User role → check Insert/Update/Delete for any table your authenticated users need to write.

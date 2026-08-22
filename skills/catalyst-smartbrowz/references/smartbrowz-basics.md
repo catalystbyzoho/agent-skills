@@ -639,7 +639,7 @@ Alerts persist until you **update the grid configuration**. Resolving the underl
 
    **SDK — manage grid (Node.js):**
    ```javascript
-   const grid = app.SmartBrowz().browserGrid();
+   const grid = app.smartbrowz().browserGrid();
 
    // Get all grids and their details
    const gridList = await grid.getGrid();
@@ -702,7 +702,7 @@ const smartbrowz = app.smartbrowz();
 const response = await smartbrowz.getEnrichedLead({
   leadName: 'zoho',
   websiteUrl: 'https://www.zoho.com',
-  email: 'sales@zohocorp.com'
+  email: 'contact@example.com'
 });
 // Returns: employee_count, address, social, description, ceo, revenue, industries, etc.
 ```

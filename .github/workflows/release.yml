@@ -1,0 +1,50 @@
+name: Release on Push to Main
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          TAG="v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create release zips
+        run: |
+          zip -r catalyst-agent-skills.zip . \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "*.DS_Store"
+          cd skills && zip -r ../catalyst-skills-only.zip . --exclude "*.DS_Store" && cd .. && zip catalyst-skills-only.zip README.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Release ${{ steps.tag.outputs.tag }}"
+          body: |
+            Automated release from commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            **Pushed by:** ${{ github.actor }}
+
+            | Artifact | Contents |
+            |----------|----------|
+            | `catalyst-agent-skills.zip` | Full repository (excludes `.git`, `.github`) |
+            | `catalyst-skills-only.zip` | Skill folders + `README.md` at root (no `skills/` wrapper) |
+          files: |
+            catalyst-agent-skills.zip
+            catalyst-skills-only.zip
+          make_latest: true

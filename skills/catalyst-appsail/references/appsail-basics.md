@@ -24,7 +24,7 @@ Deploy any language as OCI container images: Go, Kotlin, Dart, Ruby, PHP, Deno, 
 appsail/
 ├── app.js
 ├── package.json
-├── app-config.json    # AppSail configuration (created by CLI init/add)
+├── app-config.json    # AppSail configuration (created by CLI appsail:add)
 └── node_modules/
 ```
 
@@ -32,7 +32,7 @@ appsail/
 
 Created automatically when you run `catalyst appsail:add`. Not created for standalone deploys or custom runtimes.
 
-> ⚠️ There is no `catalyst appsail:init` command. Only `catalyst appsail:add` exists (it links an existing AppSail to the project or creates a new one interactively).
+> ⚠️ There is no `catalyst appsail:init` command. Only `catalyst appsail:add` exists.
 
 ```json
 {
@@ -75,7 +75,7 @@ Created automatically when you run `catalyst appsail:add`. Not created for stand
 ```javascript
 // appsail/app.js
 const express = require('express');
-const catalyst = require('zcatalyst-sdk-node');
+const catalyst = require('zcatalyst-sdk-node'); // use ^2.5.0 or later
 
 const app = express();
 app.use(express.json());
@@ -95,7 +95,8 @@ app.get('/api/users', async (req, res) => {
     const users = await zcql.executeZCQLQuery('SELECT * FROM Users LIMIT 50');
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // error.message may be undefined on non-standard SDK error objects — always stringify as fallback
+    res.status(500).json({ error: error?.message || String(error) });
   }
 });
 
@@ -104,9 +105,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('Shutting down gracefully...');
   server.close(() => process.exit(0));
 });
 
@@ -114,6 +113,8 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 ```
+
+> ⚠️ **Always use `zcatalyst-sdk-node` at `^2.5.0` or later.** All earlier versions (including v1.x) are deprecated — DataStore operations return HTTP 500 with no useful error message on old SDK versions.
 
 ---
 
@@ -125,13 +126,44 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 COPY . .
-# EXPOSE is Docker documentation only — it does NOT configure the AppSail listening port.
-# Catalyst uses X_ZOHO_CATALYST_LISTEN_PORT (default 9000) to determine the port to check.
+# EXPOSE is documentation only — it does NOT configure the AppSail listening port.
+# Catalyst uses X_ZOHO_CATALYST_LISTEN_PORT (default 9000).
 EXPOSE 9000
 CMD ["node", "app.js"]
 ```
 
 > **Docker apps do NOT use `app-config.json`** — all specifications are stored in `catalyst.json`.
+
+---
+
+## Security — Gateway Always Injects Admin Credentials
+
+> ⚠️ **The Catalyst gateway injects admin-scope `x-zc-*` headers on every request to AppSail — including unauthenticated ones.** This means:
+> - `catalyst.initialize(req)` **always succeeds**, even with no auth cookie
+> - `catalyst.initialize(req, { scope: 'admin' })` gives full DataStore/Stratus access to anonymous requests
+> - `getCurrentUser()` returns `null` (the injected identity is the project admin, not an app user) — use this as your auth check, not whether `initialize()` succeeds
+>
+> **Pattern for AppSail auth guard:**
+> ```javascript
+> const user = await catalyst.initialize(req).userManagement().getCurrentUser();
+> if (!user) return res.status(401).json({ error: 'Unauthorized' });
+> ```
+
+## Session Cookies and Cross-Domain Auth
+
+Catalyst services run on different host patterns, and **session cookies do not cross these domains** (DC-specific TLD variants — `.com`, `.in`, `.eu`, `.au`, `.jp`, `.sa`, `.ca` — follow the same split):
+
+| Host pattern | Typical use |
+|--------------|-------------|
+| `*.catalystserverless.com` | Functions, OAuth callbacks on the function domain |
+| `*.catalystappsail.com` | AppSail apps |
+| `*.onslate.com` | Slate-hosted frontends |
+
+An OAuth/login function on `catalystserverless.com` that sets a session cookie will **not** authenticate requests to an AppSail app on `catalystappsail.com`. Options:
+
+- Host the OAuth flow inside the AppSail app (same origin)
+- Use Catalyst domain mapping so auth and app share one custom domain
+- Use server-side token exchange instead of cross-domain cookies
 
 ---
 
@@ -281,6 +313,12 @@ Example: `https://demoservice-1011034735.development.catalystappsail.com`
 
 ---
 
+## Filesystem Durability
+
+The AppSail container filesystem is **not durable storage**. Files written at runtime can disappear on restart, redeploy, or scale events. Use Stratus (files/objects) or Data Store (structured data) for anything that must survive; treat the local filesystem as scratch space only.
+
+---
+
 ## Slate + AppSail Cross-Origin Issue
 
 Slate-hosted frontends calling AppSail APIs may get `"Unable to Fetch"` errors due to Catalyst's auth layer.
@@ -331,7 +369,9 @@ Configure via Console → Domain Mapping.
 | Console UI shows env vars but runtime can't see them | `"env_variables": {}` is empty — Console UI preserves display values but does NOT apply them to the runtime on deploy | Add the vars to `env_variables` in `app-config.json` and redeploy |
 | Env var key conflicts with system var | AppSail runtime injects its own `CATALYST_*` and `X_ZOHO_CATALYST_*` vars; user-defined keys with same name are overwritten | Avoid `CATALYST` in user-defined key names; use `ZOHO_` prefix or plain names |
 | App fails to start — port not listening | App bound to a hardcoded port instead of `X_ZOHO_CATALYST_LISTEN_PORT`, OR `--build-path` was a relative path | Use `process.env.X_ZOHO_CATALYST_LISTEN_PORT \|\| 9000` as the port; always use an **absolute path** for `--build-path` |
+| DataStore operations return HTTP 500 with empty error `{}` | `zcatalyst-sdk-node` version is v1.x (deprecated) — old SDK gives no useful error message | Change to `"zcatalyst-sdk-node": "^2.5.0"` in `package.json` and redeploy |
 | `catalyst deploy appsail` stalls or prompts | No `--source` flag provided — CLI defaults to interactive managed runtime menus | Use `--name` and `--source docker://...` flags for non-interactive Docker deploy |
 | Managed runtime initialized instead of Docker Image | Selected wrong option in `catalyst appsail:add` interactive menu | Delete the AppSail entry from `catalyst.json`, then re-run `catalyst appsail:add` and select **Docker Image** |
 | `catalyst deploy appsail` ignores code changes | Ran without `--source` flag and no prior init — CLI prompted for config | Use standalone flags `--name`/`--source`, or run `catalyst appsail:add` interactively first |
 | Custom auth broken / requests intercepted unexpectedly | `catalyst_auth: true` in `app-config.json` — Catalyst's own SSO layer wraps the service | Set `catalyst_auth: false` (or remove the key) when using custom OAuth or any non-Catalyst auth |
+| Logs query returns empty via Logs API / MCP `Get_Logs` | **Access** and **Application** logs are separate views — you cannot see both combined, and the API requires an explicit `logType` and `resource_list` filter | Query with `logType: "application"` for app output (stdout/console) and `logType: "access"` for requests; verify the resource filter matches your service name. Cross-check Console → Logs (which covers Functions and AppSail) before concluding the app produced no output |

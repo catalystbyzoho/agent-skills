@@ -114,6 +114,47 @@ Tools with no required path variables (e.g. `List_All_Organizations`, `List_All_
 
 ---
 
+## How to Call Tools Correctly
+
+**Rule: always call `ZohoMCP_getSchema` before `ZohoMCP_executeTool` for any tool you haven't called before.** Most `CatalystbyZoho_*` tools require `path_variables` (e.g. `project_id`) that are invisible without the schema — guessing the arguments causes "Mandatory path variable not present" errors.
+
+### Step 1 — Get the schema
+
+`ZohoMCP_getSchema` takes `query_params`, **not** `body`:
+
+```
+ZohoMCP_getSchema({
+  query_params: { tool_name: "CatalystbyZoho_List_All_Functions" }
+})
+```
+
+> ⚠️ Passing `body: { tool_name: "..." }` instead of `query_params` returns "tool_name is required" — this is the wrong parameter location.
+
+### Step 2 — Call the tool
+
+`ZohoMCP_executeTool` always takes a `body` with this shape:
+
+```
+ZohoMCP_executeTool({
+  body: {
+    tool_name: "CatalystbyZoho_List_All_Functions",
+    arguments: {
+      path_variables: { project_id: "31594000000127002" },
+      headers: {},
+      body: {}
+    }
+  }
+})
+```
+
+- `path_variables` — URL path segments the tool requires (get names from the schema)
+- `headers` — extra HTTP headers (usually empty `{}`)
+- `body` — request payload for POST/PUT tools (empty `{}` for GET-style tools)
+
+Tools with no required path variables (e.g. `List_All_Organizations`, `List_All_Projects`) can be called with `arguments: {}`.
+
+---
+
 ## Available Tools
 
 The tools available depend on which Catalyst tools are configured in your Zoho MCP server. Confirmed tool names:
@@ -126,6 +167,13 @@ The tools available depend on which Catalyst tools are configured in your Zoho M
 | `CatalystbyZoho_List_Cache_Segments` | List all Cache segments in the project |
 | `CatalystbyZoho_List_All_Jobpools` | List all Job Scheduling pools in the project |
 | `CatalystbyZoho_Create_Job_Pool` | Create a new Job Scheduling pool |
+
+| `CatalystbyZoho_List_All_Functions` | List all functions in the project — each entry includes the numeric `id` field |
+| `CatalystbyZoho_Get_Logs` | Fetch function execution logs — see usage note below |
+
+> ⚠️ **`CatalystbyZoho_Get_Logs` — `resource_list` requires the numeric function ID, not the function name.**
+> Call `CatalystbyZoho_List_All_Functions` first and use the `id` field (e.g. `"101341000000019004"`).
+> Passing the function name (e.g. `"api"`) returns `INVALID_INPUT: "For input string: \"api\""` — a leaked Java NumberFormatException, not a useful error.
 
 For the full catalog of available tools, check your AI client's tool list after connecting — all tools shown with the `CatalystbyZoho_` prefix are available to use.
 
@@ -156,6 +204,22 @@ Are CatalystbyZoho_* tools visible in tool list?
 Use MCP    Guide user to set up Zoho MCP first
 tools      (see Setup section above)
   ✅        Then retry with MCP tools
+```
+
+**Only instruct manual Console steps when:**
+- MCP config is not set up AND user cannot set it up right now
+- MCP tools fail with an unresolvable error
+- User explicitly requests a manual UI walkthrough
+
+### Example: Table Creation
+
+❌ **Manual Console (5+ minutes)**
+```
+1. Open https://console.catalyst.zoho.com
+2. Navigate to project → Data Store
+3. Click Create Table, enter name
+4. Add each column manually via the UI
+5. Click Create
 ```
 
 ✅ **MCP (30 seconds)**

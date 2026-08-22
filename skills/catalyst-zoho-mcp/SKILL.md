@@ -26,7 +26,9 @@ metadata:
    >
    > *Which would you prefer?*
 
-3. **Pre-flight sequence** — Always run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` first to set project context before any other MCP tool call.
+3. **Pre-flight sequence** — In order:
+   - **Confirm DC first.** Wrong DC = empty org list. Use `/catalyst-by-zoho:switch-dc` to switch data centers if `CatalystbyZoho_List_All_Organizations` returns empty or the wrong org.
+   - Run `CatalystbyZoho_List_All_Organizations` → `CatalystbyZoho_List_All_Projects` to set project context before any other MCP tool call.
 4. **Load `references/zoho-mcp.md`** — for the full tool catalog, execution flow, and common error fixes.
 5. **If the query involves DataStore** (create table, add columns, query data) — also load `references/mcp-datastore.md`.
 6. **Answer** — Call the appropriate `CatalystbyZoho_*` tool directly. Show the user what tool was called and what it returned.
