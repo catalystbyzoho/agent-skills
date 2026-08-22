@@ -5,6 +5,10 @@ metadata:
   version: "2.1.1"
 ---
 
+## 🚦 Local auth requires plain `catalyst serve`
+
+Auth works locally only when served through `catalyst serve`. NEVER use the native dev server (`npm run dev`, `vite`, `next dev`, `ng serve`, etc.) for auth development — the Catalyst auth middleware, cookie injection, and `/__catalyst/sdk/init.js` are only available through `catalyst serve`.
+
 ## How It Works
 
 1. **Identify flow type** — Hosted login (redirect to Catalyst login page), embedded login (custom UI), or backend `getCurrentUser` check.
@@ -21,7 +25,7 @@ metadata:
 
 ## Triggers
 
-Use this skill for: "authentication", "user management", "login", "signup", `getCurrentUser`, "ZAID", `registerUser`, `isUserAuthenticated`, `signOut`, "hosted login", "embedded login", "Connections", "OAuth token", `getConnector`, `getAccessToken`, "Security Rules", "App User", "credentials include", "auth redirect", "third-party auth", "third-party authentication", "social login", "Google login", "Facebook login", "LinkedIn login", "Microsoft login", `signinWithJwt`, `generateCustomToken`, "Okta", "Auth0", "Duo", "custom IdP".
+Use this skill for: "authentication", "user management", "login", "signup", `getCurrentUser`, "ZAID", `registerUser`, `isUserAuthenticated`, `signOut`, "cross-domain logout", "hosted login", "embedded login", "Connections", "OAuth token", `getConnector`, `getAccessToken`, "Security Rules", "App User", "credentials include", "auth redirect", "third-party auth", "third-party authentication", "social login", "Google login", "Facebook login", "LinkedIn login", "Microsoft login", `signinWithJwt`, `generateCustomToken`, "Okta", "Auth0", "Duo", "custom IdP".
 
 ## References
 

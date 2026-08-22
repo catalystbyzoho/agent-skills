@@ -87,13 +87,25 @@ await catalyst.auth.signUp({
   redirect_url: window.location.origin + '/'  // Root path for Slate
 });
 
-// Embedded login widget
+// redirect_url must be "/" for Slate (root path)
 catalyst.auth.signIn('login-container', {
-  service_url: window.location.origin + '/'  // Root path for Slate
+  redirect_url: '/'
 });
 
 // Logout
 catalyst.auth.signOut(window.location.origin);
+
+// ⚠️ Slate two-origin limitation:
+// signOut() only clears the frontend cookie. The Catalyst backend session
+// may persist because Slate and the backend run on different origins.
+// The SDK provides no cross-domain logout API. Workaround: use a
+// sessionStorage flag to return the UI to the login screen, and add an
+// honest comment in your code that the backend session is not invalidated.
+
+// Example workaround:
+catalyst.auth.signOut(window.location.origin);
+sessionStorage.setItem('signed_out', 'true');
+// NOTE: backend session persists — no SDK API exists for cross-domain invalidation
 ```
 
 **IMPORTANT:** Do NOT use `/app/` paths with Slate. Slate serves from root `/`, not `/app/`.
@@ -101,10 +113,14 @@ catalyst.auth.signOut(window.location.origin);
 ### Check if logged in
 
 ```javascript
-const result = await catalyst.auth.isUserAuthenticated();
-// ⚠️ User is nested under result.content — NOT result directly
-// result.content.email_id, result.content.user_id, result.content.first_name
-// Rejects with 401 when not authenticated
+try {
+  const result = await catalyst.auth.isUserAuthenticated();
+  // ⚠️ User is nested under result.content — NOT result directly
+  // result.content.email_id, result.content.user_id, result.content.first_name
+  // logged in
+} catch (err) {
+  // not logged in (401)
+}
 ```
 
 **Embedded sign-in widget has no built-in signup flow.** `catalyst.auth.signIn("divId", config)` renders a login iframe only — there is no sign-up button inside it. For signup, build a custom form and call `catalyst.auth.signUp()`.
@@ -222,6 +238,10 @@ catalyst.auth.signOut(window.location.origin);
 catalyst.auth.signOut(window.location.origin + '/app/index.html');
 ```
 
+### `signOut()` appears to work but user can still access protected routes
+
+Slate two-origin: `signOut()` clears frontend cookie only; backend session persists. Use a sessionStorage flag + redirect for UI-side logout. No full cross-domain logout is available in the current SDK.
+
 ---
 
 ## Embedded Auth on Slate (Non-Legacy Hosting)
@@ -238,13 +258,15 @@ await catalyst.auth.signUp({
   last_name: lastName,
   email_id: email,
   platform_type: 'web',
-  zaid: ZAID,
+  // zaid: optional in Slate embedded flow (injected via /__catalyst/sdk/init.js)
+  // required if you are running outside of catalyst serve or in a legacy setup
+  zaid: 'YOUR_ZAID',
   redirect_url: window.location.origin + '/'  // Root path
 });
 
-// Embedded login widget
+// redirect_url must be "/" for Slate (root path)
 catalyst.auth.signIn('login-container', {
-  service_url: window.location.origin + '/'  // Root path
+  redirect_url: '/'
 });
 /* Required CSS — Catalyst injects an iframe with no default height; it renders invisible without this */
 /* #login-container iframe { width: 100% !important; height: 500px !important; border: none !important; } */
@@ -277,7 +299,7 @@ useEffect(() => {
     if (sdk?.auth?.signIn) {
       clearInterval(checkSDK);
       sdk.auth.signIn('login-container', {
-        service_url: window.location.origin + '/'
+        redirect_url: '/'
       });
     }
   }, 100);
@@ -291,5 +313,5 @@ useEffect(() => {
 If you see this error after authentication, the SDK is redirecting to a path that doesn't exist in your router. Common causes:
 
 1. **SDK redirecting to `/app/`** → Add `/app/*` catch-all route (see catalyst-slate skill)
-2. **`client-package.json` has `login_redirect` without leading `/`** → Change to `"/"`
+2. **`client-package.json` has `redirect_url` without leading `/`** → Change to `"/"`
 3. **Console Authentication Type still set to Hosted** → Change to Embedded
