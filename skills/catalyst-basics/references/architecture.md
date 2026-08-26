@@ -53,7 +53,7 @@ Use this file when a user asks "which Catalyst service should I use for X?" or i
 | If you need… | Use | DC restriction |
 |---|---|---|
 | OCR, face detection, text analytics, object detection, barcode scanning, content moderation | **Zia Services** | US DC only for AutoML; see Never Use table |
-| Train a custom ML model on your own data | **QuickML (AutoML)** | Not available in EU, AU, IN, JP, SA, CA |
+| Train a custom ML model on your own data | **QuickML (AutoML)** | Not available in JP, SA, CA |
 | Browser automation, web scraping, PDF generation | **SmartBrowz / Browser Logic** | No DC restriction |
 
 ---
@@ -64,7 +64,7 @@ Use this file when a user asks "which Catalyst service should I use for X?" or i
 |---|---|---|
 | Trigger logic when data changes in Catalyst services | **Signals** | ~~Event Listeners~~ (deprecated) |
 | Run a function on a schedule (cron-style) | **Job Scheduling** | ~~Cron~~ (deprecated) |
-| Zoho service integration (Cliq, etc.) | **Integration Functions** | *Check DC restriction first* |
+| Zoho service integration (Cliq, etc.) | **Integration Functions** | Cliq-type: not available in EU, AU, IN, JP, SA, CA (US only). ConvoKraft-type: no DC restriction |
 
 ---
 
@@ -131,11 +131,15 @@ Before recommending Circuits, Integration Functions, AutoML, Push Notifications,
 | Service | US | EU | IN | AU | JP | SA | CA |
 |---------|----|----|----|----|----|----|-----|
 | Circuits | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Integration Functions | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| AutoML (QuickML) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Integration Functions — Cliq type | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Integration Functions — ConvoKraft type | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| AutoML (QuickML) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | Push Notifications | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
-| Identity Scanner (Zia) | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Identity Scanner — Document Processing | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Identity Scanner — Facial Comparison API/SDK | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | All other services | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+Note: **Identity Scanner's "Facial Comparison" feature works from any DC via API/SDK** — only *testing it in the Catalyst console* is restricted to IN DC. The "Document Processing" feature (Aadhaar, PAN, etc.) is IN DC only end-to-end, API included.
 
 Source: https://docs.catalyst.zoho.com/en/
 
@@ -144,6 +148,6 @@ Source: https://docs.catalyst.zoho.com/en/
 | Error | Cause | Fix |
 |-------|-------|-----|
 | Circuits not visible in console | User is on EU/AU/IN/JP/SA/CA DC | Use function chaining or Job Scheduling instead |
-| Integration Functions grayed out | User is on EU/AU/IN/JP/SA/CA DC | Use a Basic I/O function with the Zoho API directly via Connections |
-| AutoML not available | User is on EU/AU/IN/JP/SA/CA DC | Use Zia's pre-built ML services (OCR, Text Analytics) which have no DC restriction |
+| Integration Functions grayed out | User is on a restricted DC (EU/AU/IN/JP/SA/CA) for **Cliq-type** Integration Functions | Switch to **ConvoKraft-type** (no DC restriction), or use a Basic I/O function with the Zoho API directly via Connections |
+| AutoML not available | User is on JP/SA/CA DC | Use Zia's pre-built ML services (OCR, Text Analytics) which have no DC restriction |
 | "File Store not found" error | Deprecated service accessed by pre-Aug 2025 account trying new feature | Migrate to Stratus |
