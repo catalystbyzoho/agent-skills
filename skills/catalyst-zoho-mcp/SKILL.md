@@ -3,14 +3,14 @@ name: catalyst-zoho-mcp
 description: "Catalyst Zoho MCP — manage Catalyst infrastructure (tables, buckets, cache) via CatalystbyZoho_* MCP tools using natural language. Trigger on 'Zoho MCP', 'MCP tools', 'catalyst MCP', 'CatalystbyZoho', 'create table with AI', 'MCP setup', 'MCP config', 'global MCP server', 'infrastructure as conversation', 'MCP first', 'avoid Catalyst console', or 'use MCP instead of console'."
 compatibility: "Requires an MCP-capable AI host: Claude Desktop, VS Code with GitHub Copilot, or Cursor."
 metadata:
-  version: "2.2.1"
+  version: "2.2.2"
 ---
 
 ## How It Works
 
 1. **Check if MCP is connected** — Look for `CatalystbyZoho_*` tools in your tool list.
 
-2. **⛔ MCP NOT connected — HARD STOP.**
+2. **MCP NOT connected — HARD STOP.**
    Do NOT write any code, create any files, or call any SDK.
    Ask the user which setup path they prefer, then load `references/zoho-mcp.md` and follow only that path.
    Do not proceed to step 3 until the user confirms `CatalystbyZoho_*` tools are visible in their client.

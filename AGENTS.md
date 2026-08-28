@@ -141,10 +141,11 @@ Brief one-line intro.
 - Do not use the headings "Troubleshooting", "Gotchas", or "Known Issues" — use `## Common Errors`.
 - Do not skip the `## How It Works` section. Agents rely on it for decision flow.
 - Do not set `version: "1.0.0"` on new skills — inherit the current repo version (`2.0.0`).
+- Do not use decorative emoji in headings or prose. Only two uses are allowed: `⚠️` for inline warning callouts, and `✅`/`❌` as Yes/No cells in availability tables. Literal CLI output quoted in a code block is left verbatim.
 
 ---
 
 ## Source of truth
 
-- Public docs: https://docs.catalyst.zoho.com/en/
+- Public docs: https://docs.catalyst.zoho.com/en/llms.txt (markdown index of every docs page; append `index.md` to any page URL to fetch it as markdown)
 - This repo: https://github.com/catalystbyzoho/agent-skills

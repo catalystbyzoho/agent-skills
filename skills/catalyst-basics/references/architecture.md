@@ -141,7 +141,7 @@ Before recommending Circuits, Integration Functions, AutoML, Push Notifications,
 
 Note: **Identity Scanner's "Facial Comparison" feature works from any DC via API/SDK** — only *testing it in the Catalyst console* is restricted to IN DC. The "Document Processing" feature (Aadhaar, PAN, etc.) is IN DC only end-to-end, API included.
 
-Source: https://docs.catalyst.zoho.com/en/
+Source: https://docs.catalyst.zoho.com/en/llms.txt
 
 ## Common Errors
 

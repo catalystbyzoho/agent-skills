@@ -3,7 +3,7 @@ name: catalyst-functions
 description: "Catalyst serverless functions — all 7 types (Basic I/O, Advanced I/O, Event, Cron, Job, Integration, Browser Logic), handler signatures, catalyst-config.json, Security Rules, API Gateway routing, file uploads, busboy, Express middleware, environment variables, function URL, and function testing. Requires MCP connection — check for CatalystbyZoho_* tools before any operation. Trigger on 'write a function', 'catalyst function', 'API Gateway', 'Security Rules', 'function not found', 'function returns 401', 'busboy', 'middleware', 'function URL', 'environment variable in function', 'duplicate CORS headers', 'CORS error in browser', 'Access-Control-Allow-Origin multiple values', 'function URL 404', 'execute suffix', 'function timeout', 'function hangs', or any function type question. Do NOT use for persistent servers, long-running processes, or Docker deployments — use catalyst-appsail instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`) and Node.js v20 (recommended; v14–v18 also supported). Java functions also require JDK 8, 11, or 17. Python functions require Python 3.9."
 metadata:
-   version: "2.0.1"
+   version: "2.0.2"
 ---
 
 ## How It Works

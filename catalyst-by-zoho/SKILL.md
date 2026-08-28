@@ -2,7 +2,7 @@
 name: catalyst-by-zoho
 description: "Expert coding assistant for Catalyst by Zoho — Zoho's full-stack serverless cloud platform. Use for any question about Catalyst services, CLI, SDKs, architecture, pricing, or Zoho MCP tool-based infrastructure management."
 metadata:
-  version: "2.0.1"
+  version: "2.1.0"
 ---
 
 # Catalyst by Zoho — Skill Index
@@ -38,7 +38,7 @@ Use this skill for queries containing: Catalyst, zcatalyst, AppSail, Data Store,
 
 ---
 
-## 🛑 Pre-flight gate (project-mutating tasks only)
+## Pre-flight gate (project-mutating tasks only)
 
 **Step 1 — MCP check (do this before anything else for infrastructure tasks):**
 Look for `CatalystbyZoho_*` tools in your tool list.
@@ -83,7 +83,7 @@ New to Catalyst? Here's what each service does in one line:
 
 | Service | What it is |
 |---------|-----------|
-| **Functions** | Serverless functions — Basic I/O (HTTP), Advanced I/O, Event, Cron, Integration, Email Parser, Push Notification. Per-invocation billing. |
+| **Functions** | Serverless functions — Basic I/O (HTTP), Advanced I/O, Event, Cron, Job, Integration, Browser Logic. Per-invocation billing. |
 | **AppSail** | PaaS for long-running web apps — Node.js, Java, Python managed runtimes, or any Docker container. |
 | **Data Store** | Relational tables (rows + columns, foreign keys). Queried via ZCQL (SQL-like) or SDK. |
 | **Stratus** | Object/file storage (like S3). Buckets, folders, objects. Up to 250 GB per object. |
@@ -96,7 +96,7 @@ New to Catalyst? Here's what each service does in one line:
 | **QuickML** | AutoML — train models on your own data without writing ML code. *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Signals** | Event-driven triggers / pub-sub (replaces legacy Event Listeners). |
-| **Job Scheduling** | Recurring/scheduled function execution (replaces legacy Cron). |
+| **Job Scheduling** | Job pools + immediate jobs + crons — scheduled/background execution of Job functions, Webhooks, Circuits, AppSail (replaces legacy Cron). |
 | **Zoho MCP** | AI tool integration — lets AI agents manage Catalyst infrastructure via `CatalystbyZoho_*` tools. |
 | **ZCQL** | SQL-like query language for Data Store. `SELECT`, `INSERT`, `UPDATE`, `DELETE`. Max 300 rows per SELECT. |
 | **ZAID** | Zoho Account ID — the built-in auth identity layer. Used with Web SDK for user auth flows. |
@@ -122,13 +122,13 @@ New to Catalyst? Here's what each service does in one line:
 | Zia Services, QuickML — OCR, ML predictions, AutoML | `catalyst-zia` |
 | Signals — event-driven triggers, publish/subscribe, event listeners, custom publisher, webhook target, dispatch policy | `catalyst-signals` |
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
-| Job Scheduling — cron/scheduled execution, recurring jobs | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md` — no dedicated skill yet) |
+| Job Scheduling — job pools, immediate/background jobs, crons (Periodic/OneTime/Calendar/CronExpression), `submitJob`, `createCron`, retries | `catalyst-job-scheduling` |
 | Zoho MCP — MCP setup, `CatalystbyZoho_*` tools, infra-as-conversation | `catalyst-zoho-mcp` |
 | Skill gave wrong or outdated guidance — user reporting an error | load `catalyst-by-zoho/references/skill-feedback.md` |
 
 ---
 
-## ⛔ Never Use (deprecated + regionally restricted)
+## Never Use (deprecated + regionally restricted)
 
 ### Deprecated services — do not use for new projects
 
@@ -221,8 +221,10 @@ After `catalyst init`, a `.catalystrc` file is written to the project root. Read
 
 ## Documentation
 
-- Main docs: https://docs.catalyst.zoho.com/en/
-- Node.js SDK: https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/overview/
-- Web SDK: https://docs.catalyst.zoho.com/en/sdk/web/v4/overview/
-- CLI reference: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/
+- Main docs: https://docs.catalyst.zoho.com/en/llms.txt
+- Node.js SDK: https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/overview/index.md
+- Web SDK: https://docs.catalyst.zoho.com/en/sdk/web/v4/overview/index.md
+- CLI reference: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/index.md
 - Pricing: https://catalyst.zoho.com/pricing.html
+
+> Fetching docs: `llms.txt` is the markdown index of every page. Append `index.md` to any docs page URL to get its markdown instead of HTML. A response starting with `<!DOCTYPE html>` means the page does not exist.

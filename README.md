@@ -30,11 +30,12 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | SDKs (Node.js, Web, Python, Java, Android, iOS, Flutter) | `catalyst-sdk` |
 | Zia Services + QuickML (OCR, AutoML) | `catalyst-zia` |
 | Zoho MCP (`CatalystbyZoho_*` tools) | `catalyst-zoho-mcp` |
+| Job Scheduling (job pools, immediate jobs, crons) | `catalyst-job-scheduling` |
 | Project setup, CLI, environments, architecture | `catalyst-basics` |
 
 ### Also covered (via reference files, no dedicated skill)
 
-Circuits (workflows), Job Scheduling, Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
+Circuits (workflows), Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
 
 ## Installation
 

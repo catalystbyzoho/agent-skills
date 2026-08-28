@@ -2,10 +2,10 @@
 name: catalyst-authentication
 description: "Catalyst Authentication — user login/signup, ZAID, Web SDK auth flows, OAuth token management via Connections, third-party authentication (Okta, Auth0, Duo, custom IdP), social logins (Google, Facebook, LinkedIn, Microsoft), generateCustomToken, signinWithJwt. Trigger on 'authentication', 'login', 'signup', 'getCurrentUser', 'ZAID', 'isUserAuthenticated', 'signOut', 'Connections', 'getAccessToken', 'third-party auth', 'social login', 'Google login', 'signinWithJwt', or 'generateCustomToken'. You MUST load this skill whenever implementing user login or protecting data — ZAID differs between Development and Production and is the #1 cause of auth failures after environment promotion. For Security Rules (function invocation control), route to catalyst-functions."
 metadata:
-  version: "2.1.1"
+  version: "2.1.2"
 ---
 
-## 🚦 Local auth requires plain `catalyst serve`
+## Local auth requires plain `catalyst serve`
 
 Auth works locally only when served through `catalyst serve`. NEVER use the native dev server (`npm run dev`, `vite`, `next dev`, `ng serve`, etc.) for auth development — the Catalyst auth middleware, cookie injection, and `/__catalyst/sdk/init.js` are only available through `catalyst serve`.
 

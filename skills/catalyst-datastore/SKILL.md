@@ -2,10 +2,10 @@
 name: catalyst-datastore
 description: "Catalyst Data Store — relational cloud database with ZCQL, CRUD operations, table permissions, and result pagination. Requires MCP connection — check for CatalystbyZoho_* tools before any operation. Trigger on 'Data Store', 'ZCQL', 'create table', 'executeZCQLQuery', 'table permissions', 'ROWID', 'boolean column', 'boolean always true', 'truthy string', 'boolean stored as string', or 'DataStore data types'. You MUST load this skill whenever writing code that reads or writes Data Store data — ZCQL result wrapping, boolean-as-string behavior, and App User permissions are non-obvious and cause silent bugs if skipped."
 metadata:
-  version: "2.1.0"
+  version: "2.1.1"
 ---
 
-## ⚠️ PREREQUISITES — READ THIS FIRST
+## PREREQUISITES — READ THIS FIRST
 
 **Before ANY Data Store operation, you MUST verify MCP connectivity.**
 

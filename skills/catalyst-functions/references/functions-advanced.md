@@ -387,10 +387,12 @@ const connection = catalystApp.connection();
 | Basic I/O | No |
 | Advanced I/O | No |
 | Event | Yes |
-| Cron | Yes |
-| Job | Yes |
+| Cron | No — cron failures trigger Application Alerts only; the JOBS a cron submits retry per their `job_config` |
+| Job | Configurable — `job_config: { number_of_retries: 0–10, retry_interval: 60–86400 /* SECONDS */ }` at submit time. Each retry is a NEW job record linked by `parent_job_id`; the original job's record stays FAILURE (runtime-confirmed) |
 | Integration | No |
 | Browser Logic | No |
+
+For full retry semantics, see `skills/catalyst-job-scheduling/references/job-scheduling-advanced.md`.
 
 Design background function handlers to be **idempotent** (safe to run multiple times).
 

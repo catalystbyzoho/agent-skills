@@ -2,7 +2,7 @@
 name: catalyst-basics
 description: "Core Catalyst project setup — directory structure, environments, CLI commands, and all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, Org ID). Trigger on 'start a Catalyst project', 'what is .catalystrc', 'where do I find my Table ID', 'difference between Development and Production', or any Catalyst ID or CLI question."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 > **⚠️ PRE-FLIGHT CHECK:** Before creating any project files, confirm that `.catalystrc` and
@@ -30,7 +30,7 @@ metadata:
 
 Use this skill for: "how do I start a Catalyst project", "what is .catalystrc", "where do I find my Table ID / ZAID / Segment ID / Project ID", "difference between Development and Production", "Catalyst project structure", "catalyst.json explained", `catalyst init`, `catalyst deploy`, `catalyst serve`, `catalyst login`, "how do I set up Catalyst with Claude", "how do I use Catalyst in Cursor", "how do I use Catalyst with GitHub Copilot", "which service should I use", "what Catalyst service for X", or any question about Catalyst IDs, environments, organizations, IDE setup, architecture decisions, or CLI subcommands.
 
-## 🔌 MCP Connection Check (Do This Before Anything Else)
+## MCP Connection Check (Do This Before Anything Else)
 
 **Before reading `.catalystrc`, asking the user for IDs, or doing anything project-related — check whether Zoho MCP tools are available in your tool list.**
 
