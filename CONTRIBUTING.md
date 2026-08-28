@@ -97,10 +97,15 @@ skills/
 │   └── references/
 │       ├── zia-services.md
 │       └── quickml.md
-└── catalyst-zoho-mcp/
+├── catalyst-zoho-mcp/
+│   ├── SKILL.md
+│   └── references/
+│       └── zoho-mcp.md                   ← MCP setup (all 3 clients), tool catalog, errors
+└── catalyst-job-scheduling/
     ├── SKILL.md
     └── references/
-        └── zoho-mcp.md                   ← MCP setup (all 3 clients), tool catalog, errors
+        ├── job-scheduling-basics.md      ← pools, immediate jobs, 4 cron types, MCP + SDK payloads
+        └── job-scheduling-advanced.md    ← retries, dynamic crons, webhook targets, observability
 ```
 
 ### Guidelines

@@ -114,47 +114,6 @@ Tools with no required path variables (e.g. `List_All_Organizations`, `List_All_
 
 ---
 
-## How to Call Tools Correctly
-
-**Rule: always call `ZohoMCP_getSchema` before `ZohoMCP_executeTool` for any tool you haven't called before.** Most `CatalystbyZoho_*` tools require `path_variables` (e.g. `project_id`) that are invisible without the schema — guessing the arguments causes "Mandatory path variable not present" errors.
-
-### Step 1 — Get the schema
-
-`ZohoMCP_getSchema` takes `query_params`, **not** `body`:
-
-```
-ZohoMCP_getSchema({
-  query_params: { tool_name: "CatalystbyZoho_List_All_Functions" }
-})
-```
-
-> ⚠️ Passing `body: { tool_name: "..." }` instead of `query_params` returns "tool_name is required" — this is the wrong parameter location.
-
-### Step 2 — Call the tool
-
-`ZohoMCP_executeTool` always takes a `body` with this shape:
-
-```
-ZohoMCP_executeTool({
-  body: {
-    tool_name: "CatalystbyZoho_List_All_Functions",
-    arguments: {
-      path_variables: { project_id: "31594000000127002" },
-      headers: {},
-      body: {}
-    }
-  }
-})
-```
-
-- `path_variables` — URL path segments the tool requires (get names from the schema)
-- `headers` — extra HTTP headers (usually empty `{}`)
-- `body` — request payload for POST/PUT tools (empty `{}` for GET-style tools)
-
-Tools with no required path variables (e.g. `List_All_Organizations`, `List_All_Projects`) can be called with `arguments: {}`.
-
----
-
 ## Available Tools
 
 The tools available depend on which Catalyst tools are configured in your Zoho MCP server. Confirmed tool names:
@@ -167,6 +126,10 @@ The tools available depend on which Catalyst tools are configured in your Zoho M
 | `CatalystbyZoho_List_Cache_Segments` | List all Cache segments in the project |
 | `CatalystbyZoho_List_All_Jobpools` | List all Job Scheduling pools in the project |
 | `CatalystbyZoho_Create_Job_Pool` | Create a new Job Scheduling pool |
+| `CatalystbyZoho_Create_Cron_Job` | Create a Job Scheduling cron (Periodic/Webhook) — see Common Patterns for the required webhook shape |
+| `CatalystbyZoho_List_All_Crons` | List all cron jobs — ⚠️ response includes webhook header secrets in cleartext, see note below |
+| `CatalystbyZoho_Get_Cron_Job_By_Id` | Get a single cron job — ⚠️ same header-secret exposure as `List_All_Crons` |
+| `CatalystbyZoho_Submit_Cron_Job` | Manually trigger a cron job — use as the smoke test after creating a webhook cron |
 
 | `CatalystbyZoho_List_All_Functions` | List all functions in the project — each entry includes the numeric `id` field |
 | `CatalystbyZoho_Get_Logs` | Fetch function execution logs — see usage note below |
@@ -174,6 +137,10 @@ The tools available depend on which Catalyst tools are configured in your Zoho M
 > ⚠️ **`CatalystbyZoho_Get_Logs` — `resource_list` requires the numeric function ID, not the function name.**
 > Call `CatalystbyZoho_List_All_Functions` first and use the `id` field (e.g. `"101341000000019004"`).
 > Passing the function name (e.g. `"api"`) returns `INVALID_INPUT: "For input string: \"api\""` — a leaked Java NumberFormatException, not a useful error.
+
+> ⚠️ **`CatalystbyZoho_List_All_Crons` and `CatalystbyZoho_Get_Cron_Job_By_Id` return webhook header secrets in cleartext** (e.g. a shared auth secret in `job_meta.headers`). Never echo the raw response into chat, issues, or logs.
+> - If a list/get is genuinely needed, surface only non-secret fields: `cron_name`, `id`, the `url` path, schedule, `cron_status`.
+> - Never place header secret values inside an MCP tool-call prompt either — read them from local app config at call time only.
 
 For the full catalog of available tools, check your AI client's tool list after connecting — all tools shown with the `CatalystbyZoho_` prefix are available to use.
 
@@ -276,6 +243,25 @@ The AI calls `CatalystbyZoho_List_All_Tables` then describes the schema.
 
 `jobpool_id` is a required field — there is no default or fallback. Job submission fails immediately if it is omitted.
 
+### Create a webhook cron job
+
+> "Set up a daily cron that calls my AppSail purge endpoint"
+
+**`job_name` limit is 20 characters** — stricter than, and separate from, the alphanumeric-plus-underscore rule for `Create_Immediate_Job`. `lantern_quarantine_purge` (24 chars) is rejected; `lantern_q_purge` (15 chars) works.
+
+**Clone the shape from a working webhook cron — do not guess it from the old Cloud Scale "third-party URL cron" model.** A webhook cron requires:
+- `jobpool_id` — must be a **Webhook** pool (from `CatalystbyZoho_List_All_Jobpools`, or create one first)
+- `target_type: "Webhook"`
+- `url`, `request_method`, `request_body`
+- `headers` (optional) — read secret values from local app config at call time; never hardcode or paste them into the tool-call prompt
+- `job_detail` for Periodic schedules — `timezone`, `hour`, `minute`, `repetition_type: "daily"`
+
+Guessing the legacy shape produces `jobpool Name and Id cannot be null`, timezone errors, or a bare `INTERNAL_SERVER_ERROR`.
+
+**The CLI cannot create or list crons.** `zcatalyst-cli` has no cron subcommands as of `1.27.0` (2026-07-15) — updating the CLI does not add this. MCP or Console only.
+
+**After creating, smoke-test with `CatalystbyZoho_Submit_Cron_Job`** and expect HTTP 200 from the webhook. Do not rely on `success_count` from a list call as a health signal for webhook jobs — it is not reliable.
+
 ---
 
 ## Common Errors
@@ -290,4 +276,6 @@ The AI calls `CatalystbyZoho_List_All_Tables` then describes the schema.
 | MCP targets wrong environment | Zoho MCP defaults to Development | Switch environment explicitly in the Zoho MCP console if production is needed (use caution) |
 | `INVALID_INPUT: job_name must contain only alphanumeric and underscore` on `CatalystbyZoho_Create_Immediate_Job` | `job_name` contains hyphens or spaces | Use underscores only — `doc_audit_run_1` not `doc-audit-run-1` |
 | Job submission fails with missing field error | `jobpool_id` not provided to `CatalystbyZoho_Create_Immediate_Job` | Call `CatalystbyZoho_List_All_Jobpools` first; if none exist, call `CatalystbyZoho_Create_Job_Pool` then use the returned ID |
+| `INVALID_INPUT` on `CatalystbyZoho_Create_Cron_Job` with a job_name under 25 characters | `job_name` exceeds the **20-character** limit for Cron jobs — stricter than Immediate Job's alphanumeric-only rule | Shorten to ≤20 characters, e.g. `lantern_q_purge` not `lantern_quarantine_purge` |
+| `jobpool Name and Id cannot be null`, a timezone error, or `INTERNAL_SERVER_ERROR` on `Create_Cron_Job` | Used the legacy Cloud Scale "third-party URL cron" shape instead of the current Webhook schema | Clone the shape from an existing working webhook cron: `jobpool_id` (Webhook pool), `target_type: "Webhook"`, `url`, `request_method`, `request_body`, `job_detail` |
 

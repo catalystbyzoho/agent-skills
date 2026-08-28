@@ -185,17 +185,15 @@ table.deleteItems([{"pk": "partition1", "sk": "sort1"}])
 
 ## Job Scheduling
 
-```python
-pool = catalyst_app.job_scheduling().pool(pool_id)
+> ⚠️ An earlier version of this section showed `job_scheduling().pool(pool_id).create_cron({target_function, cron_expression, ...})` — that shape does NOT exist (the equivalent Node SDK has no `pool()` accessor either; its `Jobpool` class only exposes `getJob`/`submitJob`/`deleteJob`). Do not generate it. The Python job-scheduling module's exact method names are unverified — prefer the REST API / Zoho MCP tools (`CatalystbyZoho_Create_Immediate_Job`, `CatalystbyZoho_Create_Cron_Job`), whose payloads are runtime-confirmed in `skills/catalyst-job-scheduling/references/job-scheduling-basics.md`.
 
-cron = pool.create_cron({
-    "cron_name": "daily_report",
-    "target_function": "generate_report",
-    "cron_type": "calendar",
-    "cron_expression": "0 9 * * *",
-    "params": {"report_type": "daily_summary"}
-})
-```
+Server-side semantics that apply regardless of language (all runtime-confirmed):
+
+- `job_name`: 1–20 chars, alphanumeric + underscore.
+- Function targets must be **job-type** functions.
+- `time_of_execution` (OneTime crons): UNIX **seconds** — ms values silently schedule for year ~58000 and never fire.
+- `job_config.retry_interval`: **seconds**, 60–86400; `number_of_retries`: 0–10.
+- Cron types: `Periodic`, `OneTime`, `Calendar` (capital C), `CronExpression` (with top-level `cron_expression`).
 
 ---
 

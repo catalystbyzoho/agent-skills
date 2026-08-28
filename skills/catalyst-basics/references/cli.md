@@ -1,6 +1,6 @@
 # CLI Command Reference
 
-Complete reference for the Catalyst CLI (`catalyst` / `zcatalyst`). For official docs see: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/
+Complete reference for the Catalyst CLI (`catalyst` / `zcatalyst`). For official docs see: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/index.md
 
 ---
 
@@ -311,7 +311,7 @@ Delete a function.
 
 ```bash
 catalyst functions:delete <function_name> --local      # Remove only from local project (default in NI mode)
-catalyst functions:delete <function_name> --remote     # ⛔ BLOCKED in NI mode — delete locally only
+catalyst functions:delete <function_name> --remote     # BLOCKED in NI mode — delete locally only
 ```
 
 > **NI mode:** `<function_name>` positional argument is required in non-interactive mode — omitting it falls back to an interactive selector.
@@ -332,7 +332,7 @@ Delete the client component.
 
 ```bash
 catalyst client:delete --local     # Remove only from local project (default in NI mode)
-catalyst client:delete --remote    # ⛔ BLOCKED in NI mode — delete locally only
+catalyst client:delete --remote    # BLOCKED in NI mode — delete locally only
 ```
 
 > **NI mode caveat:** `client:delete --local` may still prompt interactively in some CLI versions despite `-ni`. If it does, manually remove the client entry from `catalyst.json` → `client.targets` array and delete the local client directory instead.
@@ -811,4 +811,4 @@ Always follow this order when building a Catalyst project:
 
 ---
 
-External documentation: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/
+External documentation: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/index.md

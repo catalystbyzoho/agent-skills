@@ -133,7 +133,7 @@ def handler(job_request, context):
 
 If edited source doesn't appear in `functions:execute` output, delete the stale build cache: `rm -rf functions/<name>/.build` and re-run.
 
-Note: Job **pool** memory and **function** memory are separate settings — raising the pool size alone does not raise the function's execution memory. The job function's allocated memory must be **less than** the job pool's allocated memory, or jobs suffer dispatch delays.
+Note: Job **pool** memory and **function** memory are separate settings — raising the pool size alone does not raise the function's execution memory (jobs run at the FUNCTION's memory; the pool is a ceiling). The job function's memory must be **≤** the job pool's memory, or every submission is REJECTED at submit time with `INVALID_INPUT: The memory allocated for the Job Function is higher than the memory allocated for its associated Job Pool.` (runtime-confirmed — it is a hard error, not a dispatch delay).
 
 ---
 
@@ -200,7 +200,7 @@ const connection = catalystApp.connection();
 | Advanced I/O | No | |
 | Event | Yes | Platform retries automatically |
 | Cron | **No** | Failures trigger Application Alerts only — no automatic retry. Manual review and rerun required. |
-| Job | Configurable | Retry is set in `job_config.number_of_retries` when submitting the job (0–10 retries, min 1-min interval) |
+| Job | Configurable | `job_config: { number_of_retries: 0–10, retry_interval: 60–86400 }` at submit time — `retry_interval` is in **SECONDS** (runtime-confirmed; ms values are rejected with `retry interval should be within 60s (1 minute) to 86400s (24 hours)`). Each retry is a NEW job record linked by `parent_job_id`. |
 | Integration | No | |
 | Browser Logic | No | |
 

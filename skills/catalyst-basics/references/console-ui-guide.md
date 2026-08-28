@@ -2,7 +2,7 @@
 
 Step-by-step navigation for the most common console tasks.
 
-> **Coverage note:** This guide documents the most commonly needed console flows. The following areas are **not yet documented here** and require consulting the [official Catalyst docs](https://docs.catalyst.zoho.com):
+> **Coverage note:** This guide documents the most commonly needed console flows. The following areas are **not yet documented here** and require consulting the [official Catalyst docs](https://docs.catalyst.zoho.com/en/llms.txt) (append `index.md` to any page URL to fetch it as markdown):
 > - Hosted Authentication (OAuth providers, custom login pages)
 > - Billing activation and plan upgrades
 > - Cache segment creation (Cloud Scale → Cache → New Segment)

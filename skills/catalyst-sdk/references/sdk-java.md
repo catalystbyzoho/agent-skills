@@ -1,5 +1,5 @@
 > **Supported Java versions:** 8, 11, 17
-> **Docs:** https://docs.catalyst.zoho.com/en/sdk/java/v1/overview/
+> **Docs:** https://docs.catalyst.zoho.com/en/sdk/java/v1/overview/index.md
 
 ## Maven Setup
 

@@ -42,8 +42,9 @@ Before starting any Catalyst task, load the most specific matching skill from `s
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `skills/catalyst-sdk/` |
 | Zia Services, QuickML — OCR, ML, AutoML predictions | `skills/catalyst-zia/` |
 | Zoho MCP — `CatalystbyZoho_*` tools, MCP setup | `skills/catalyst-zoho-mcp/` |
+| Job Scheduling — job pools, immediate jobs, crons, `submitJob`, `createCron` | `skills/catalyst-job-scheduling/` |
 
-If the skill's reference files don't contain the answer, use a site-scoped web search (`site:docs.catalyst.zoho.com <term>`) and fetch the specific page URL returned. Do NOT fabricate docs URLs — all Catalyst documentation lives under `https://docs.catalyst.zoho.com/en/`.
+If the skill's reference files don't contain the answer, use a site-scoped web search (`site:docs.catalyst.zoho.com <term>`) and fetch the specific page URL returned **with `index.md` appended** (e.g. `https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/overview/index.md`) — every docs page serves a markdown version that is ~20× smaller than the HTML. The full page index is `https://docs.catalyst.zoho.com/en/llms.txt`. If the fetched content starts with `<!DOCTYPE html>`, the page does not exist — do not treat it as documentation. Do NOT fabricate docs URLs — all Catalyst documentation lives under `https://docs.catalyst.zoho.com/en/`.
 
 ---
 
