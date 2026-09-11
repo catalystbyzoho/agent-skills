@@ -224,6 +224,8 @@ After `catalyst init`, a `.catalystrc` file is written to the project root. Read
 - Main docs: https://docs.catalyst.zoho.com/en/llms.txt
 - Node.js SDK: https://docs.catalyst.zoho.com/en/sdk/nodejs/v2/overview/index.md
 - Web SDK: https://docs.catalyst.zoho.com/en/sdk/web/v4/overview/index.md
+- Python SDK: https://docs.catalyst.zoho.com/en/sdk/python/v1/overview/index.md
+- Java SDK: https://docs.catalyst.zoho.com/en/sdk/java/v1/overview/index.md
 - CLI reference: https://docs.catalyst.zoho.com/en/cli/v1/cli-command-reference/index.md
 - Pricing: https://catalyst.zoho.com/pricing.html
 

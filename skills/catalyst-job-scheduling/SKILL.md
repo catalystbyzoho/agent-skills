@@ -9,13 +9,9 @@ metadata:
 
 Job Scheduling runs background work in three pieces: **job pools** (capacity containers), **jobs** (one execution each, submitted immediately via API/SDK/MCP), and **crons** (schedulers that submit jobs on a timetable). Every fact in this skill and its references is runtime-verified against a live Catalyst project (Aug 2026) unless marked otherwise.
 
-## PREREQUISITES — READ THIS FIRST
+## Prerequisites
 
-1. **A job pool must exist before anything runs.** Fresh projects have ZERO pools and there is no default. Create one first (MCP `CatalystbyZoho_Create_Job_Pool` or the console).
-2. **Function targets must be JOB-type functions** (`catalyst functions:add --type job`). Targeting a cron-type, basicio, or advancedio function fails with `The given function is not a job function.` Cron-TYPE functions belong to the legacy Cron component — for Job Scheduling, write JOB functions even for scheduled work.
-3. **Time values use seconds.** `time_of_execution` is a UNIX timestamp in seconds; `retry_interval` is a duration in seconds. A millisecond `time_of_execution` value is accepted silently and schedules the cron for year ~58,000, so it never fires and nothing warns you.
-4. **`job_name` must be 1–20 chars, alphanumeric + underscore only.** ROWID-suffixed names overflow this fast — truncate (e.g. `'dun_' + rowid.slice(-6)`).
-5. The job function's memory must be **≤ its pool's memory**, or every submission is rejected with `INVALID_INPUT`.
+Before any operation, load `references/job-scheduling-basics.md` — it covers the five setup rules that cause most failures: job pool must exist first (no default), targets must be JOB-type functions, all time values in seconds, `job_name` limits, and function-vs-pool memory constraints.
 
 ## How It Works
 
@@ -34,7 +30,6 @@ Job Scheduling runs background work in three pieces: **job pools** (capacity con
 
 ## Hallucination Guards
 
-- There is **no `pool(id).createCron(...)`** API in the Node SDK. Crons: `app.jobScheduling().cron()`; jobs: `app.jobScheduling().job()`; pools (read-only): `getJobpool(id)` / `getAllJobpool()`.
 - The SDK enum `CRON_TYPE.CALENDER` ("Calender") is misspelled and **rejected by the server**. Use the string `'Calendar'`.
 - `retry_interval` is NOT milliseconds. Seconds, 60–86400. `15 * 60 * 1000` is rejected.
 - Immediate jobs and scheduled jobs share the same 15-minute timeout; `context.getMaxExecutionTimeMs()` returns the STRING `"900000"` (`parseInt` before math), while `getRemainingExecutionTimeMs()` returns a number.

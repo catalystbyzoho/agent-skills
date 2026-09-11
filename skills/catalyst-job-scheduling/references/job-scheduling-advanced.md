@@ -19,7 +19,7 @@ Configured per job via `job_config: { number_of_retries: 0–10, retry_interval:
 |----------|--------|
 | Periodic (`every`) fires immediately | On CREATE **and** on every UPDATE, then every interval anchored to that moment (small drift of seconds/cycle observed) |
 | CronExpression fires on wall-clock boundaries | `*/5 * * * *` → :00/:05/:10… in the cron's timezone |
-| OneTime with PAST timestamp | Accepted without validation, fires ~35s later |
+| OneTime with PAST timestamp | Accepted without validation, fires ~35s later — do NOT use this as an "execute now" pattern; submit an immediate job (`submitJob` / `Create_Immediate_Job`) instead |
 | OneTime after firing | Auto-disables (`cron_status` → `false`); record remains |
 | OneTime with ms timestamp | Scheduled for year ~58,000 — never fires, zero warnings |
 | Disabled crons | Skip their schedule, but `Submit_Cron_Job` / `runCron()` still work manually |
@@ -60,7 +60,7 @@ Webhook pools dispatch plain HTTP requests — `url` + `request_method` required
 
 - `params` are appended as the **query string** (`POST /hook?channel=webhook`); `request_body` and custom headers are delivered verbatim.
 - Success = 2xx → `response_code: "Success"`; non-2xx → `job_status: FAILURE`, `response_code: "500"` (the actual HTTP status as string) → retries per `job_config`.
-- The target URL MAY be your own project's function URL. Such calls arrive with live Catalyst credential headers (`X-ZC-PROJECT-SECRET-KEY`, admin/user cred tokens) — an Advanced I/O receiver can `catalyst.initialize(req, { scope: 'admin' })`, but treat its logs as sensitive.
+- The target URL MAY be your own project's function URL. Such calls arrive with live Catalyst credential headers (`X-ZC-PROJECT-SECRET-KEY`, admin/user cred tokens) — treat the receiving function's logs as sensitive.
 - `notify_url` (completion callback, separate from the webhook target) must be an EXTERNAL URL — pointing it at the project's own catalystserverless.com domain fails the whole submission with a bare `INTERNAL_SERVER_ERROR`. Callback payload shape: unverified.
 
 ## Monitoring & observability

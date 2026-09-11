@@ -249,14 +249,29 @@ The AI calls `CatalystbyZoho_List_All_Tables` then describes the schema.
 
 **`job_name` limit is 20 characters** — stricter than, and separate from, the alphanumeric-plus-underscore rule for `Create_Immediate_Job`. `lantern_quarantine_purge` (24 chars) is rejected; `lantern_q_purge` (15 chars) works.
 
-**Clone the shape from a working webhook cron — do not guess it from the old Cloud Scale "third-party URL cron" model.** A webhook cron requires:
-- `jobpool_id` — must be a **Webhook** pool (from `CatalystbyZoho_List_All_Jobpools`, or create one first)
-- `target_type: "Webhook"`
-- `url`, `request_method`, `request_body`
-- `headers` (optional) — read secret values from local app config at call time; never hardcode or paste them into the tool-call prompt
-- `job_detail` for Periodic schedules — `timezone`, `hour`, `minute`, `repetition_type: "daily"`
+**Use this exact shape — do not guess it from the old Cloud Scale "third-party URL cron" model.** Complete `CatalystbyZoho_Create_Cron_Job` body for a daily webhook cron (the `jobpool_id` must reference a **Webhook**-type pool from `CatalystbyZoho_List_All_Jobpools` — create one first if none exists):
 
-Guessing the legacy shape produces `jobpool Name and Id cannot be null`, timezone errors, or a bare `INTERNAL_SERVER_ERROR`.
+```json
+{
+  "cron_name": "daily_purge",
+  "cron_status": true,
+  "cron_execution_type": "pre-defined",
+  "cron_type": "Calendar",
+  "job_detail": { "hour": "2", "minute": "0", "second": "0", "repetition_type": "daily", "timezone": "Asia/Kolkata" },
+  "job_meta": {
+    "job_name": "daily_purge",
+    "source_type": "Cron",
+    "target_type": "Webhook",
+    "jobpool_id": "<webhookPoolId>",
+    "url": "https://your-app.example.com/internal/purge",
+    "request_method": "POST",
+    "request_body": "{\"action\":\"purge\"}",
+    "headers": { "X-App-Secret": "<read from local app config at call time — never hardcode or paste into the tool-call prompt>" }
+  }
+}
+```
+
+Guessing the legacy shape instead produces `jobpool Name and Id cannot be null`, timezone errors, or a bare `INTERNAL_SERVER_ERROR`.
 
 **The CLI cannot create or list crons.** `zcatalyst-cli` has no cron subcommands as of `1.27.0` (2026-07-15) — updating the CLI does not add this. MCP or Console only.
 

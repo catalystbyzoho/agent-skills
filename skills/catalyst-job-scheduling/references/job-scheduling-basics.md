@@ -40,10 +40,13 @@ module.exports = async (jobRequest, context) => {
     const maxMs = parseInt(context.getMaxExecutionTimeMs(), 10); // "900000" STRING (15 min)
     const remMs = context.getRemainingExecutionTimeMs();         // number (~899500 at start)
 
-    const rows = await app.zcql().executeZCQLQuery(
+    const result = await app.zcql().executeZCQLQuery(
       `SELECT ROWID FROM Invoices WHERE status = 'unpaid' LIMIT 0, ${batch}`
     );
-    // ... process rows ...
+    const table = app.datastore().table('Invoices');
+    for (const row of result) {
+      await table.updateRow({ ROWID: row.Invoices.ROWID, status: 'reminder_sent' });
+    }
 
     context.closeWithSuccess();   // ALWAYS close — this reports SUCCESS
   } catch (e) {
@@ -52,6 +55,8 @@ module.exports = async (jobRequest, context) => {
   }
 };
 ```
+
+For the Python Job handler equivalent, see the **Python Job Function Template** in `catalyst-functions/references/functions-templates.md` — same `(job_request, context)` contract with snake_case methods (`get_all_job_params()`, `close_with_success()` / `close_with_failure()`).
 
 Other `jobRequest` methods: `getJobDetails()`, `getJobMetaDetails()`, `getJobCapacityAttributes()` (→ `{"memory":"256"}` strings at runtime), `getJobParam(key)`. ⚠️ `getJobDetails()`/`getJobMetaDetails()` include live credential headers — never log them wholesale.
 
@@ -82,26 +87,84 @@ All calls need `headers: {"Catalyst-org": <orgId>, "Environment": "Development"|
 
 **3. Cron:** `CatalystbyZoho_Create_Cron_Job`. Body requires `cron_name`, `cron_type`, `cron_status`, `cron_execution_type: "pre-defined"`, `job_detail`, `job_meta` (which requires `job_name`, `target_type`, `source_type: "Cron"`, `target_id`, `jobpool_id`).
 
-The four cron types (all runtime-confirmed, including `Calendar`, which is MISSING from the MCP tool schema enum but accepted by the live API):
+The four cron types (all runtime-confirmed, including `Calendar`, which is MISSING from the MCP tool schema enum but accepted by the live API). Each block below is a complete, sendable `CatalystbyZoho_Create_Cron_Job` body — swap `target_id` / `jobpool_id` for your own:
 
-```jsonc
-// Periodic — every N h/m/s. FIRES IMMEDIATELY on create and on every update, then every interval.
-"cron_type": "Periodic",
-"job_detail": { "hour": "0", "minute": "15", "second": "0", "repetition_type": "every", "timezone": "Asia/Kolkata" }
+**Periodic** — every N h/m/s. FIRES IMMEDIATELY on create and on every update, then every interval:
 
-// OneTime — fires once at time_of_execution — UNIX SECONDS, not ms!
-// A past timestamp fires immediately (~35s). A ms timestamp = year ~58000 = never fires, silently.
-"cron_type": "OneTime",
-"job_detail": { "time_of_execution": 1787900689, "timezone": "Asia/Kolkata" }
+```json
+{
+  "cron_name": "invoice_sweep",
+  "cron_status": true,
+  "cron_execution_type": "pre-defined",
+  "cron_type": "Periodic",
+  "job_detail": { "hour": "0", "minute": "15", "second": "0", "repetition_type": "every", "timezone": "Asia/Kolkata" },
+  "job_meta": {
+    "job_name": "invoice_sweep",
+    "source_type": "Cron",
+    "target_type": "Function",
+    "target_id": "<functionId>",
+    "jobpool_id": "<poolId>",
+    "params": { "action": "sweep" }
+  }
+}
+```
 
-// Calendar — fixed clock time; repetition_type daily | monthly | yearly
-"cron_type": "Calendar",
-"job_detail": { "hour": "9", "minute": "0", "second": "0", "repetition_type": "daily", "timezone": "Asia/Kolkata" }
+**OneTime** — fires once at `time_of_execution` (UNIX SECONDS, not ms — a past timestamp fires immediately after ~35s; a millisecond timestamp schedules year ~58,000 and never fires, silently):
 
-// CronExpression — cron_expression goes at the BODY TOP LEVEL, not inside job_detail
-"cron_type": "CronExpression",
-"cron_expression": "*/5 * * * *",
-"job_detail": { "timezone": "Asia/Kolkata" }
+```json
+{
+  "cron_name": "trial_expiry_once",
+  "cron_status": true,
+  "cron_execution_type": "pre-defined",
+  "cron_type": "OneTime",
+  "job_detail": { "time_of_execution": 1787900689, "timezone": "Asia/Kolkata" },
+  "job_meta": {
+    "job_name": "trial_expiry",
+    "source_type": "Cron",
+    "target_type": "Function",
+    "target_id": "<functionId>",
+    "jobpool_id": "<poolId>"
+  }
+}
+```
+
+**Calendar** — fixed clock time; `repetition_type`: `daily` | `monthly` | `yearly`:
+
+```json
+{
+  "cron_name": "daily_digest",
+  "cron_status": true,
+  "cron_execution_type": "pre-defined",
+  "cron_type": "Calendar",
+  "job_detail": { "hour": "9", "minute": "0", "second": "0", "repetition_type": "daily", "timezone": "Asia/Kolkata" },
+  "job_meta": {
+    "job_name": "daily_digest",
+    "source_type": "Cron",
+    "target_type": "Function",
+    "target_id": "<functionId>",
+    "jobpool_id": "<poolId>"
+  }
+}
+```
+
+**CronExpression** — `cron_expression` goes at the BODY TOP LEVEL, not inside `job_detail`:
+
+```json
+{
+  "cron_name": "five_min_poll",
+  "cron_status": true,
+  "cron_execution_type": "pre-defined",
+  "cron_type": "CronExpression",
+  "cron_expression": "*/5 * * * *",
+  "job_detail": { "timezone": "Asia/Kolkata" },
+  "job_meta": {
+    "job_name": "five_min_poll",
+    "source_type": "Cron",
+    "target_type": "Function",
+    "target_id": "<functionId>",
+    "jobpool_id": "<poolId>"
+  }
+}
 ```
 
 **4. Operate:** `Submit_Cron_Job` (manual trigger — works even on DISABLED crons; uses the cron's stored job_meta, params in the request body are ignored), `Update_Cron_Job_Status` (enable/disable — requires the FULL cron body, not just the flag), `Update_Cron_Job`, `Get_Cron_Job_By_Id`, `Delete_Cron_Job`, `Get_Job_By_Id`, `Delete_Job` (removes a finished job's record), `Delete_Job_Pool` (fails with `OPERATION_NOT_ALLOWED` until every cron referencing the pool is deleted first).
