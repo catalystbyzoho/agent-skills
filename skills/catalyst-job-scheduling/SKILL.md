@@ -13,7 +13,7 @@ Job Scheduling runs background work in three pieces: **job pools** (capacity con
 
 1. **A job pool must exist before anything runs.** Fresh projects have ZERO pools and there is no default. Create one first (MCP `CatalystbyZoho_Create_Job_Pool` or the console).
 2. **Function targets must be JOB-type functions** (`catalyst functions:add --type job`). Targeting a cron-type, basicio, or advancedio function fails with `The given function is not a job function.` Cron-TYPE functions belong to the legacy Cron component — for Job Scheduling, write JOB functions even for scheduled work.
-3. **All time values are UNIX SECONDS** (`time_of_execution`, `retry_interval`). Millisecond values are accepted silently and schedule your cron for year ~58,000 — it will never fire and nothing will warn you.
+3. **Time values use seconds.** `time_of_execution` is a UNIX timestamp in seconds; `retry_interval` is a duration in seconds. A millisecond `time_of_execution` value is accepted silently and schedules the cron for year ~58,000, so it never fires and nothing warns you.
 4. **`job_name` must be 1–20 chars, alphanumeric + underscore only.** ROWID-suffixed names overflow this fast — truncate (e.g. `'dun_' + rowid.slice(-6)`).
 5. The job function's memory must be **≤ its pool's memory**, or every submission is rejected with `INVALID_INPUT`.
 
