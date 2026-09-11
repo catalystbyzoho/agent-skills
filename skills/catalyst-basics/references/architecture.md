@@ -53,7 +53,7 @@ Use this file when a user asks "which Catalyst service should I use for X?" or i
 | If you need… | Use | DC restriction |
 |---|---|---|
 | OCR, face detection, text analytics, object detection, barcode scanning, content moderation | **Zia Services** | US DC only for AutoML; see Never Use table |
-| Train a custom ML model on your own data | **QuickML (AutoML)** | Not available in JP, SA, CA |
+| Train a custom ML model on your own data | **QuickML (AutoML)** | Not available in EU, AU, IN, JP, SA, CA |
 | Browser automation, web scraping, PDF generation | **SmartBrowz / Browser Logic** | No DC restriction |
 
 ---
