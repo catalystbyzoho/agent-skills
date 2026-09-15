@@ -93,7 +93,7 @@ New to Catalyst? Here's what each service does in one line:
 | **Authentication** | Built-in user sign-up/login (ZAID). OAuth Connections for third-party APIs. |
 | **SmartBrowz** | Headless browser automation, PDF/screenshot generation, Browser Logic functions, Browser Grid (parallel browsers), and Dataverse (web scraping). |
 | **Zia Services** | Pre-trained AI/ML: OCR, Face Analytics, Text Analytics, Object Detection, Barcode, Moderation. |
-| **QuickML** | AutoML — train models on your own data without writing ML code. *(Not in EU/AU/IN/JP/SA/CA)* |
+| **QuickML** | ML workspace & Generative AI — pipelines, models, AutoML, LLM Serving, RAG. *(Not in JP/SA/CA)* |
 | **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Signals** | Event-driven triggers / pub-sub (replaces legacy Event Listeners). |
 | **Job Scheduling** | Job pools + immediate jobs + crons — scheduled/background execution of Job functions, Webhooks, Circuits, AppSail (replaces legacy Cron). |
@@ -119,7 +119,7 @@ New to Catalyst? Here's what each service does in one line:
 | Cache — in-memory key-value, TTL, segment operations | `catalyst-cache` |
 | Pricing — free tier, pay-as-you-go, GB-seconds, cost estimation | `catalyst-pricing` |
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `catalyst-sdk` |
-| Zia Services, QuickML — OCR, ML predictions, AutoML | `catalyst-zia` |
+| Zia Services, QuickML — OCR, ML pipelines, AutoML, LLM Serving, RAG | `catalyst-zia` |
 | Signals — event-driven triggers, publish/subscribe, event listeners, custom publisher, webhook target, dispatch policy | `catalyst-signals` |
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
 | Job Scheduling — job pools, immediate/background jobs, crons (Periodic/OneTime/Calendar/CronExpression), `submitJob`, `createCron`, retries | `catalyst-job-scheduling` |
@@ -149,7 +149,7 @@ These services are **unavailable** in the listed data centers. Building with the
 | **Circuits** | EU, AU, IN, JP, SA, CA |
 | **Integration Functions** | EU, AU, IN, JP, SA, CA |
 | **Push Notifications** | EU, AU, IN, CA |
-| **AutoML (QuickML)** | EU, AU, IN, JP, SA, CA |
+| **AutoML (QuickML)** | JP, SA, CA |
 | **Identity Scanner (Zia)** | Available in IN DC only (not EU, AU, US, JP, SA, CA) |
 | **Mobile Device Management** | EU, AU, IN, JP, SA, CA |
 
