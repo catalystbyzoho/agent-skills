@@ -32,10 +32,11 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | Zoho MCP (`CatalystbyZoho_*` tools) | `catalyst-zoho-mcp` |
 | Job Scheduling (job pools, immediate jobs, crons) | `catalyst-job-scheduling` |
 | Project setup, CLI, environments, architecture | `catalyst-basics` |
+| Pipelines (CI/CD, Git integration, build/test/deploy, execution history) | `catalyst-pipelines` |
 
 ### Also covered (via reference files, no dedicated skill)
 
-Circuits (workflows), Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
+Circuits (workflows), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
 
 ## Installation
 

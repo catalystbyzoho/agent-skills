@@ -34,7 +34,7 @@ This is the routing layer. Load the most specific matching skill — do not answ
 
 ## Triggers
 
-Use this skill for queries containing: Catalyst, zcatalyst, AppSail, Data Store, ZCQL, Cache, Stratus, Slate, NoSQL, Zia Services, QuickML, API Gateway, Connections, Zoho MCP, CatalystbyZoho, `catalyst init`, `catalyst deploy`, `catalyst serve`, `zcatalyst-sdk-node`, `catalyst-config.json`, Catalyst pricing, "build on Zoho's platform", or "deploy to Catalyst". Do NOT use for generic Zoho CRM questions unless Catalyst is the target.
+Use this skill for queries containing: Catalyst, zcatalyst, AppSail, Data Store, ZCQL, Cache, Stratus, Slate, NoSQL, Zia Services, QuickML, API Gateway, Connections, Zoho MCP, CatalystbyZoho, Pipelines, `catalyst-pipelines.yaml`, `catalyst init`, `catalyst deploy`, `catalyst serve`, `zcatalyst-sdk-node`, `catalyst-config.json`, Catalyst pricing, "build on Zoho's platform", or "deploy to Catalyst". Do NOT use for generic Zoho CRM questions unless Catalyst is the target.
 
 ---
 
@@ -117,6 +117,7 @@ New to Catalyst? Here's what each service does in one line:
 | NoSQL — document storage, flexible schema, collections | `catalyst-nosql` |
 | Authentication — user login/signup, ZAID, Web SDK auth, Connections/OAuth | `catalyst-authentication` |
 | Cache — in-memory key-value, TTL, segment operations | `catalyst-cache` |
+| Pipelines — CI/CD, `catalyst-pipelines.yaml`, Git integration, build/test/deploy, execution history | `catalyst-pipelines` |
 | Pricing — free tier, pay-as-you-go, GB-seconds, cost estimation | `catalyst-pricing` |
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `catalyst-sdk` |
 | Zia Services, QuickML — OCR, ML predictions, AutoML | `catalyst-zia` |

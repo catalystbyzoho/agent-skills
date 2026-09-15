@@ -1,0 +1,103 @@
+{
+  "name": "pipelines-agent-success",
+  "purpose": "Check whether Catalyst Pipelines guidance produces valid configuration, preserves failed tests, and distinguishes accepted execution from verified deployment.",
+  "cases": [
+    {
+      "id": "PIPELINES-E001",
+      "title": "Configure a Functions deployment from GitHub",
+      "prompt": "Show me how to configure Catalyst Pipelines for my existing GitHub repository. It has catalyst.json and a Node.js function named api in functions/api, with a package-lock.json and a working npm test script. Tests must pass before deployment to Development. Explain the configuration only; do not create resources or run it.",
+      "expected_behavior": [
+        "Loads catalyst-pipelines and its reference for Catalyst YAML and console integration.",
+        "Uses catalyst-pipelines.yaml with declared jobs and a stages list, and explains connecting the intended repository and branch.",
+        "Installs locked dependencies and runs mandatory tests before deploying, preserving nonzero exit failures.",
+        "Uses explicit project, organization, data center, function selector, and non-interactive CLI options with credentials supplied through Global Variables."
+      ],
+      "failure_behavior": [
+        "Generates GitHub Actions syntax as the Catalyst pipeline configuration.",
+        "Omits tests, makes them optional, or deploys despite failed tests.",
+        "Invents a CLI or MCP command to create the pipeline.",
+        "Creates cloud resources for an explanation-only request."
+      ],
+      "pass_signal": "Produces a Catalyst configuration that gates the selected Development deployment on successful tests and explains its console setup."
+    },
+    {
+      "id": "PIPELINES-E002",
+      "title": "Resolve a project variable mismatch",
+      "prompt": "My Catalyst Pipeline has Global Variables PROJECT_ID and CATALYST_TOKEN, but deploy uses --project '<< env.PROJECT_NAME >>'. It fails to select the project. How do I fix it?",
+      "expected_behavior": [
+        "Identifies the PROJECT_ID versus PROJECT_NAME mismatch and uses the configured name consistently.",
+        "Explains that console Global Variables use the env namespace and checks organization/data-center context if lookup still fails.",
+        "Keeps token values out of the reply and debugging output."
+      ],
+      "failure_behavior": [
+        "Recommends creating a new Catalyst project before checking variable names.",
+        "Moves variables to stage scope or replaces Catalyst expressions with GitHub Actions expressions.",
+        "Asks the user to paste the token or print all environment variables."
+      ],
+      "pass_signal": "Corrects the existing variable reference without replacing the project or exposing credentials."
+    },
+    {
+      "id": "PIPELINES-E003",
+      "title": "Keep a failing test from reaching deployment",
+      "prompt": "My Catalyst Pipeline is red because npm test fails. Can I add || true so that the deploy step still runs? I want to fix the pipeline and keep tests as a release requirement.",
+      "expected_behavior": [
+        "Preserves the user's requirement that tests gate deployment.",
+        "Directs diagnosis to the failing job's Advanced logs and the relevant test/dependency failure.",
+        "Keeps test failures nonzero and prevents the deploy command from running after them."
+      ],
+      "failure_behavior": [
+        "Adds || true, removes tests, or uses an optional test script to make the run green.",
+        "Retries deployment without addressing the failure."
+      ],
+      "pass_signal": "Explains how to diagnose and fix the failed test while retaining the deployment gate."
+    },
+    {
+      "id": "PIPELINES-E004",
+      "title": "Diagnose a missing automatic run",
+      "prompt": "I pushed to a GitHub feature branch, but my Catalyst Pipeline did not run. The YAML is named pipeline.yml, and I saved the console configuration as a draft. Where should I look?",
+      "expected_behavior": [
+        "Checks the integration's repository/branch and explains the required catalyst-pipelines.yaml filename.",
+        "Distinguishes a saved draft from committed configuration and checks execution history before debugging commands.",
+        "Preserves existing application configuration when explaining the correction."
+      ],
+      "failure_behavior": [
+        "Treats a draft as an active committed configuration.",
+        "Debugs npm or function handler code before confirming that a run was triggered.",
+        "Creates a separate GitHub Actions workflow instead of fixing the Catalyst configuration."
+      ],
+      "pass_signal": "Checks the filename, committed configuration, and linked Git destination before build/runtime debugging."
+    },
+    {
+      "id": "PIPELINES-E005",
+      "title": "Do not interpret queued execution as deployment success",
+      "prompt": "My Catalyst Pipelines SDK call returned history_id and history_status Queued. Is my function deployed now? Show how to trigger an existing pipeline from Node.js and Python, without running anything here.",
+      "expected_behavior": [
+        "Explains that Queued acknowledges execution but does not establish deployment success.",
+        "Uses app.pipeline().runPipeline in Node.js and app.pipeline().run_pipeline in Python, with a string branch and optional event data.",
+        "Awaits the Node.js promise and directs the user to Execution History, job logs, and the deployed function's behavior.",
+        "Avoids automatically resubmitting the accepted execution."
+      ],
+      "failure_behavior": [
+        "Reports successful deployment based only on the trigger response.",
+        "Uses an unquoted undefined branch identifier or a made-up SDK method.",
+        "Retries a queued request to make it finish sooner."
+      ],
+      "pass_signal": "Uses the documented SDK interfaces and requires execution completion plus application verification."
+    },
+    {
+      "id": "PIPELINES-E006",
+      "title": "Recognize an approval wait",
+      "prompt": "My Catalyst Pipeline is paused at an approval job. I reran it twice and both runs are waiting. How do I get the intended run to continue?",
+      "expected_behavior": [
+        "Identifies the configured review step as the reason for the pause.",
+        "Directs the designated reviewer to the relevant execution's Basic tab to approve it.",
+        "Avoids additional runs or removing the approval job just to force progress."
+      ],
+      "failure_behavior": [
+        "Treats the pause as an infrastructure failure and repeatedly retriggers the pipeline.",
+        "Removes the review requirement without the user's instruction."
+      ],
+      "pass_signal": "Resolves the configured approval wait on the intended execution rather than generating another run."
+    }
+  ]
+}
