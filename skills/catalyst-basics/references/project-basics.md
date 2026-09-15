@@ -198,6 +198,14 @@ const pool = await catalystApp.jobScheduling().getJobpool(POOL_ID);
 //   jobScheduling().job().submitJob({ ..., jobpool_id: POOL_ID })
 ```
 
+### Circuit ID
+
+```javascript
+// Circuit ID from Console → Circuits → circuit details
+const circuit = catalystApp.circuit();
+const result = await circuit.execute(CIRCUIT_ID, 'execution-name', { inputKey: 'value' });
+```
+
 ---
 
 ## Catalyst Organizations

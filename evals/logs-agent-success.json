@@ -1,0 +1,77 @@
+{
+  "name": "logs-agent-success",
+  "purpose": "Check agent decisions when building or diagnosing Catalyst logs workflows.",
+  "cases": [
+    {
+      "id": "LOGS-E001",
+      "title": "Wrong view for custom output",
+      "prompt": "The checkout function has HTTP 200 Access Logs, but I cannot find my console.error('payment_failed') text there. Is logging broken?",
+      "expected_behavior": [
+        "Searches Application logs for the same function/time.",
+        "Checks severity filtering before declaring logging broken."
+      ],
+      "failure_behavior": [
+        "Expects all code output in Access logs.",
+        "Redeploys without checking the layer."
+      ],
+      "pass_signal": "Agent selects Application logs for the error message."
+    },
+    {
+      "id": "LOGS-E002",
+      "title": "Internal execution logs",
+      "prompt": "An Event function has an execution ID in its history, but Access Logs is empty. Where should I look?",
+      "expected_behavior": [
+        "Uses Application logs and the execution ID.",
+        "Explains that Event invocations do not pass through the Access layer."
+      ],
+      "failure_behavior": [
+        "Assumes the event never executed.",
+        "Waits for Access logs to populate."
+      ],
+      "pass_signal": "Agent retrieves the relevant internal execution through Application logs."
+    },
+    {
+      "id": "LOGS-E003",
+      "title": "Retention boundary",
+      "prompt": "I need a Catalyst Development function's logs from ten days ago. The same time filter works for recent calls. Can changing filters recover them?",
+      "expected_behavior": [
+        "Identifies seven-day Development retention.",
+        "Does not promise recovery or APM backfill.",
+        "Distinguishes Production's fourteen-day retention if relevant."
+      ],
+      "failure_behavior": [
+        "Says all logs remain for thirty days.",
+        "Claims enabling APM recovers those log entries."
+      ],
+      "pass_signal": "Agent correctly explains that the requested Development logs are outside retention."
+    },
+    {
+      "id": "LOGS-E004",
+      "title": "Runtime logging methods",
+      "prompt": "My Node.js Catalyst function crashes with console.warning is not a function. Also show the equivalent Python warning call.",
+      "expected_behavior": [
+        "Uses console.warn in Node.js.",
+        "Uses a Python logging logger's warning method."
+      ],
+      "failure_behavior": [
+        "Repeats console.warning.",
+        "Copies Java LOGGER.log(Level.WARNING, ...) into Python."
+      ],
+      "pass_signal": "Agent provides valid Node.js and Python logging calls."
+    },
+    {
+      "id": "LOGS-E005",
+      "title": "Empty AppSail tool results",
+      "prompt": "CatalystbyZoho_Get_Logs returns an empty list for my AppSail service. The endpoint is responding. What should I check before concluding there is no application output?",
+      "expected_behavior": [
+        "Inspects the exposed tool schema and resource/log-type/time/environment filters.",
+        "Cross-checks AppSail console logs using the service reference."
+      ],
+      "failure_behavior": [
+        "Concludes there is no output from one tool response.",
+        "Applies only the function-type log matrix to the container."
+      ],
+      "pass_signal": "Agent verifies filters and AppSail console evidence."
+    }
+  ]
+}

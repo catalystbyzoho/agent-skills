@@ -1,0 +1,92 @@
+{
+  "name": "circuits-agent-success",
+  "purpose": "Check agent decisions when building or diagnosing Catalyst circuits workflows.",
+  "cases": [
+    {
+      "id": "CIRCUITS-E001",
+      "title": "Regional availability before workflow design",
+      "prompt": "Our Catalyst account is in the IN data center. Plan a Circuits workflow for a new order-processing application.",
+      "expected_behavior": [
+        "Checks Circuits availability before designing resources.",
+        "Explains that IN is unsupported and discusses alternatives against the workflow requirements."
+      ],
+      "failure_behavior": [
+        "Creates a circuit or assumes US availability.",
+        "Silently changes the account's data center."
+      ],
+      "pass_signal": "Agent identifies the IN restriction before proposing Circuits resources."
+    },
+    {
+      "id": "CIRCUITS-E002",
+      "title": "Function target eligibility",
+      "prompt": "My US Catalyst project has an Advanced I/O Express function. It is missing from the Circuits Function-state selector. How do I connect it?",
+      "expected_behavior": [
+        "Identifies that Function states target Basic I/O functions.",
+        "Explains how to separate reusable business logic from the HTTP handler when adapting the workflow."
+      ],
+      "failure_behavior": [
+        "Uses the Advanced I/O invocation URL as the Function-state binding.",
+        "Reinstalls the SDK to fix the selector."
+      ],
+      "pass_signal": "Agent explains the Basic I/O target requirement."
+    },
+    {
+      "id": "CIRCUITS-E003",
+      "title": "Python execution contract",
+      "prompt": "With zcatalyst-sdk 1.4.0, app.circuit().execute('12345', {'orderId': 'demo-7'}) fails execution-name validation. Fix this call.",
+      "expected_behavior": [
+        "Uses execute(circuit_id, execution_name, inputs).",
+        "Provides the payload in the third position and identifies the required name."
+      ],
+      "failure_behavior": [
+        "Claims Python generates the execution name.",
+        "Repeats the two-argument dictionary call."
+      ],
+      "pass_signal": "Agent supplies a nonempty execution name and preserves the input dictionary."
+    },
+    {
+      "id": "CIRCUITS-E004",
+      "title": "Submission and duplicate side effects",
+      "prompt": "Our payment circuit returned {'id':'run-7','status':'running'}. The UI has no result yet. Should I trigger it again and mark the payment complete?",
+      "expected_behavior": [
+        "Uses the returned execution ID to inspect that run.",
+        "Does not claim completion from running status.",
+        "Checks payment state and deduplication before replaying a side effect."
+      ],
+      "failure_behavior": [
+        "Resubmits immediately.",
+        "Treats accepted execution as completed payment."
+      ],
+      "pass_signal": "Agent follows run-7 and avoids an unjustified payment replay."
+    },
+    {
+      "id": "CIRCUITS-E005",
+      "title": "State-specific control limits",
+      "prompt": "I need 25 items processed at once in a Catalyst Batch state, and a Parallel state containing another Parallel and a Success state. Review this design.",
+      "expected_behavior": [
+        "Identifies the 10-job Batch limit.",
+        "Explains the restriction on nested Parallel and Success/Failure within Parallel.",
+        "Suggests a design using supported states and concurrency."
+      ],
+      "failure_behavior": [
+        "Accepts all 25 concurrent jobs.",
+        "Copies AWS state-machine structures as Catalyst JSON."
+      ],
+      "pass_signal": "Agent corrects both concurrency and nesting constraints."
+    },
+    {
+      "id": "CIRCUITS-E006",
+      "title": "Function output path diagnosis",
+      "prompt": "A Basic I/O function produces {'output': {'approved': true}}, but the next Circuits state sees no approved field after I set its path to $.output.approved. What should I inspect?",
+      "expected_behavior": [
+        "Notes that Catalyst handles the Basic I/O output wrapper automatically.",
+        "Inspects the state's actual payload and path transformations before prescribing a replacement path."
+      ],
+      "failure_behavior": [
+        "Adds another output wrapper.",
+        "Assumes a path change is validated without inspecting the state payload."
+      ],
+      "pass_signal": "Agent checks actual state data and the automatic output-wrapper handling."
+    }
+  ]
+}

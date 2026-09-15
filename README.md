@@ -17,6 +17,7 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | Service | Skill |
 |---------|-------|
 | Functions (7 types, API Gateway, Security Rules) | `catalyst-functions` |
+| Circuits (Basic I/O workflows, state design, execution diagnosis) | `catalyst-circuits` |
 | AppSail (PaaS, Docker, managed runtimes) | `catalyst-appsail` |
 | Slate (frontend hosting, Git deploy, SSR) | `catalyst-slate` |
 | Data Store + ZCQL | `catalyst-datastore` |
@@ -25,9 +26,13 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | SmartBrowz (headless browser, PDF & Screenshot, Browser Logic, Browser Grid, Dataverse) | `catalyst-smartbrowz` |
 | NoSQL (document storage) | `catalyst-nosql` |
 | Authentication + Connections (OAuth) | `catalyst-authentication` |
+| ConvoKraft (bots, actions, handlers, training, client embedding) | `catalyst-convokraft` |
 | Cache (in-memory key-value, TTL) | `catalyst-cache` |
 | Pricing (free tier, cost estimation) | `catalyst-pricing` |
 | SDKs (Node.js, Web, Python, Java, Android, iOS, Flutter) | `catalyst-sdk` |
+| Logs (Access/Application views, runtime logging, missing executions) | `catalyst-logs` |
+| APM (function performance, slow calls, component traces) | `catalyst-apm` |
+| Application Alerts (Logs queries, thresholds, email notifications) | `catalyst-alerts` |
 | Zia Services + QuickML (OCR, AutoML) | `catalyst-zia` |
 | Zoho MCP (`CatalystbyZoho_*` tools) | `catalyst-zoho-mcp` |
 | Job Scheduling (job pools, immediate jobs, crons) | `catalyst-job-scheduling` |
@@ -35,7 +40,7 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 
 ### Also covered (via reference files, no dedicated skill)
 
-Circuits (workflows), Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
+Pipelines (CI/CD), GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
 
 ## Installation
 

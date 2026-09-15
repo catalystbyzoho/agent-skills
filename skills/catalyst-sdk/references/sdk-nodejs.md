@@ -336,11 +336,13 @@ const circuit = catalystApp.circuit();
 const result = await circuit.execute(circuitId, 'execution-name', { key1: 'value1' });
 ```
 
-> **Node.js vs Python SDK difference:**
+> **Execution signatures:**
 > - **Node.js**: `circuit.execute(circuitId, executionName, inputJSON)` — 3 arguments
-> - **Python**: `circuit.execute(circuit_id, input_json)` — 2 arguments (execution name auto-generated)
+> - **Python (`zcatalyst-sdk` 1.4.0)**: `circuit.execute(circuit_id, name, inputs=None)` — an execution name is required; input is optional
 >
 > `executionName` is a user-defined string label for this execution (used for tracking and logs).
+
+See the [Circuits reference](../../catalyst-circuits/references/circuits-basics.md) for execution inspection and package verification.
 
 ---
 

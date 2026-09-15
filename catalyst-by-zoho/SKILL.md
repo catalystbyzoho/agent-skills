@@ -34,6 +34,8 @@ This is the routing layer. Load the most specific matching skill — do not answ
 
 ## Triggers
 
+Service-specific triggers also include Circuits, ConvoKraft, Catalyst Logs, Application Performance Monitoring (APM), and Application Alerts.
+
 Use this skill for queries containing: Catalyst, zcatalyst, AppSail, Data Store, ZCQL, Cache, Stratus, Slate, NoSQL, Zia Services, QuickML, API Gateway, Connections, Zoho MCP, CatalystbyZoho, `catalyst init`, `catalyst deploy`, `catalyst serve`, `zcatalyst-sdk-node`, `catalyst-config.json`, Catalyst pricing, "build on Zoho's platform", or "deploy to Catalyst". Do NOT use for generic Zoho CRM questions unless Catalyst is the target.
 
 ---
@@ -110,15 +112,20 @@ New to Catalyst? Here's what each service does in one line:
 | **Which service to use, architecture decisions, DC restrictions** | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md`) |
 | Project setup, `.catalystrc`, environments, orgs, IDs, CLI commands | `catalyst-basics` |
 | Functions — types, signatures, `catalyst-config.json`, API Gateway, file uploads | `catalyst-functions` |
+| Circuits — Basic I/O workflows, branches, parallel/batch states, execution status and failures | `catalyst-circuits` |
 | AppSail — backend PaaS, Docker, managed runtimes, PORT variable | `catalyst-appsail` |
 | Slate — frontend hosting, frameworks, `slate-config.toml`, Git deploy | `catalyst-slate` |
 | Data Store — CRUD, ZCQL queries, permissions, column types | `catalyst-datastore` |
 | Stratus — object storage, upload/download, signed URLs, multipart | `catalyst-stratus` |
 | NoSQL — document storage, flexible schema, collections | `catalyst-nosql` |
 | Authentication — user login/signup, ZAID, Web SDK auth, Connections/OAuth | `catalyst-authentication` |
+| ConvoKraft — bots, actions, params, training, handlers, client embedding, action releases | `catalyst-convokraft` |
 | Cache — in-memory key-value, TTL, segment operations | `catalyst-cache` |
 | Pricing — free tier, pay-as-you-go, GB-seconds, cost estimation | `catalyst-pricing` |
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `catalyst-sdk` |
+| Logs — Access/Application logs, missing output, execution filters, runtime logging | `catalyst-logs` |
+| APM — slow functions, performance dashboards, execution details, component traces | `catalyst-apm` |
+| Application Alerts — email notifications, Logs queries, thresholds, frequency, missing alerts | `catalyst-alerts` |
 | Zia Services, QuickML — OCR, ML predictions, AutoML | `catalyst-zia` |
 | Signals — event-driven triggers, publish/subscribe, event listeners, custom publisher, webhook target, dispatch policy | `catalyst-signals` |
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |

@@ -1,0 +1,77 @@
+{
+  "name": "convokraft-agent-success",
+  "purpose": "Check agent decisions when building or diagnosing Catalyst convokraft workflows.",
+  "cases": [
+    {
+      "id": "CONVOKRAFT-E001",
+      "title": "Publish action changes",
+      "prompt": "I changed a ConvoKraft action, trained it, and deployed its Node.js function. Development works; the production bot still answers using the old action. Explain the next step.",
+      "expected_behavior": [
+        "Checks the bot's production action release and selected changed actions.",
+        "Distinguishes backend deployment from action publication."
+      ],
+      "failure_behavior": [
+        "Repeats only catalyst deploy.",
+        "Claims training alone publishes the action."
+      ],
+      "pass_signal": "Agent identifies the bot's Deploy to Production action selection."
+    },
+    {
+      "id": "CONVOKRAFT-E002",
+      "title": "Webhook timeout differs from Integration",
+      "prompt": "My ConvoKraft external webhook returns HTTP 200 with a small JSON reply after eight seconds, but the bot shows a failure. I thought the limit was fifteen seconds.",
+      "expected_behavior": [
+        "Identifies the 5-second webhook timeout versus the 15-second Integration Function timeout.",
+        "Suggests shorter synchronous work or an honest acknowledgement and status action."
+      ],
+      "failure_behavior": [
+        "Applies Integration Function limits to the webhook.",
+        "Invents a setting to increase the platform timeout."
+      ],
+      "pass_signal": "Agent correctly distinguishes the two backend limits."
+    },
+    {
+      "id": "CONVOKRAFT-E003",
+      "title": "Async Integration dispatcher",
+      "prompt": "In the generated ConvoKraft ES-module entry point I use jsonResponse = handleExecute(request), then response.end(new IntegResponse(jsonResponse)). I changed handleExecute to async and now the bot receives {}. Fix the response flow.",
+      "expected_behavior": [
+        "Awaits handleExecute inside the dispatcher's try block.",
+        "Preserves IntegResponse and the existing dispatch for other handlers."
+      ],
+      "failure_behavior": [
+        "Serializes the Promise.",
+        "Replaces the transport with Express res.json."
+      ],
+      "pass_signal": "Agent awaits the async handler before wrapping the response."
+    },
+    {
+      "id": "CONVOKRAFT-E004",
+      "title": "Differentiate intent and backend failures",
+      "prompt": "My ConvoKraft bot has two problems: unrelated questions are misunderstood, and a recognized action sometimes throws an exception. Which handlers and tests should I use?",
+      "expected_behavior": [
+        "Uses fallback for unrecognized input and failure for exceptions.",
+        "Tests action recognition separately from backend execution.",
+        "Checks handler enablement/configuration."
+      ],
+      "failure_behavior": [
+        "Routes both failures only to fallback.",
+        "Retrains the bot to fix all backend exceptions."
+      ],
+      "pass_signal": "Agent separates fallback and failure behavior."
+    },
+    {
+      "id": "CONVOKRAFT-E005",
+      "title": "Widget loading order",
+      "prompt": "The ConvoKraft SDK script runs in the head before convokraft-chat-bot is inserted. The widget is blank, although my backend succeeds. How should I diagnose the embed?",
+      "expected_behavior": [
+        "Checks the generated Clients setup, namespace, and target environment.",
+        "Loads the SDK after the bot element and inspects network/DOM evidence."
+      ],
+      "failure_behavior": [
+        "Rewrites working backend logic first.",
+        "Invents a standalone browser initialization API."
+      ],
+      "pass_signal": "Agent prioritizes the documented script order and client configuration."
+    }
+  ]
+}

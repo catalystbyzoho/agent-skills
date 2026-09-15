@@ -1,0 +1,78 @@
+{
+  "name": "alerts-agent-success",
+  "purpose": "Check agent decisions when building or diagnosing Catalyst alerts workflows.",
+  "cases": [
+    {
+      "id": "ALERTS-E001",
+      "title": "Strict comparator",
+      "prompt": "My Catalyst Logs alert is configured for greater than 5 Error matches per hour. There were exactly 5 matching records and no email. Is the alert broken?",
+      "expected_behavior": [
+        "Explains that > 5 requires at least six matches.",
+        "Distinguishes the desired comparator from a delivery failure."
+      ],
+      "failure_behavior": [
+        "Claims five matches satisfy > 5.",
+        "Changes recipients before checking the threshold."
+      ],
+      "pass_signal": "Agent applies the strict comparator correctly."
+    },
+    {
+      "id": "ALERTS-E002",
+      "title": "Scheduled evaluation",
+      "prompt": "I set a Logs alert to every hour and just edited its frequency. A matching error appeared one minute later but no email arrived. Should I keep recreating it?",
+      "expected_behavior": [
+        "Checks the evaluation interval and modification time.",
+        "Explains that matching logs do not produce immediate per-event delivery.",
+        "Avoids repeated recreation."
+      ],
+      "failure_behavior": [
+        "Recreates the alert in a loop.",
+        "Promises instant notification."
+      ],
+      "pass_signal": "Agent checks the scheduled window before troubleshooting delivery."
+    },
+    {
+      "id": "ALERTS-E003",
+      "title": "Legacy source mapping",
+      "prompt": "I have a new Catalyst project using Signals and Job Scheduling. The Application Alerts docs show Cron and Event Listener. Can I use those as interchangeable source names?",
+      "expected_behavior": [
+        "Distinguishes legacy sources from replacement services.",
+        "Checks current console sources or a supported Logs alert for observed target-function records."
+      ],
+      "failure_behavior": [
+        "Creates legacy resources for the new project.",
+        "Invents direct Signals/Job Scheduling source names."
+      ],
+      "pass_signal": "Agent avoids undocumented source equivalence."
+    },
+    {
+      "id": "ALERTS-E004",
+      "title": "Generate a valid log query",
+      "prompt": "Help configure a Catalyst email alert for payment_failed errors in checkout. How do I produce the Logs query? I have not chosen recipients yet.",
+      "expected_behavior": [
+        "Uses Logs Query Generator with Application/function/keyword/severity choices.",
+        "Confirms matching records and intended threshold/window.",
+        "Obtains actual recipients before enabling notifications rather than inventing them."
+      ],
+      "failure_behavior": [
+        "Invents SQL or app.alerts calls.",
+        "Uses made-up email addresses as live recipients."
+      ],
+      "pass_signal": "Agent prepares a query from the documented generator and identifies missing delivery configuration."
+    },
+    {
+      "id": "ALERTS-E005",
+      "title": "Configuration is not delivery",
+      "prompt": "Catalyst confirms that my alert was saved. Can I report that the team received the notification?",
+      "expected_behavior": [
+        "Distinguishes saved configuration, matching evaluation, and observed receipt.",
+        "Checks threshold/window/enabled state and recipient evidence."
+      ],
+      "failure_behavior": [
+        "Claims email delivery from the save acknowledgement.",
+        "Fabricates a receipt."
+      ],
+      "pass_signal": "Agent requests or checks delivery evidence before reporting receipt."
+    }
+  ]
+}

@@ -163,8 +163,10 @@ credentials = catalyst_app.connections().get_connection_credentials({
 ## Circuits
 
 ```python
-result = catalyst_app.circuit().execute(circuit_id, {"key1": "value1"})
+result = catalyst_app.circuit().execute(circuit_id, "execution-name", {"key1": "value1"})
 ```
+
+In `zcatalyst-sdk` 1.4.0, `execute(circuit_id, name, inputs=None)` requires an execution name; it is not auto-generated. See the [Circuits reference](../../catalyst-circuits/references/circuits-basics.md) for the verified package signature, status checks, and cancellation.
 
 ---
 

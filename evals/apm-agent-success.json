@@ -1,0 +1,76 @@
+{
+  "name": "apm-agent-success",
+  "purpose": "Check agent decisions when building or diagnosing Catalyst apm workflows.",
+  "cases": [
+    {
+      "id": "APM-E001",
+      "title": "Python coverage",
+      "prompt": "I enabled Catalyst APM, but my Python function never appears. Which SDK package should I install to make it show up?",
+      "expected_behavior": [
+        "States that native APM does not support Python functions.",
+        "Uses logs and explicit timing instead of an invented package."
+      ],
+      "failure_behavior": [
+        "Installs a fictional Catalyst APM package.",
+        "Promises native Python traces after redeployment."
+      ],
+      "pass_signal": "Agent identifies unsupported native coverage and offers measured logging."
+    },
+    {
+      "id": "APM-E002",
+      "title": "Canada availability",
+      "prompt": "My Catalyst account uses the CA data center and I cannot find APM. Explain how to diagnose my slow function.",
+      "expected_behavior": [
+        "Identifies CA availability restriction.",
+        "Suggests supported logs and timing rather than repeated APM setup."
+      ],
+      "failure_behavior": [
+        "Assumes APM is available in every DC.",
+        "Changes regions without user intent."
+      ],
+      "pass_signal": "Agent explains CA support and uses available diagnostic evidence."
+    },
+    {
+      "id": "APM-E003",
+      "title": "Disabled collection gap",
+      "prompt": "APM was disabled yesterday during an incident. I enabled it today. Can I view yesterday's missing performance traces now?",
+      "expected_behavior": [
+        "Explains that re-enabling does not backfill the disabled period.",
+        "Checks retained logs or other existing evidence and measures future runs."
+      ],
+      "failure_behavior": [
+        "Promises the last thirty days including disabled intervals.",
+        "Toggles APM to restore collection history."
+      ],
+      "pass_signal": "Agent preserves the distinction between retention and collection gaps."
+    },
+    {
+      "id": "APM-E004",
+      "title": "Slowest table scope",
+      "prompt": "I selected checkout in Catalyst APM's graphs, but Top 100 Slowest Calls includes inventory. Does this prove checkout called inventory?",
+      "expected_behavior": [
+        "Explains that the table covers type/time, while the graphs use the chosen function.",
+        "Filters Executed Functions by checkout and inspects the specific trace."
+      ],
+      "failure_behavior": [
+        "Infers a caller relationship from the table.",
+        "Treats the table as checkout-only."
+      ],
+      "pass_signal": "Agent correctly interprets table scope before inferring dependencies."
+    },
+    {
+      "id": "APM-E005",
+      "title": "Missing direct API trace",
+      "prompt": "A Node.js function calls Catalyst Data Store using a REST request. APM shows a long execution but no Data Store component call. Is that proof the call never ran?",
+      "expected_behavior": [
+        "Distinguishes SDK component traces from direct REST calls.",
+        "Uses explicit timing/log evidence to investigate untraced work."
+      ],
+      "failure_behavior": [
+        "Equates missing component trace with no call.",
+        "Invents an APM trace-collection SDK method."
+      ],
+      "pass_signal": "Agent recognizes the direct REST coverage gap."
+    }
+  ]
+}

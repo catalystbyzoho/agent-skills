@@ -62,4 +62,3 @@ Load the relevant reference file for detailed information:
 | `references/setup/claude-code.md` | Installing skills and connecting Zoho MCP in Claude Code (Claude Desktop) |
 | `references/setup/cursor.md` | Installing skills and connecting Zoho MCP in Cursor |
 | `references/setup/github-copilot.md` | Installing skills and connecting Zoho MCP in GitHub Copilot (VS Code) |
-

@@ -126,7 +126,7 @@ Functions (API layer)
 
 ## DC Availability Quick Reference
 
-Before recommending Circuits, Integration Functions, AutoML, Push Notifications, or Mobile Device Management — confirm the user's DC:
+Before recommending Circuits, Integration Functions, AutoML, APM, Push Notifications, or Mobile Device Management — confirm the user's DC:
 
 | Service | US | EU | IN | AU | JP | SA | CA |
 |---------|----|----|----|----|----|----|-----|
@@ -136,11 +136,14 @@ Before recommending Circuits, Integration Functions, AutoML, Push Notifications,
 | Push Notifications | Yes | No | No | No | Yes | Yes | No |
 | Identity Scanner — Document Processing | No | No | Yes | No | No | No | No |
 | Identity Scanner — Facial Comparison API/SDK | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| APM | Yes | Yes | Yes | Yes | Yes | Yes | No |
 | All other services | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 
 Note: **Identity Scanner's "Facial Comparison" feature works from any DC via API/SDK** — only *testing it in the Catalyst console* is restricted to IN DC. The "Document Processing" feature (Aadhaar, PAN, etc.) is IN DC only end-to-end, API included.
 
 Source: https://docs.catalyst.zoho.com/en/llms.txt
+
+APM's CA restriction and supported function runtimes are documented in the [APM introduction](https://docs.catalyst.zoho.com/en/devops/help/apm/introduction/). Use the [APM reference](../../catalyst-apm/references/apm-basics.md) for collection and runtime limitations.
 
 ## Common Errors
 
