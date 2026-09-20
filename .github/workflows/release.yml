@@ -28,7 +28,17 @@ jobs:
             --exclude ".git/*" \
             --exclude ".github/*" \
             --exclude "*.DS_Store"
-          cd skills && zip -r ../catalyst-skills-only.zip . --exclude "*.DS_Store" && cd .. && zip catalyst-skills-only.zip README.md
+          cd skills && zip -r ../catalyst-skills-only.zip . --exclude "*.DS_Store" && cd .. && zip catalyst-skills-only.zip README.md && zip -r catalyst-skills-only.zip catalyst-by-zoho --exclude "*.DS_Store"
+
+      - name: Verify archive contents
+        run: |
+          for archive in catalyst-agent-skills.zip catalyst-skills-only.zip; do
+            listing=$(unzip -l "$archive")
+            for required in "catalyst-by-zoho/SKILL.md" "catalyst-by-zoho/references/skill-feedback.md" "catalyst-basics/SKILL.md"; do
+              echo "$listing" | grep -q "$required" || { echo "::error::$archive is missing $required"; exit 1; }
+            done
+            echo "$archive OK"
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
@@ -43,7 +53,7 @@ jobs:
             | Artifact | Contents |
             |----------|----------|
             | `catalyst-agent-skills.zip` | Full repository (excludes `.git`, `.github`) |
-            | `catalyst-skills-only.zip` | Skill folders + `README.md` at root (no `skills/` wrapper) |
+            | `catalyst-skills-only.zip` | Skill folders + `catalyst-by-zoho/` router + `README.md` at root (no `skills/` wrapper) |
           files: |
             catalyst-agent-skills.zip
             catalyst-skills-only.zip
