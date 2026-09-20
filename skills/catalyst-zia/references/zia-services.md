@@ -14,7 +14,7 @@ Pricing: Pay-per-call. Refer to the `catalyst-pricing` skill for current rates a
 |---------|-------------|
 | Identity Scanner — Document Processing (Aadhaar, PAN, etc.) | **IN DC only**, API included |
 | Identity Scanner — Facial Comparison / E-KYC (API/SDK) | All data centers — only *console testing* is restricted to IN DC |
-| AutoML / QuickML | **Not available** in JP, SA, CA |
+| QuickML prediction models | Available in **all DCs** (Generative AI not in AU/SA; Zia Model Library in QuickML console is IN only — see `catalyst-quickml`) |
 | All other Zia services | All data centers |
 
 ---
@@ -164,4 +164,4 @@ module.exports = async (context, basicIO) => {
 | `API limit exceeded` on Zia call | Free tier Zia API call quota exhausted | Upgrade plan; cache Zia results for identical inputs to reduce repeat calls |
 | `Invalid file format` on image analysis | Unsupported MIME type sent | Supported formats: JPG, PNG, WEBP; convert before sending |
 | Zia response latency > 5s | Large image or complex document sent synchronously | For bulk processing, use a Job function + async dispatch rather than a Basic I/O function |
-| Identity Scanner or AutoML not available | DC restriction | Identity Scanner Document Processing: IN DC only (API included). Facial Comparison: works via API from any DC, only console testing is IN DC only. AutoML/QuickML: not available in JP, SA, CA |
+| Identity Scanner or QuickML feature not available | DC restriction | Identity Scanner Document Processing: IN DC only (API included). Facial Comparison: works via API from any DC, only console testing is IN DC only. QuickML: prediction models all DCs, Generative AI not in AU/SA, Zia Model Library IN only (per QuickML team) |

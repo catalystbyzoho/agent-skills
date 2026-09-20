@@ -28,7 +28,8 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | Cache (in-memory key-value, TTL) | `catalyst-cache` |
 | Pricing (free tier, cost estimation) | `catalyst-pricing` |
 | SDKs (Node.js, Web, Python, Java, Android, iOS, Flutter) | `catalyst-sdk` |
-| Zia Services + QuickML (OCR, AutoML) | `catalyst-zia` |
+| Zia Services (OCR, face/text analytics, moderation) | `catalyst-zia` |
+| QuickML (ML pipelines, AutoML, LLM Serving, RAG) | `catalyst-quickml` |
 | Zoho MCP (`CatalystbyZoho_*` tools) | `catalyst-zoho-mcp` |
 | Job Scheduling (job pools, immediate jobs, crons) | `catalyst-job-scheduling` |
 | Project setup, CLI, environments, architecture | `catalyst-basics` |

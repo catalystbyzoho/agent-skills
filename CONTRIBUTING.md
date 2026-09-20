@@ -95,8 +95,12 @@ skills/
 ├── catalyst-zia/
 │   ├── SKILL.md
 │   └── references/
-│       ├── zia-services.md
-│       └── quickml.md
+│       └── zia-services.md
+├── catalyst-quickml/
+│   ├── SKILL.md                         
+│   └── references/
+│       ├── prediction.md
+│       └── generative-ai.md
 ├── catalyst-zoho-mcp/
 │   ├── SKILL.md
 │   └── references/
