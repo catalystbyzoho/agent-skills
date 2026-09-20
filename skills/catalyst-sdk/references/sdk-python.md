@@ -75,9 +75,9 @@ result = zcql_service.execute_olap_query("SELECT COUNT(ROWID) FROM TableName GRO
 ```python
 segment = catalyst_app.cache().segment(segment_id)
 
-segment.put("my_key", "my_value", expiry=3600000)  # expiry in ms
-value = segment.get("my_key")
-segment.update("my_key", "new_value", expiry=7200000)
+segment.put("my_key", "my_value", expiry=1)  # expiry in HOURS (max 48; defaults to 48 if omitted)
+value = segment.get_value("my_key")  # raw string; get() returns the full entry with metadata
+segment.update("my_key", "new_value", expiry=2)  # expiry in HOURS — omitting it resets TTL to 48h
 segment.delete("my_key")  # sets to null, doesn't truly delete
 ```
 

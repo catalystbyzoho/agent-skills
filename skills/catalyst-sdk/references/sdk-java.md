@@ -101,18 +101,17 @@ List<ZCRowObject> stats = zcql.executeQuery("SELECT COUNT(*) FROM TableName", tr
 ZCCache cache = ZCCache.getInstance();
 ZCSegment segment = cache.getSegment(segmentId);
 
-// Put with expiry (milliseconds)
-ZCCacheObject cacheObject = segment.put("cacheKey", "cacheValue", 3600000L);
+// Put with expiry — long value in HOURS (max 48; two-arg variant defaults to 48h)
+ZCCacheObject cacheObject = segment.putCacheValue("cacheKey", "cacheValue", 1L);
 
-// Get
-ZCCacheObject cacheObject = segment.get("cacheKey");
-String value = cacheObject.getValue();
+// Get — returns the stored String directly (getCacheObject(key) returns the full ZCCacheObject)
+String value = segment.getCacheValue("cacheKey");
 
-// Update
-ZCCacheObject updated = segment.update("cacheKey", "newValue", 7200000L);
+// Update — expiry in HOURS; the two-arg variant keeps the key's existing expiry
+ZCCacheObject updated = segment.updateCacheValue("cacheKey", "newValue", 2L);
 
 // Delete
-segment.delete("cacheKey");
+segment.deleteCacheValue("cacheKey");
 ```
 
 ---
