@@ -97,6 +97,8 @@ const result = await quickML.predict('YOUR_ENDPOINT_KEY', { feature1: 'value1', 
 // Response shape: { status: string, result: Array<string> }
 ```
 
+There is no confidence/probability score in the SDK response. If the user needs one, say so — do NOT invent a REST alternative: QuickML REST endpoint URLs, auth headers, request body shape, and response fields are NOT documented in this skill, and each deployed endpoint's exact sample request is shown in the Console (QuickML → Endpoints). Point the user there or fetch the official docs page; never fabricate an endpoint URL, OAuth scope, or response field (e.g. `likelihood_score`).
+
 > - **Python**: `docs.catalyst.zoho.com/en/sdk/python/v1/quickml/execute-quickml-endpoints/`
 > - **Java LLM**: `docs.catalyst.zoho.com/en/sdk/java/v1/quickml/execute-llm-endpoint/`
 > - **Java VLM**: `docs.catalyst.zoho.com/en/sdk/java/v1/quickml/execute-vision-model-endpoint-/`
