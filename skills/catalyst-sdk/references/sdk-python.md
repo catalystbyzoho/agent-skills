@@ -91,15 +91,17 @@ bucket = stratus_service.bucket(bucket_name)
 
 buckets = stratus_service.list_buckets()
 details = bucket.get_details()
-objects = bucket.list_objects(prefix="folder/", max_keys=100)
+objects = bucket.list_paged_objects(prefix="folder/", max_keys=100)  # or list_iterable_objects() for a generator
 
 with open("/path/to/file.txt", "rb") as f:
-    bucket.upload_object("folder/file.txt", f, content_type="text/plain")
+    bucket.put_object("folder/file.txt", f, {"content_type": "text/plain"})
 
-content = bucket.download_object("folder/file.txt")
+content = bucket.get_object("folder/file.txt")
 bucket.delete_object("folder/file.txt")
 bucket.rename_object("folder/old_name.txt", "folder/new_name.txt")
 ```
+
+Full upload options (`overwrite`, `ttl`, `meta_data`, …) and multipart flows: see `catalyst-stratus/references/stratus-basics.md`.
 
 ---
 
@@ -172,14 +174,37 @@ result = catalyst_app.circuit().execute(circuit_id, {"key1": "value1"})
 
 ```python
 nosql_service = catalyst_app.nosql()
-table = nosql_service.table("NoSQLTableName")
+table = nosql_service.get_table("NoSQLTableName")  # table name or table ID
 
-table.insertItems([{"pk": "partition1", "sk": "sort1", "data": "value1"}])
-items = table.fetchItems([{"pk": "partition1", "sk": "sort1"}])
-results = table.queryTable({"pk": "partition1", "query": {"condition": "sk BEGINS_WITH 'sort'", "limit": 10}})
-table.updateItems([{"pk": "partition1", "sk": "sort1", "update_expression": "SET data = :val", "expression_values": {":val": "updated"}}])
-table.deleteItems([{"pk": "partition1", "sk": "sort1"}])
+# Attribute values use typed notation: {"S": str}, {"N": "num-as-string"}, {"BOOL": bool}, {"L": [...]}, {"M": {...}}
+table.insert_items({
+    "item": {
+        "fruitName": {"S": "Banana"},    # partition key — mandatory
+        "location": {"S": "Indonesia"}   # sort key, if configured
+    },
+    "return": "NEW"  # returned item version: NEW | OLD | NULL
+})
+
+result = table.fetch_item({
+    "keys": [{"fruitName": {"S": "Banana"}, "location": {"S": "Indonesia"}}]
+})
+
+result = table.query_table({
+    "key_condition": {"attribute": "fruitName", "operator": "equals", "value": {"S": "Banana"}},
+    "limit": 10
+})
+
+table.update_items({
+    "keys": {"fruitName": {"S": "Banana"}, "location": {"S": "Indonesia"}},
+    "update_attributes": [{"operation_type": "PUT", "color": {"S": "Yellow"}, "attribute_path": "fruitProperties"}]
+})
+
+table.delete_items({
+    "keys": {"fruitName": {"S": "Banana"}, "location": {"S": "Indonesia"}}
+})
 ```
+
+`insert_items` / `update_items` / `delete_items` accept multiple request dicts as varargs (max 25 items per call). Condition and operator shapes: see the `catalyst-nosql` skill.
 
 ---
 
@@ -200,13 +225,11 @@ Server-side semantics that apply regardless of language (all runtime-confirmed):
 ## Push Notifications
 
 ```python
-push_service = catalyst_app.pushnotification()
+# Web push
+web_push = catalyst_app.push_notification().web()
+web_push.send_notification("A new feature has been released.", ["user1@example.com", "user2@example.com"])
 
-push_service.sendNotification({
-    "subject": "New Update",
-    "message": "A new feature has been released.",
-    "recipients": ["user_id_1", "user_id_2"]
-})
+# Mobile push lives under .mobile(app_id): notify / send_android_notification / send_ios_notification
 ```
 
 ---
@@ -217,20 +240,23 @@ push_service.sendNotification({
 zia_service = catalyst_app.zia()
 
 with open("document.png", "rb") as f:
-    ocr_result = zia_service.extractOpticalCharacters(f, {"language": "eng", "model_type": "OCR"})
+    ocr_result = zia_service.extract_optical_characters(f, {"language": "eng", "model_type": "OCR"})
 
-sentiment = zia_service.getSentimentAnalysis(["I love this!", "Terrible experience."])
-entities = zia_service.getNamedEntityRecognition(["Zoho Corporation is in Chennai, India."])
-keywords = zia_service.getKeywordExtraction(["Catalyst is a serverless platform."])
-analytics = zia_service.getAllTextAnalytics(["Zoho Catalyst makes development easy."])
+sentiment = zia_service.get_sentiment_analysis(["I love this!", "Terrible experience."])
+entities = zia_service.get_NER_prediction(["Zoho Corporation is in Chennai, India."])
+keywords = zia_service.get_keyword_extraction(["Catalyst is a serverless platform."])
+analytics = zia_service.get_text_analytics(["Zoho Catalyst makes development easy."])
 
+# Open the file fresh per call — a consumed stream sends an empty body
 with open("image.jpg", "rb") as f:
-    moderation = zia_service.moderateImage(f)
-    faces = zia_service.detectFaces(f)
-    objects = zia_service.recognizeObjects(f)
+    moderation = zia_service.moderate_image(f)
+with open("face.jpg", "rb") as f:
+    face = zia_service.analyse_face(f)
+with open("objects.jpg", "rb") as f:
+    objects = zia_service.detect_object(f)
 
 with open("barcode.png", "rb") as f:
-    barcode = zia_service.scanBarcode(f)
+    barcode = zia_service.scan_barcode(f)
 ```
 
 ---
@@ -240,18 +266,22 @@ with open("barcode.png", "rb") as f:
 ```python
 smart_browz = catalyst_app.smart_browz()
 
-pdf = smart_browz.convert_to_pdf({
-    "url": "https://example.com",
-    "pdf_options": {"format": "A4", "print_background": True},
-    "navigation_options": {"wait_until": "networkidle0", "timeout": 30000}
-})
+pdf = smart_browz.convert_to_pdf(
+    "https://example.com",  # source: URL or raw HTML string — first positional arg, NOT a dict
+    pdf_options={"format": "A4", "print_background": True},
+    navigation_options={"wait_until": "networkidle0", "timeout": 30000}
+)
 
-screenshot = smart_browz.take_screenshot({
-    "url": "https://example.com",
-    "screenshot_options": {"full_page": True, "type": "png"},
-    "navigation_options": {"wait_until": "networkidle2", "timeout": 60000}
-})
+screenshot = smart_browz.take_screenshot(
+    "https://example.com",
+    screenshot_options={"full_page": True, "type": "png"},
+    navigation_options={"wait_until": "networkidle2", "timeout": 60000}
+)
+```
 
+> ⚠️ SDK bug (zcatalyst-sdk ≤ 1.4.0): the internal URL check never matches, so a URL source is sent as `html` — the URL string gets RENDERED AS TEXT instead of the page being fetched. Workaround: pass the URL explicitly as a kwarg, e.g. `convert_to_pdf(url_str, url=url_str, html=None, pdf_options=...)` — kwargs merge into the request body last and take precedence.
+
+```python
 output = smart_browz.generate_from_template(
     "153000000009001",  # template_id
     template_data={"name": "Alice", "amount": "$100"},
