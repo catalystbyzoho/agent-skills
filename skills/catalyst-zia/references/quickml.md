@@ -26,50 +26,27 @@ QuickML is Catalyst's no-code AutoML platform. Upload a dataset, configure the p
 
 ## SDK — Prediction
 
+Verified against `zcatalyst-sdk-node` v3.4.0 type definitions. The QuickML class exposes exactly ONE method — there is no `model(id)`, no `batchPredict()`, and the response has no `confidence` field. Do not generate those shapes.
+
 ```javascript
 const quickML = catalystApp.quickML();
 
-// Get a model
-const model = quickML.model(MODEL_ID);  // Model ID from console
-
-// Single prediction
-const result = await model.predict({
+// predict(endPointKey, inputData) — endpoint key from Console → QuickML deployment;
+// all input values are strings
+const result = await quickML.predict('YOUR_ENDPOINT_KEY', {
   feature1: 'value1',
-  feature2: 42,
-  feature3: 'category_a'
+  feature2: '42'
 });
-// { prediction: 'positive', confidence: 0.87 }
-
-// Batch prediction
-const batchResult = await model.batchPredict([
-  { feature1: 'val1', feature2: 10 },
-  { feature1: 'val2', feature2: 20 }
-]);
+// Response shape: { status: string, result: Array<string> }
 ```
 
----
-
-## REST API
-
-```
-# Single prediction
-POST /api/v1/ml/models/{model_id}/predict
-Authorization: Zoho-oauthtoken {token}
-{
-  "feature1": "value",
-  "feature2": 42
-}
-```
+For batch prediction, loop `predict()` calls — there is no batch method in the SDK.
 
 ---
 
 ## Pricing
 
-| Resource | Free Tier | Cost |
-|----------|-----------|------|
-| Training compute | 1 model/month | $0.10/model/hour |
-| Predictions | 500/month | $0.001/prediction |
-| Model storage | 1 model active | $5/model/month |
+QuickML pricing is NOT documented here — rates changed between doc versions and must not be quoted from memory. Load `catalyst-pricing` (`references/pricing-basics.md`, QuickML section) and verify at https://catalyst.zoho.com/pricing.html before giving any estimate.
 
 ## Common Errors
 
@@ -78,4 +55,4 @@ Authorization: Zoho-oauthtoken {token}
 | Model training stuck in `PROCESSING` | Dataset too small (< 50 rows) or all rows have the same target value | Add more varied data; QuickML requires at least 50 rows with distribution across classes |
 | Prediction returns `null` | Feature columns in prediction request don't match training column names exactly | Match feature names case-sensitively to training dataset headers |
 | `Model not deployed` error on predict | Model trained but deployment step skipped | Explicitly deploy model from Console → QuickML → Deploy before calling prediction API |
-| Free tier prediction limit hit | 500 predictions/month free tier exhausted | Upgrade plan or wait for next calendar month reset |
+| Free tier prediction limit hit | Monthly free-tier prediction quota exhausted (check current quota on the pricing page) | Upgrade plan or wait for next calendar month reset |

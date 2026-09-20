@@ -35,7 +35,7 @@ Skipping this step prevents access to Headless, Browser Logic, PDF & Screenshot,
 3. **Load `references/smartbrowz-basics.md`** — for component details, automation library setup, Browser Logic structure, PDF/Screenshot SDK usage, Browser Grid configurations, and troubleshooting
 
 4. **SDK-first rule** — When writing implementation code, always prefer SDK methods over raw REST API calls:
-   - **Node.js**: `app.SmartBrowz()` → `smartbrowz.convertToPdf()`, `smartbrowz.generateFromTemplate()`, `app.SmartBrowz().browserGrid()` → `grid.getGrid()`, `grid.stopGrid()`
+   - **Node.js**: `app.smartbrowz()` (lowercase — `app.SmartBrowz()` is not a function) → `smartbrowz.convertToPdf()`, `smartbrowz.generateFromTemplate()`, `app.smartbrowz().browserGrid()` → `grid.getGrid()`, `grid.stopGrid()`
    - **Python**: `app.smart_browz()` → `smart_browz.convert_to_pdf()`, `smart_browz.generate_from_template()`, `app.smart_browz().browser_grid()` → `grid.get_all_grid()`
    - **Java**: `ZCSmartBrowz.getInstance()` → `smartBrowz.convertToPdf()`, `smartBrowz.generateFromTemplate()`
    - Use REST API **only** when no SDK equivalent exists (e.g., checking `free_sessions` on Browser Grid live stats)

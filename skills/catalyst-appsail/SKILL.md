@@ -9,7 +9,7 @@ metadata:
 ## How It Works
 
 1. **Identify the runtime** — Managed runtime (Node.js, Java, Python) or custom Docker container.
-2. **Load `references/appsail-basics.md`** — for PORT config, environment variables, Dockerfile requirements, and deploy commands.
+2. **Load `references/appsail-basics.md`** — for PORT config, project structure, and Dockerfile requirements. For deploy commands and environment variables, load `references/appsail-deploy.md`.
 3. **PORT rule** — Always use `process.env.X_ZOHO_CATALYST_LISTEN_PORT`, never hardcode `PORT` or `3000`.
 4. **AppSail vs Functions decision** — If the user is unsure which to use, apply this matrix:
 

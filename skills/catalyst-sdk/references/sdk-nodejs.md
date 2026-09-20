@@ -230,20 +230,37 @@ const item = new NoSQLItem()
 // insertItems takes an object { item }, NOT an array
 await table.insertItems({ item });
 
-// fetchItem (singular) — keys is a NoSQLItem identifying the record
+// fetchItem (singular) — keys is a NoSQLItem, or an array of them for batch fetch
 const fetched = await table.fetchItem({
   keys: [new NoSQLItem().addString('userId', 'user_001')]
 });
 
+// queryTable takes key_condition — there is NO { partitionKey, sortKey, ascending } shape
+const { NoSQLEnum, NoSQLMarshall } = require('zcatalyst-sdk-node/lib/no-sql');
+const { NoSQLOperator, NoSQLUpdateOperationType } = NoSQLEnum;
 const queryResult = await table.queryTable({
-  partitionKey: { name: 'userId', value: 'user_001' },
-  sortKey: { name: 'loginTime', operator: 'GREATERTHAN', value: 1700000000000 },
-  limit: 50, ascending: true
+  key_condition: {
+    attribute: ['userId'],                       // attribute path (array)
+    operator: NoSQLOperator.EQUALS,
+    value: NoSQLMarshall.makeString('user_001')
+  }
 });
 // Operators: EQUALS, BETWEEN, GREATERTHAN, LESSERTHAN, GREATERTHANOREQUALTO, LESSERTHANOREQUALTO
 
-await table.updateItems([item]);
-await table.deleteItems([{ partitionKey: 'user_001', sortKey: 1700000000001 }]);
+// updateItems takes { keys, update_attributes } — NOT an array of items
+await table.updateItems({
+  keys: new NoSQLItem().addString('userId', 'user_001'),
+  update_attributes: [{
+    operation_type: NoSQLUpdateOperationType.PUT,
+    attribute_path: ['loginTime'],
+    update_value: NoSQLMarshall.make(1700000000001)
+  }]
+});
+
+// deleteItems takes { keys: NoSQLItem } — NOT [{ partitionKey, sortKey }]
+await table.deleteItems({
+  keys: new NoSQLItem().addString('userId', 'user_001')
+});
 ```
 
 ---

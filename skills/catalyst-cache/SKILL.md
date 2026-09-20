@@ -10,7 +10,7 @@ metadata:
 1. **Get Segment ID** — Use MCP (`CatalystbyZoho_List_Cache_Segments`) if available; otherwise retrieve it from the console or `.catalystrc`.
 2. **Load `references/cache-basics.md`** — for SDK operations, TTL limits (48 hr max), and the `segment.delete()` / `segment.update()` gotchas.
 3. **String values only** — All cache values are strings. Always `JSON.stringify` before `put` and `JSON.parse` after `get`.
-4. **TTL behavior** — `segment.update()` resets TTL to the new value, not adds to existing. `segment.delete()` returns `null` (not an error) if the key is missing.
+4. **TTL behavior** — TTL is in HOURS (max 48), not seconds. `segment.update()` called WITHOUT an expiry argument silently resets the key's TTL to the 48-hour maximum (a 1-hour key becomes a 48-hour key). `segment.delete()` does not remove the key — it sets `cache_value` to `null` and the key persists; a later `getValue()` returns `null` with HTTP 200 and never throws.
 
 ## Triggers
 

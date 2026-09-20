@@ -4,7 +4,7 @@
 
 - **Pay-per-use** model with generous monthly free tiers.
 - **Free trial:** New customers get **$250 USD** in credits, valid for **60 days from the date claimed**.
-- **Minimum billing:** $5/project/month once any free tier limit is exceeded.
+- **Minimum billing:** $5/account/month once any free tier limit is exceeded (once per account, not per project).
 - **No upfront commitments.** Subscription option also available.
 - Free tier is **account-wide** (shared across all projects).
 
@@ -142,9 +142,9 @@ Messages: **$0.0006 per message**
 ## Billing Rules
 
 1. **Free tier is account-wide** — shared across all projects.
-2. **Minimum $5/project/month** once any free tier limit exceeded. If usage = $7 across 2 projects: $7 + $5 = $12.
+2. **Minimum $5/account/month** once any free tier limit is exceeded — the minimum applies once per account, NOT per project.
 3. **Billable = Max(0, Usage - Free Tier)**. Cost = Billable × Unit Price.
-4. **Free trial credits ($250)** applied against invoices. After 180 days, normal billing begins.
+4. **Free trial credits ($250)** applied against invoices; valid for 60 days from the date claimed (see Overview). Normal billing begins when credits are exhausted or expire.
 
 ---
 
@@ -211,4 +211,4 @@ All estimates in this skill are in USD. For INR pricing, direct users to the off
 | Cost estimate doesn't match invoice | Free tier resets monthly; partial months billed at full rate | Always calculate based on full month usage; free tier is per calendar month |
 | INR pricing differs from USD estimate | Separate regional pricing applies to India DC accounts | Direct India DC users to catalyst.zoho.com/pricing.html for accurate INR rates |
 | Unexpected GB-seconds charge | Cold start overhead counted toward execution time | Cold starts add ~100–300 ms; factor this in for high-frequency functions |
-| Free tier exhausted earlier than expected | Multiple environments (Development + Production) share the same free tier quota | Each Catalyst project counts as one quota pool across all environments |
+| Free tier exhausted earlier than expected | The free tier is account-wide — all projects and all environments (Development + Production) draw from the same shared quota | Sum usage across every project and environment in the account when estimating |

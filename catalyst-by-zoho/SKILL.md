@@ -149,8 +149,9 @@ These services are **unavailable** in the listed data centers. Building with the
 | **Circuits** | EU, AU, IN, JP, SA, CA |
 | **Integration Functions** | EU, AU, IN, JP, SA, CA |
 | **Push Notifications** | EU, AU, IN, CA |
-| **AutoML (QuickML)** | EU, AU, IN, JP, SA, CA |
-| **Identity Scanner (Zia)** | Available in IN DC only (not EU, AU, US, JP, SA, CA) |
+| **AutoML (QuickML)** | JP, SA, CA |
+| **Identity Scanner (Zia) — Document Processing** (Aadhaar, PAN, etc.) | Available in IN DC only, API included |
+| **Identity Scanner (Zia) — Facial Comparison** | Works from ANY DC via API/SDK; only console testing is IN DC only |
 | **Mobile Device Management** | EU, AU, IN, JP, SA, CA |
 
 **How to check:** Ask the user which data center their Catalyst account uses, or look for the DC code in their console URL (e.g., `catalyst.zoho.in` → IN, `catalyst.zoho.eu` → EU).
