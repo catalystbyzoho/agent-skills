@@ -29,7 +29,7 @@ Skipping this step prevents access to Publishers, Webhooks, Rules, and Logs. Thi
    - **Events** are JSON payloads with auto-generated schemas (max 100KB for Zoho, 64KB for Custom)
    - **Rules** connect publishers to targets with optional filters and payload transformations
    - **Targets** receive events via Webhooks, Functions, or Circuits
-   - **Dispatch Policy** controls event delivery: One-Time (immediate), Scheduled (time-based), or Batching (count/size aggregation)
+   - **Dispatch Policy** controls event delivery: **Instant** (default, immediate) or **Batch** (by count / size / schedule / attribute; TTL fixed at 24h). "One-Time Dispatch" is NOT a policy — it is the no-retry fallback delivery that fires when a Batch's conditions are never met before TTL expiry
 
 5. **Deployment warning** — Rules are locked in production (enable/disable only). All rule changes must be made in Development and deployed. Max 25 publishers per deployment.
 
@@ -42,7 +42,7 @@ Skipping this step prevents access to Publishers, Webhooks, Rules, and Logs. Thi
 
 ## Triggers
 
-Use this skill for: "Signals", "Catalyst event bus", "event-driven architecture", "publisher", "Zoho publisher", "Catalyst publisher", "custom publisher", "event schema", "rule", "event filter", "event transformation", "webhook target", "dispatch policy", "one-time dispatch", "scheduled dispatch", "batch dispatch", "event ordering", "retry policy", "TTL", "event status", "Signals logs", "Signals dashboard", "deploy Signals", or "Signals console".
+Use this skill for: "Signals", "Catalyst event bus", "event-driven architecture", "publisher", "Zoho publisher", "Catalyst publisher", "custom publisher", "event schema", "rule", "event filter", "event transformation", "webhook target", "dispatch policy", "instant dispatch", "one-time dispatch", "scheduled dispatch", "batch dispatch", "event ordering", "retry policy", "TTL", "event status", "Signals logs", "Signals dashboard", "deploy Signals", or "Signals console".
 
 ## References
 

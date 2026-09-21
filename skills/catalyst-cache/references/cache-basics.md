@@ -96,5 +96,5 @@ if (!session) {
 |-------|-------|-----|
 | `segment.get()` returns `null` unexpectedly | Key expired (default 48-hour TTL) or was never set | Check TTL on `put()` call; catch null and re-fetch from source |
 | `segment.update()` silently resets TTL | Calling `update()` without a TTL argument resets the expiry to 48 hours | Always pass the TTL explicitly in hours: `segment.update(key, value, ttlHours)` |
-| `segment.delete()` key returns `null` on next get | Deleted keys persist as null entries briefly | Treat `null` as a cache miss and re-populate from the source store |
+| `segment.delete()` key returns `null` on next get | Deleted keys persist as null entries (the key is not removed — see above) | Treat `null` as a cache miss and re-populate from the source store |
 | Cache segment not found | Segment name doesn't match what was created in Console | Segment names are case-sensitive; verify in Console → Cache |

@@ -93,7 +93,7 @@ New to Catalyst? Here's what each service does in one line:
 | **Authentication** | Built-in user sign-up/login (ZAID). OAuth Connections for third-party APIs. |
 | **SmartBrowz** | Headless browser automation, PDF/screenshot generation, Browser Logic functions, Browser Grid (parallel browsers), and Dataverse (web scraping). |
 | **Zia Services** | Pre-trained AI/ML: OCR, Face Analytics, Text Analytics, Object Detection, Barcode, Moderation. |
-| **QuickML** | AutoML — train models on your own data without writing ML code. *(Not in EU/AU/IN/JP/SA/CA)* |
+| **QuickML** | No/low-code ML platform — ML pipelines, AutoML, LLM Serving, RAG, Knowledge Base, prediction endpoints. *(Prediction models: all DCs. Generative AI: not in AU/SA. Zia Model Library: IN only.)* |
 | **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Signals** | Event-driven triggers / pub-sub (replaces legacy Event Listeners). |
 | **Job Scheduling** | Job pools + immediate jobs + crons — scheduled/background execution of Job functions, Webhooks, Circuits, AppSail (replaces legacy Cron). |
@@ -107,7 +107,7 @@ New to Catalyst? Here's what each service does in one line:
 
 | When the query is about… | Load this skill |
 |--------------------------|-----------------|
-| **Which service to use, architecture decisions, DC restrictions** | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md`) |
+| **Which service to use, architecture decisions, DC restrictions** | `catalyst-basics` (load `../catalyst-basics/references/architecture.md`) |
 | Project setup, `.catalystrc`, environments, orgs, IDs, CLI commands | `catalyst-basics` |
 | Functions — types, signatures, `catalyst-config.json`, API Gateway, file uploads | `catalyst-functions` |
 | AppSail — backend PaaS, Docker, managed runtimes, PORT variable | `catalyst-appsail` |
@@ -119,12 +119,13 @@ New to Catalyst? Here's what each service does in one line:
 | Cache — in-memory key-value, TTL, segment operations | `catalyst-cache` |
 | Pricing — free tier, pay-as-you-go, GB-seconds, cost estimation | `catalyst-pricing` |
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `catalyst-sdk` |
-| Zia Services, QuickML — OCR, ML predictions, AutoML | `catalyst-zia` |
+| Zia Services — OCR, face/text analytics, moderation | `catalyst-zia` |
+| QuickML — ML pipelines, AutoML, LLM Serving, RAG, model endpoints | `catalyst-quickml` |
 | Signals — event-driven triggers, publish/subscribe, event listeners, custom publisher, webhook target, dispatch policy | `catalyst-signals` |
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
 | Job Scheduling — job pools, immediate/background jobs, crons (Periodic/OneTime/Calendar/CronExpression), `submitJob`, `createCron`, retries | `catalyst-job-scheduling` |
 | Zoho MCP — MCP setup, `CatalystbyZoho_*` tools, infra-as-conversation | `catalyst-zoho-mcp` |
-| Skill gave wrong or outdated guidance — user reporting an error | load `catalyst-by-zoho/references/skill-feedback.md` |
+| Skill gave wrong or outdated guidance — user reporting an error | load `references/skill-feedback.md` |
 
 ---
 
@@ -149,8 +150,9 @@ These services are **unavailable** in the listed data centers. Building with the
 | **Circuits** | EU, AU, IN, JP, SA, CA |
 | **Integration Functions** | EU, AU, IN, JP, SA, CA |
 | **Push Notifications** | EU, AU, IN, CA |
-| **AutoML (QuickML)** | EU, AU, IN, JP, SA, CA |
-| **Identity Scanner (Zia)** | Available in IN DC only (not EU, AU, US, JP, SA, CA) |
+| **QuickML — Generative AI (LLM Serving, RAG)** | AU, SA (prediction/ML models available in ALL DCs; Zia Model Library in the QuickML console is IN only) |
+| **Identity Scanner (Zia) — Document Processing** (Aadhaar, PAN, etc.) | Available in IN DC only, API included |
+| **Identity Scanner (Zia) — Facial Comparison** | Works from ANY DC via API/SDK; only console testing is IN DC only |
 | **Mobile Device Management** | EU, AU, IN, JP, SA, CA |
 
 **How to check:** Ask the user which data center their Catalyst account uses, or look for the DC code in their console URL (e.g., `catalyst.zoho.in` → IN, `catalyst.zoho.eu` → EU).

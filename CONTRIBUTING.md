@@ -32,9 +32,10 @@ If the skill produces incorrect code, recommends deprecated services, or misses 
 
 ```
 skills/
-├── SKILL.md                              ← Root router — routes queries to service skills
-├── references/
-│   └── skill-feedback.md                 ← Loaded when a skill gives wrong guidance
+├── catalyst-by-zoho/
+│   ├── SKILL.md                          ← Root router — routes queries to service skills
+│   └── references/
+│       └── skill-feedback.md             ← Loaded when a skill gives wrong guidance
 ├── catalyst-basics/
 │   ├── SKILL.md
 │   └── references/
@@ -95,8 +96,12 @@ skills/
 ├── catalyst-zia/
 │   ├── SKILL.md
 │   └── references/
-│       ├── zia-services.md
-│       └── quickml.md
+│       └── zia-services.md
+├── catalyst-quickml/
+│   ├── SKILL.md                         
+│   └── references/
+│       ├── prediction.md
+│       └── generative-ai.md
 ├── catalyst-zoho-mcp/
 │   ├── SKILL.md
 │   └── references/

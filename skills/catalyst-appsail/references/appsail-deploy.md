@@ -28,6 +28,8 @@ catalyst deploy --only appsail:<service-name> -ni   # ✅ Recommended: deploy on
 
 > ⚠️ **Always include `--name <service-name>` when running `catalyst deploy appsail`.** If `--name` is omitted, the CLI defaults the service name to `AppSail`, which can cause unexpected behavior if your actual service has a different name.
 
+> ℹ️ The "already exists" error only occurs if you run `catalyst appsail:add` again on an app that is already registered — deploying a linked app never triggers it.
+
 ```bash
 # Example: link app first, then deploy
 catalyst appsail:add --name <service-name> --source /abs/path/to/appsail --stack node20 --build ./
@@ -47,7 +49,9 @@ catalyst deploy appsail --name <service-name> --source docker://<image>:<tag>
 # Docker Archive (from a .tar file — generated with: docker save <image> > image.tar)
 catalyst deploy appsail --name <service-name> --source docker-archive://./image.tar
 
-# With optional overrides (--port sets the AppSail listening port)
+# With optional overrides (--port sets the AppSail listening port, equivalent to
+# X_ZOHO_CATALYST_LISTEN_PORT; Catalyst verifies the process is bound to this port
+# within 10 seconds — if not, the instance is killed)
 catalyst deploy appsail --name <service-name> --source docker://<image>:<tag> \
   --command "node server.js" --port 8080
 ```
@@ -65,7 +69,7 @@ catalyst deploy appsail \
   --command "node app.js"
 ```
 
-> ⚠️ **`--build-path` must be an absolute path.** Relative paths are accepted by the CLI (no error) but the deployed app fails to start at runtime.
+> ⚠️ **`--build-path` must be an absolute path.** Relative paths are accepted by the CLI (no error) but the deployed app fails to start at runtime with "Execution failed. Please check the startup command or port." — the error text points at the port, but the cause is the path. Confirmed by runtime testing.
 
 > ⚠️ **`--port` flag is only for custom (Docker) runtimes.** Do not use it for managed runtimes — the port is always controlled via `X_ZOHO_CATALYST_LISTEN_PORT`.
 
@@ -74,7 +78,8 @@ catalyst deploy appsail \
 > ⚠️ **`catalyst.json` prerequisite:** `catalyst init` alone does NOT create `catalyst.json` — it only writes `.catalystrc`. `catalyst.json` is created by the first service command (`catalyst appsail:add`, `catalyst functions:add`, `catalyst slate:create`, etc.). Run `catalyst init` first, then add a service.
 
 **Agent boundary — what requires the user:**
-- `catalyst appsail:add` is interactive (menu-driven) and cannot be driven fully autonomously; use the flags above to minimise prompts
+- `catalyst appsail:add` is interactive (menu-driven) and cannot be driven fully autonomously; use the flags above (`--name --source --stack --build ./`) to minimise prompts
+- `catalyst deploy appsail` without `--name`/`--source` (or Path C's `--build-path`) flags will also prompt interactively
 - If the CLI stalls, route the user to Console → AppSail → Deploy from Console → Docker Image (requires image on a container registry: Docker Hub, AWS ECR, or GCP Artifact Registry)
 
 > ℹ️ **If the frontend is on Slate:** configure CORS before the first test — Slate (`*.onslate.com`) and AppSail (`*.catalystappsail.com`) are on separate domains. Load `references/appsail-crossorigin.md` for the 2-step fix.
@@ -106,6 +111,7 @@ catalyst deploy appsail \
 
 **Standalone / Console-deployed apps** (no app entry in `catalyst.json`):
 - Console is the only source of truth; configure via Console → AppSail → \<service\> → Configuration → Environment Variables
+- These vars survive redeploys done from the Console but will be overwritten if a CLI deploy on a linked app (with `app-config.json`) is ever run
 
 > ⚠️ **Avoid `CATALYST` in user-defined env var key names.** The AppSail runtime injects its own `CATALYST_*` system vars. User-defined keys with `CATALYST` in the name may conflict or be rejected — use `ZOHO_` prefix or a plain name. Runtime-confirmed system vars injected automatically: `X_ZOHO_CATALYST_LISTEN_PORT`, `X_ZOHO_CATALYST_ENVIRONMENT`, `X_ZOHO_CATALYST_RESOURCE_ID`, `X_ZOHO_CATALYST_RUNTIME_MEMORY`, `X_ZOHO_CATALYST_ACCOUNTS_URL`, `X_ZOHO_CATALYST_CONSOLE_URL`, `CATALYST_PROJECT_ID`, `CATALYST_MAX_TIMEOUT`, `CATALYST_USER_ENVIRONMENT`, `CATALYST_PROJECT_TIMEZONE`.
 

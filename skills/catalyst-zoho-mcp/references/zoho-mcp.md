@@ -9,7 +9,7 @@
 
 The Catalyst global MCP endpoint changes by data center. Use the URL that matches your Zoho account's DC.
 
-| DC | Region | Global MCP base URL |
+| DC | Region | Global MCP URL (full — use as-is, do not append anything) |
 |------|------|------|
 | US | United States | `https://catalyst.zohomcp.com/mcp/message` |
 | EU | Europe | `https://catalyst.zohomcp.eu/mcp/message` |
@@ -23,7 +23,7 @@ The Catalyst global MCP endpoint changes by data center. Use the URL that matche
 
 **Step 2 — Add your DC-specific URL to your AI client:**
 
-Replace `<dc-base-url>` with your DC base URL from the table above.
+Replace `<dc-mcp-url>` with the full URL from the table above (it already ends in `/mcp/message` — do NOT append `/mcp/message` again; a doubled path fails to connect).
 
 **For Claude Desktop** — edit `claude_desktop_config.json`
 (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -34,7 +34,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "mcpServers": {
     "catalyst-by-zoho": {
       "type": "streamable-http",
-      "url": "<dc-base-url>/mcp/message"
+      "url": "<dc-mcp-url>"
     }
   }
 }
@@ -47,7 +47,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "mcpServers": {
     "catalyst-by-zoho": {
       "type": "streamable-http",
-      "url": "<dc-base-url>/mcp/message"
+      "url": "<dc-mcp-url>"
     }
   }
 }
@@ -60,7 +60,7 @@ Windows: `%APPDATA%\Claude\claude_desktop_config.json`):
   "servers": {
     "catalyst-by-zoho": {
       "type": "http",
-      "url": "<dc-base-url>/mcp/message"
+      "url": "<dc-mcp-url>"
     }
   }
 }
