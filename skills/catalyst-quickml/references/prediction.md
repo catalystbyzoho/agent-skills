@@ -3,14 +3,15 @@
 Practical, directive reference for building and serving **trained** ML models in Catalyst
 QuickML. `SKILL.md` covers what QuickML is and when to reach for it; this file covers which
 pipeline to pick and how to use it. 
-- For **Generative AI** features like LLMs, RAG, Knowledge base see `generative-ai.md`.
 
+For **Generative AI** features like LLMs, RAG, Knowledge base see `generative-ai.md`.
 
-> **Availability (by data center):**
+## Availability (by data center):
 > - **Prediction models** — build & publish in **US, IN, EU, AU, JP, SA, CA** (all regions).
-> -  **Pricing** is not in the docs — see <https://catalyst.zoho.com/pricing.html>.
+> -  **Pricing** Explore # QuickML Pricing section in .
 
----
+## Pricing
+> See "QuickML Pricing" section in SKILL.md for more information
 
 ## Core concepts
 - **Data Connectors** — a list of connectors available in QuickMl to import data from. Currently, the list of connectors available are:
@@ -176,8 +177,6 @@ catalyst serve            # run functions locally that call QuickML endpoints
 catalyst deploy           # deploy functions/resources that consume QuickML
 ```
 
-The trained model must be published with an endpoint to make it callable.
-
 ###  Supported frameworks
 Frameworks commonly used: **scikit-learn,
 pandas, NumPy**, and gradient-boosting libraries (XGBoost, LightGBM, CatBoost).
@@ -187,8 +186,7 @@ pandas, NumPy**, and gradient-boosting libraries (XGBoost, LightGBM, CatBoost).
 QuickML ships in the Catalyst SDK family: **Node.js, Python, Java**. Two-step pattern in all languages: create a QuickML component instance,
 then call the relevant method with the **endpoint key** and input data.
 
-### SDK for Prediction 
-**Prediction (Java):**
+#### Java:
 
 ```java
 HashMap<String, String> input_data = new HashMap<>();
@@ -199,9 +197,7 @@ String endpointKey = "<ENDPOINT_KEY>";
 ZCQuickMLDetail result = quickMlInstance.runInference(endpointKey, input_data);
 ```
 
-
-
-**Prediction (Python):**
+#### Python:
 
 ```python
 # Create a QuickML instance.
@@ -221,7 +217,7 @@ response = quickml.run_inference(endpoint_key, input_data)
 print(response)
 
 ```
-**Prediction (Javascript):**
+##### Javascript:
 
 ```javascript
    const app = await zcAuth.init(req);
@@ -243,14 +239,23 @@ print(response)
 console.log(predictionResponse);
 
 ```
-> For quick references about SDK and methods refer to the respective **Python, Java, Javascript SDK** docs as needed. 
+
+### SDK docs 
+**Base URL**: `https://docs.catalyst.zoho.com/en/sdk/`. Append the path below to it (each path already ends in `index.md`, the Markdown version). If `index.md` fails, drop it and use the HTML page.
+
+
+> | Feature | Java | Python | JavaScript |
+> |---|---|---|---|
+> | Prediction (custom ML endpoint) | `java/v1/quickml/execute-custom-ml-endpoint/index.md` | `python/v1/quickml/execute-custom-ml-endpoint/index.md` | `javascript/v1/quickml/execute-custom-ml-endpoint/index.md` |
 
 
 ## Tools & automation
 > Prefer connected Catalyst MCP tools for any action — see "Using Catalyst MCP tools" in SKILL.md.
 
 
-### REST API — Prediction endpoint
+##  REST API — parameters
+
+### Prediction endpoint
 
 `POST https://<catalyst-api-host>/quickml/v1/project/{project_id}/endpoints/predict`
 
@@ -294,7 +299,7 @@ console.log(predictionResponse);
 ---
 ## Pipeline stages
 
-**Rules — stages**
+**Rule — stages.**
 - Use ONLY the exact stage names listed below (they match the QuickML builder). Do NOT invent or
   paraphrase names.
 - The **bold category labels** (Data Cleaning, Data Transformation, Encoding, Imputers,
@@ -365,7 +370,6 @@ Available list of algorithms below - full hyperparameters list are available on 
 
 Need custom logic? Use **Custom Code** stages (Python): Custom Data transformation, Custom ML transformation, or a Custom Algorithm.
 <https://docs.catalyst.zoho.com/en/quickml/help/custom-code/>
-
 
 ---
 

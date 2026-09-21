@@ -73,13 +73,7 @@ All Zia operations: **$0.001 per request** (OCR, Face Analytics, Image Moderatio
 Messages: **$0.0006 per message**
 
 ### QuickML
-| Operation | Unit Price | Unit |
-|---|---|---|
-| Model Inference (0–25K) | $0.0025 | per API call |
-| Model Inference (25K–100K) | $0.002 | per API call |
-| Model Inference (>100K) | $0.001 | per API call |
-| LLM Input Tokens | $0.2 | per million |
-| LLM Output Tokens | $0.4 | per million |
+QuickML pricing (subscription plans, pay-as-you-go rates for predictions/LLM/VLM tokens/training, free tiers) is maintained in the **`catalyst-quickml` skill** (`../catalyst-quickml/SKILL.md`, "QuickML Pricing" section — INR, India-region; other regions differ). Do not quote QuickML rates from this file.
 
 ### Slate
 | Operation | Unit Price | Unit |

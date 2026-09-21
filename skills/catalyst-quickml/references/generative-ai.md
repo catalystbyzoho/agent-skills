@@ -2,18 +2,14 @@
 
 Practical, directive reference for QuickML's Generative AI module: serving LLMs, grounding
 them with RAG over a Knowledge Base, and publishing them as endpoints. 
-- For **custom trained ML models** access `prediction.md`; 
 
+For **custom trained ML models** access `prediction.md`
 
-
-> **Availability (by data center):**
+## Availability (by data center):
 > - **Generative AI** (LLM Serving, RAG) — available and publishable in **US, IN, EU, JP, CA** only; **not available in AU or SA**.
 
-> **Pricing** is not in the docs — see <https://catalyst.zoho.com/pricing.html>.
-
----
-
-
+## Pricing
+> See "QuickML Pricing" section in SKILL.md for more information
 
 ## Core concepts
 
@@ -57,7 +53,7 @@ QuickML does not use your data for model training.
 1. **LLM Serving** → **Playground** tab; pick a model and adjust parameters.
 2. **Save Configuration**.
 
-Docs: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/llm-serving-endpoint/#3-llm-endpoints>
+Docs: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/llm-serving-endpoint/index.md>
 
 ---
 
@@ -71,7 +67,7 @@ Grounds LLM answers in your own documents. Retrieves the most relevant content f
 3. Configure a RAG setup using available parameters based on the selected RAG mode, then test.
 4. **Save Configuration**.
 
-Docs: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/rag-endpoint/#3-rag-endpoints>
+Docs: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/rag-endpoint/index.md>
 
 ---
 
@@ -89,15 +85,15 @@ Supports document level **periodic sync** so the knowledge stays updated.
 
 Each uploaded document gets a unique **Document ID** — copy it from the KB to scope RAG retrieval to specific documents in API calls.
 
-Docs: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-base/>
+Docs: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-base/index.md>
 
 ## 4. Available models
 
 - **GLM-4.7-Flash**: 30B-A3B MoE text-only model (~3B active params/token). Optimized for coding, reasoning, agent workflows, and long-context tasks (200K input / 128K output tokens). Supports native tool calling. Model key: `crm-di-glm47b_30b_it`.
-  <https://docs.catalyst.zoho.com/en/quickml/help/available-models/glm-4.7-flash/>
+  <https://docs.catalyst.zoho.com/en/quickml/help/available-models/glm-4.7-flash/index.md>
 
 - **Qwen 3.6 35B Vision Language (VLM)**: 35B-A3B multimodal MoE model (~3B active params/token, 8-bit precision). Handles combined text + image input (up to 3 images, ~9K tokens total) with text-only output. Suited for document/chart understanding and image-based Q&A. Model key: `VL-Qwen3.6-35B-A3B`.
-  <https://docs.catalyst.zoho.com/en/quickml/help/available-models/qwen-3.6-35b-vision-language/>
+  <https://docs.catalyst.zoho.com/en/quickml/help/available-models/qwen-3.6-35b-vision-language/index.md/>
 
 ---
 
@@ -115,17 +111,29 @@ catalyst serve            # run functions locally that call QuickML endpoints
 catalyst deploy           # deploy functions/resources that consume QuickML
 ```
 
-###  SDKs
+##  SDKs
 
-QuickML ships in the Catalyst SDK family: **JavaScript, Python, Java**. Two-step pattern in all languages: create a QuickML component instance, then call the relevant method with the **endpoint key** and input data.
+QuickML ships in the Catalyst SDK family: **Node.js, Python, Java**. Two-step pattern in all languages: create a QuickML component instance,
+then call the relevant method with the **endpoint key** and input data.
 
+### LLM Serving
 
-### SDK for LLM Serving, VLM, RAG
+#### Java:
+```java
+ZCQuickML quickMlInstance = ZCQuickML.getInstance();
+String endpointKey = "<ENDPOINT_KEY>";
+String prompt = "<YOUR_PROMPT>";
 
-#### LLM Serving
+// Single-shot
+ZCQuickMLDetail result = quickMlInstance.askLlm(endpointKey, prompt);
 
+// Conversation mode — pass "-1" as conversationId for the first request
+String conversationId = "<CONVERSATION_ID>";
+ZCQuickMLDetail result = quickMlInstance.converseWithLlm(endpointKey, prompt, conversationId);
 
-**Python:**
+System.out.println(result.getResponse());
+```
+#### Python:
 ```python
 quickml = app.quick_ml()
 endpoint_key = "<ENDPOINT_KEY>"
@@ -141,29 +149,40 @@ response = quickml.converse_with_llm(endpoint_key, prompt, conversation_id)
 print(response)
 ```
 
-**Java:**
-```java
-ZCQuickML quickMlInstance = ZCQuickML.getInstance();
-String endpointKey = "<ENDPOINT_KEY>";
-String prompt = "<YOUR_PROMPT>";
+#### JavaScript (modular SDK v1):
+```javascript
+const app = await zcAuth.init(req);
+const quickML = new QuickML(app);
+const endpointKey = "<ENDPOINT_KEY>";
+const prompt = "<YOUR_PROMPT>";
 
 // Single-shot
-ZCQuickMLDetail result = quickMlInstance.askLlm(endpointKey, prompt);
+const response = await quickML.askLlm(endpointKey, prompt);
 
-// Conversation mode — pass "-1" as conversationId for the first request
-String conversationId = "<CONVERSATION_ID>";
-ZCQuickMLDetail result = quickMlInstance.converseWithLlm(endpointKey, prompt, conversationId);
+// Conversation mode — omit conversationId or pass "-1" for the first request
+const conversationId = "<CONVERSATION_ID>";
+const chatResponse = await quickML.converseWithLlm(endpointKey, prompt, conversationId);
 
-System.out.println(result.getResponse());
+console.log(response, chatResponse);
 ```
 
 ---
 
-#### Vision Language Model (VLM)
+### Vision Language Model (VLM)
 
 **Allowed formats:** .jpg, .jpeg, .png — max 500 KB
+#### Java:
+```java
+ZCQuickML quickMlInstance = ZCQuickML.getInstance();
+String endpointKey = "<ENDPOINT_KEY>";
+File image = new File("<IMAGE_PATH>");
+String prompt = "<YOUR_PROMPT>";
 
-**Python:**
+ZCQuickMLDetail result = quickMlInstance.analyzeImage(endpointKey, image, prompt);
+System.out.println(result.getResponse());
+```
+
+#### Python:
 ```python
 quickml = app.quick_ml()
 endpoint_key = "<ENDPOINT_KEY>"
@@ -175,20 +194,20 @@ with open(image_path, "rb") as image:
     print(response)
 ```
 
-**Java:**
-```java
-ZCQuickML quickMlInstance = ZCQuickML.getInstance();
-String endpointKey = "<ENDPOINT_KEY>";
-File image = new File("<IMAGE_PATH>");
-String prompt = "<YOUR_PROMPT>";
 
-ZCQuickMLDetail result = quickMlInstance.analyzeImage(endpointKey, image, prompt);
-System.out.println(result.getResponse());
+#### JavaScript (modular SDK v1):
+```javascript
+const quickML = new QuickML(app);
+const imageEndpointKey = "<ENDPOINT_KEY>";
+const imagePrompt = "<YOUR_PROMPT>";
+const image = fs.createReadStream("<IMAGE_PATH>");  // as in the docs sample
+
+const result = await quickML.analyzeImage(imageEndpointKey, image, imagePrompt);
+console.log(result);
 ```
-
 ---
 
-#### RAG
+### RAG
 
 | RAG mode | Python method | Java method |
 |---|---|---|
@@ -197,27 +216,8 @@ System.out.println(result.getResponse());
 | Agentic RAG (no history) | `ask_rag_agent(endpoint_key, prompt)` | `askRagAgent(endpointKey, prompt)` |
 | Agentic RAG (with history) | `converse_with_rag_agent(endpoint_key, prompt, conversation_id)` | `converseWithRagAgent(endpointKey, prompt, conversationId)` |
 
-**Python:**
-```python
-quickml = app.quick_ml()
-endpoint_key = "<ENDPOINT_KEY>"
 
-# Response Generation
-response = quickml.generate_rag_response(endpoint_key, prompt)
-
-# Document Search
-response = quickml.search_documents(endpoint_key, query)
-
-# Agentic RAG (no history)
-response = quickml.ask_rag_agent(endpoint_key, prompt)
-
-# Agentic RAG (with history) — pass "-1" as conversation_id for the first request
-response = quickml.converse_with_rag_agent(endpoint_key, prompt, conversation_id)
-
-print(response)
-```
-
-**Java:**
+#### Java:
 ```java
 ZCQuickML quickMlInstance = ZCQuickML.getInstance();
 String endpointKey = "<ENDPOINT_KEY>";
@@ -237,9 +237,63 @@ ZCQuickMLDetail result = quickMlInstance.converseWithRagAgent(endpointKey, promp
 System.out.println(result.getResponse());
 ```
 
+#### Python:
+```python
+quickml = app.quick_ml()
+endpoint_key = "<ENDPOINT_KEY>"
+
+# Response Generation
+response = quickml.generate_rag_response(endpoint_key, prompt)
+
+# Document Search
+response = quickml.search_documents(endpoint_key, query)
+
+# Agentic RAG (no history)
+response = quickml.ask_rag_agent(endpoint_key, prompt)
+
+# Agentic RAG (with history) — pass "-1" as conversation_id for the first request
+response = quickml.converse_with_rag_agent(endpoint_key, prompt, conversation_id)
+
+print(response)
+```
+
+
+#### JavaScript
+```javascript
+const quickML = new QuickML(app);
+const endpointKey = "<ENDPOINT_KEY>";
+
+// Response Generation
+const r1 = await quickML.generateRagResponse(endpointKey, prompt);
+
+// Document Search
+const r2 = await quickML.searchDocuments(endpointKey, query);
+
+// Agentic RAG (no history)
+const r3 = await quickML.askRagAgent(endpointKey, prompt);
+
+// Agentic RAG (with history) — omit conversationId or pass "-1" for the first request
+const r4 = await quickML.converseWithRagAgent(endpointKey, prompt, conversationId);
+```
 > For the first `converseWithLlm` / `converseWithRagAgent` call, set `conversationId` to `"-1"`. The response returns a unique ID to pass in subsequent calls.
 
 
+### SDK docs
+
+SDK docs to fetch for exact code and parameters.
+
+Base URL: `https://docs.catalyst.zoho.com/en/sdk/`. Append the path below to it (each path already ends in `index.md`, the Markdown version). 
+
+> | Feature | Java | Python | JavaScript |
+> |---|---|---|---|
+> | LLM | `java/v1/quickml/execute-llm-endpoint/index.md` | `python/v1/quickml/execute-llm-endpoint/index.md` | `javascript/v1/quickml/execute-llm-endpoint/index.md` |
+> | VLM | `java/v1/quickml/execute-vision-model-endpoint-/index.md` | `python/v1/quickml/execute-vision-model-endpoint/index.md` | `javascript/v1/quickml/execute-vision-model-endpoint/index.md` |
+> | RAG | `java/v1/quickml/execute-rag-endpoint/index.md` | `python/v1/quickml/execute-rag-endpoint/index.md` | `javascript/v1/quickml/execute-rag-endpoint/index.md` |
+
+If `index.md` fails, drop it and use the HTML page.
+
+## Tools & automation
+> Prefer connected Catalyst MCP tools for any action — see "Using Catalyst MCP tools" in SKILL.md.
 
 
 ##  REST API — parameters
@@ -371,7 +425,6 @@ All GenAI endpoints share the same auth and headers. Pattern: `/genai/endpoints/
 - **LLM Serving endpoints** take the model input/query plus generation params (eg: temperature, max tokens);
 - **RAG endpoints**  additionally accept the RAG mode, documents added and retrieval params.
 
-> For quick references about SDK and methods refer to the respective **Python, Java, Javascript SDK** docs as needed.
 ---
 
 ## Console-only actions (no SDK / REST equivalent)
@@ -472,28 +525,21 @@ The following change as the product evolves. **Always fetch the relevant doc pag
 | WorkDrive sync frequency options | <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-base/index.md> |
 | Zoho Learn import types (article vs manual) | <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-base/index.md> |
 
----
-##  Where to go deeper
+## Where to go deeper
 
 **Guides**
-- Generative AI overview: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/>
-- LLM Serving: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/llm-serving/>
-- RAG: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/rag/>
-- Knowledge Base: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-base/>
+- LLM Serving: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/llm-serving/index.md>
+- RAG: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/rag/index.md>
+- Knowledge Base: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-base/index.md>
 
 **Endpoints**
-- LLM Serving endpoint: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/llm-serving-endpoint/>
-- Interaction modes: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/llm-serving-endpoint/#1-llm-interaction-modes>
-- Tool calling: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/llm-serving-endpoint/#2-llm-tool-calling>
-- RAG endpoint: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/rag-endpoint/>
-- RAG modes: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/rag-endpoint/#1-rag-modes>
+- LLM Serving endpoint: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/llm-serving-endpoint/index.md>
+  - Section 1: LLM interaction modes (single-shot vs conversation)
+  - Section 2: LLM tool calling
+  - Section 3: LLM Endpoints
+- RAG endpoint: <https://docs.catalyst.zoho.com/en/quickml/help/endpoints/rag-endpoint/index.md>
+  - Section 1: RAG modes
 
 **Available models**
-- GLM 4.7 Flash: <https://docs.catalyst.zoho.com/en/quickml/help/available-models/glm-4.7-flash/>
-- Qwen 3.6 35B Vision Language (VLM): <https://docs.catalyst.zoho.com/en/quickml/help/available-models/qwen-3.6-35b-vision-language/>
-
-**Pricing**
-- <https://catalyst.zoho.com/pricing.html>
-
-**Related references:** `prediction.md` (trained ML pipelines & endpoints) ·
-the `catalyst-zia` skill (pre-built Zia models).
+- GLM 4.7 Flash: <https://docs.catalyst.zoho.com/en/quickml/help/available-models/glm-4.7-flash/index.md>
+- Qwen 3.6 35B Vision Language (VLM): <https://docs.catalyst.zoho.com/en/quickml/help/available-models/qwen-3.6-35b-vision-language/index.md>

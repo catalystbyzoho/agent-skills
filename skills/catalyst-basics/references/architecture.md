@@ -120,7 +120,7 @@ Functions (API layer)
   + Data Store (results/metadata)
   + Cache (cache frequent predictions)
 ```
-**Cost signal:** Zia APIs are $0.001/request. 100 calls/month free. QuickML pricing is not in the docs — verify at catalyst.zoho.com/pricing.html before quoting.
+**Cost signal:** Zia APIs are $0.001/request. 100 calls/month free. For QuickML rates load the `catalyst-quickml` skill's pricing section (India-region INR; other regions differ — verify at catalyst.zoho.com/pricing.html).
 
 ---
 
