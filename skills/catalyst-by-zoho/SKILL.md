@@ -107,7 +107,7 @@ New to Catalyst? Here's what each service does in one line:
 
 | When the query is about… | Load this skill |
 |--------------------------|-----------------|
-| **Which service to use, architecture decisions, DC restrictions** | `catalyst-basics` (load `skills/catalyst-basics/references/architecture.md`) |
+| **Which service to use, architecture decisions, DC restrictions** | `catalyst-basics` (load `../catalyst-basics/references/architecture.md`) |
 | Project setup, `.catalystrc`, environments, orgs, IDs, CLI commands | `catalyst-basics` |
 | Functions — types, signatures, `catalyst-config.json`, API Gateway, file uploads | `catalyst-functions` |
 | AppSail — backend PaaS, Docker, managed runtimes, PORT variable | `catalyst-appsail` |
@@ -125,7 +125,7 @@ New to Catalyst? Here's what each service does in one line:
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
 | Job Scheduling — job pools, immediate/background jobs, crons (Periodic/OneTime/Calendar/CronExpression), `submitJob`, `createCron`, retries | `catalyst-job-scheduling` |
 | Zoho MCP — MCP setup, `CatalystbyZoho_*` tools, infra-as-conversation | `catalyst-zoho-mcp` |
-| Skill gave wrong or outdated guidance — user reporting an error | load `catalyst-by-zoho/references/skill-feedback.md` |
+| Skill gave wrong or outdated guidance — user reporting an error | load `references/skill-feedback.md` |
 
 ---
 

@@ -31,3 +31,4 @@ blog/
 
 # Eval run reports
 evals/results/
+.claude/
