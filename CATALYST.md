@@ -3,7 +3,7 @@
 > This file serves two purposes: (1) MCP tool routing for agents with Zoho MCP connected,
 > and (2) behavioral rules every agent should follow when working on Catalyst projects.
 > For complete SDK patterns, architecture guidance, and service details, use the full skill
-> at `catalyst-by-zoho/SKILL.md` and its reference files.
+> at `skills/catalyst-by-zoho/SKILL.md` and its reference files.
 
 ---
 
@@ -40,7 +40,8 @@ Before starting any Catalyst task, load the most specific matching skill from `s
 | Cache — in-memory key-value, TTL, segments | `skills/catalyst-cache/` |
 | Pricing — free tier, GB-seconds, cost estimation | `skills/catalyst-pricing/` |
 | SDKs — Node.js, Web, Python, Java, Android, iOS, Flutter | `skills/catalyst-sdk/` |
-| Zia Services, QuickML — OCR, ML, AutoML predictions | `skills/catalyst-zia/` |
+| Zia Services — OCR, face/text analytics, moderation | `skills/catalyst-zia/` |
+| QuickML — ML pipelines, AutoML, LLM Serving, RAG | `skills/catalyst-quickml/` |
 | Zoho MCP — `CatalystbyZoho_*` tools, MCP setup | `skills/catalyst-zoho-mcp/` |
 | Job Scheduling — job pools, immediate jobs, crons, `submitJob`, `createCron` | `skills/catalyst-job-scheduling/` |
 

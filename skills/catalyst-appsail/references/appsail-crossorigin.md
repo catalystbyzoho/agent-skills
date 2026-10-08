@@ -16,7 +16,7 @@ Use the `CatalystbyZoho_Create_CORS_Domain` MCP tool:
 }
 ```
 
-> ⚠️ **Pass the bare domain only — no `https://` prefix.** The API returns `INVALID_INPUT — "Invalid domain name or https:// found"` if you include the protocol.
+> ⚠️ **Pass the bare domain only — no `https://` prefix.** The API returns `INVALID_INPUT — "Invalid domain name or https:// found"` if you include the protocol. (Note the format differs by surface: the **Console UI's** Authorized Domains form is the opposite — it REQUIRES the `https://` prefix. Bare domain for the MCP/API, full origin for the Console.)
 
 Verify it was registered with `CatalystbyZoho_List_All_CORS_Domains` — confirm `cors: true` in the response.
 

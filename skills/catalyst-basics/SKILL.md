@@ -2,7 +2,7 @@
 name: catalyst-basics
 description: "Core Catalyst project setup — directory structure, environments, CLI commands, and all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, Org ID). Trigger on 'start a Catalyst project', 'what is .catalystrc', 'where do I find my Table ID', 'difference between Development and Production', or any Catalyst ID or CLI question."
 metadata:
-  version: "2.0.1"
+  version: "2.0.2"
 ---
 
 > **⚠️ PRE-FLIGHT CHECK:** Before creating any project files, confirm that `.catalystrc` and

@@ -28,3 +28,7 @@ llms-full1.txt
 blog/
 
 .github
+
+# Eval run reports
+evals/results/
+.claude/

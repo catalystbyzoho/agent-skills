@@ -2,7 +2,7 @@
 name: catalyst-smartbrowz
 description: "Catalyst SmartBrowz — browser automation and document generation service. Includes Headless (connect to remote Chrome/Firefox with Puppeteer/Playwright/Selenium), Browser Logic (serverless functions for browser tasks in Java/Node.js), PDF & Screenshot (generate visual documents from HTML/URL/Template), Templates (design dynamic content templates), Browser Grid (parallel headless browsers with auto-scaling, Early Access), and Dataverse (data scraping APIs). Trigger on 'SmartBrowz', 'headless browser', 'Headless Browser', 'Puppeteer', 'Selenium', 'Playwright', 'Browser Logic', 'PDF generation', 'screenshot', 'PDF/Screenshot generation', 'PDF & Screenshot', 'browser automation', 'Browser Grid', or 'web scraping'. Console + SDK (Java/Node.js/Python for PDF/Screenshot + Browser Grid) + CLI (for Browser Logic functions)."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 ## Prerequisites
@@ -35,7 +35,7 @@ Skipping this step prevents access to Headless, Browser Logic, PDF & Screenshot,
 3. **Load `references/smartbrowz-basics.md`** — for component details, automation library setup, Browser Logic structure, PDF/Screenshot SDK usage, Browser Grid configurations, and troubleshooting
 
 4. **SDK-first rule** — When writing implementation code, always prefer SDK methods over raw REST API calls:
-   - **Node.js**: `app.SmartBrowz()` → `smartbrowz.convertToPdf()`, `smartbrowz.generateFromTemplate()`, `app.SmartBrowz().browserGrid()` → `grid.getGrid()`, `grid.stopGrid()`
+   - **Node.js**: `app.smartbrowz()` (lowercase — `app.SmartBrowz()` is not a function) → `smartbrowz.convertToPdf()`, `smartbrowz.generateFromTemplate()`, `app.smartbrowz().browserGrid()` → `grid.getGrid()`, `grid.stopGrid()`
    - **Python**: `app.smart_browz()` → `smart_browz.convert_to_pdf()`, `smart_browz.generate_from_template()`, `app.smart_browz().browser_grid()` → `grid.get_all_grid()`
    - **Java**: `ZCSmartBrowz.getInstance()` → `smartBrowz.convertToPdf()`, `smartBrowz.generateFromTemplate()`
    - Use REST API **only** when no SDK equivalent exists (e.g., checking `free_sessions` on Browser Grid live stats)

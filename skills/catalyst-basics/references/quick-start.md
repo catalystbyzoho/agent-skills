@@ -216,5 +216,5 @@ If your Slate frontend calls a function and you get a CORS error in production:
 | `catalyst: command not found` | CLI not installed globally | Run `npm install -g zcatalyst-cli` |
 | `catalyst.json` missing after `init -ni` | Expected — NI init only creates `.catalystrc` | Run `catalyst functions:add --name <n> --type <t> --stack <s> -ni` to create it |
 | `catalyst.json` is `{}` after interactive init | No features selected during init prompts | Re-run `catalyst init` and select at least one feature, or run `catalyst functions:add` |
-| Function 401 in browser but works with curl | Authentication required in Security Rules | Add `"authentication": "open"` to `catalyst-config.json` for public endpoints |
+| Function 401 in browser but works with curl | Authentication required in Security Rules | Set `authentication` to `optional` in the function's Security Rules (Console — it is NOT a `catalyst-config.json` field; the only valid values are `optional`/`required`) |
 | CORS error in production frontend | Domain not in Authorized Domains | Add the Slate/frontend domain in Console → Settings → Authorized Domains and enable CORS toggle |
