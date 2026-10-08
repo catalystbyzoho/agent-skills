@@ -3,13 +3,13 @@
 Practical, directive reference for QuickML's Generative AI module: serving LLMs, grounding
 them with RAG over a Knowledge Base, and publishing them as endpoints. 
 
-For **custom trained ML models** access `prediction.md`
+For **custom trained ML models** access `prediction-basics.md`
 
 ## Availability (by data center):
-> - **Generative AI** (LLM Serving, RAG) — available and publishable in **US, IN, EU, JP, CA** only; **not available in AU or SA**.
+> - **Generative AI** (LLM Serving, RAG, Knowledge Base) — available and publishable in **US, IN, EU, JP** only; **not available in AU, SA, or CA**.
 
 ## Pricing
-> See "QuickML Pricing" section in SKILL.md for more information
+> See `quickml-pricing-basics.md` for plans, pay-as-you-go rates, and free-tier limits.
 
 ## Core concepts
 
@@ -28,8 +28,10 @@ For **custom trained ML models** access `prediction.md`
   - **Agentic RAG** — an agent layer decomposes complex queries into sub-queries and reasons across multiple steps.
 
 - **Knowledge base** - a storage repository where uploaded documents are intelligently indexed and leveraged as contextual data for relevant information retrieval. Documents can be uploaded via:
-    - **WorkDrive** / **Local file upload**: .pdf, .docx, .txt, .md, .html — up to 10 files at a time, max 100 MB per file
-    - **Zoho Learn**: Provide the document name in the UI, select Learn Hub → Space → Manual → Article(s), and configure sync frequency (Daily, Weekly, Monthly, Yearly, or Custom)
+    - **Local file upload**: .pdf, .docx, .txt, .md, .html — up to 10 files per import session, max 100 MB per file
+    - **Zoho WorkDrive**: up to 10 files per import session, max 250 MB per file
+    - **Zoho Learn**: one document per import — provide the document name in the UI, select Learn Hub → Space → Manual → Article, and configure sync frequency (Daily, Weekly, Monthly, Yearly, or Custom)
+    - **API upload**: max 100 MB per file, and the files in one upload must total 250 MB or less
 
 - **Document Store** - the ground truth for a RAG session; documents are added here from the Knowledge Base and used for context retrieval during a query.
     - If Document Store is empty, retrieval scope expands to the Knowledge Base.
@@ -39,6 +41,8 @@ For **custom trained ML models** access `prediction.md`
 - **Generative AI Endpoints** - Saved Configurations (LLM or RAG) published as authenticated REST API endpoints (+ SDK).
 
 - **Periodic sync** - document sync can be configured using **Sync Frequency** for Knowledge Base documents uploaded via **Zoho WorkDrive** or **Zoho Learn**; not available for the Local file upload connector.
+    - **WorkDrive:** one sync configuration applies to every document in the import session (no per-document setting), and it cannot be changed after upload. To use a different schedule, import those files in a separate session.
+    - **Zoho Learn:** sync is configured for the single imported document.
 
 
 ----
@@ -77,11 +81,15 @@ The document store that powers RAG (documents are chunked and embedded for retri
 
 **Import modes:**
 
-- **Local upload** — .pdf / .docx / .txt (max 500 KB per file).
-- **Zoho WorkDrive** — import a file from WorkDrive. Supports periodic sync.
-- **Zoho Learn** — import an article or a manual. Use **portal URLs only** — team-specific paths won't work.
+| Mode | Files per import | Max per file | Sync |
+|---|---|---|---|
+| **Local upload** (.pdf / .docx / .txt / .md / .html) | 10 per session | 100 MB | Not available |
+| **Zoho WorkDrive** | 10 per session | 250 MB | One configuration for the whole session; cannot be changed after upload |
+| **Zoho Learn** | 1 | — | Configurable for the document |
+| **API upload** | — | 100 MB | — (all files in one upload must total ≤ 250 MB) |
 
-Supports document level **periodic sync** so the knowledge stays updated.
+- **Zoho Learn** — import an article or a manual. Use **portal URLs only** — team-specific paths won't work.
+- These limits come from the QuickML product team. The public Knowledge Base docs page still lists 500 KB per file; that figure is outdated — use the limits above.
 
 Each uploaded document gets a unique **Document ID** — copy it from the KB to scope RAG retrieval to specific documents in API calls.
 
@@ -93,7 +101,7 @@ Docs: <https://docs.catalyst.zoho.com/en/quickml/help/generative-ai/knowledge-ba
   <https://docs.catalyst.zoho.com/en/quickml/help/available-models/glm-4.7-flash/index.md>
 
 - **Qwen 3.6 35B Vision Language (VLM)**: 35B-A3B multimodal MoE model (~3B active params/token, 8-bit precision). Handles combined text + image input (up to 3 images, ~9K tokens total) with text-only output. Suited for document/chart understanding and image-based Q&A. Model key: `VL-Qwen3.6-35B-A3B`.
-  <https://docs.catalyst.zoho.com/en/quickml/help/available-models/qwen-3.6-35b-vision-language/index.md/>
+  <https://docs.catalyst.zoho.com/en/quickml/help/available-models/qwen-3.6-35b-vision-language/index.md>
 
 ---
 
@@ -113,187 +121,12 @@ catalyst deploy           # deploy functions/resources that consume QuickML
 
 ##  SDKs
 
-QuickML ships in the Catalyst SDK family: **Node.js, Python, Java**. Two-step pattern in all languages: create a QuickML component instance,
-then call the relevant method with the **endpoint key** and input data.
+There are **no SDK methods for Generative AI endpoints** in the published Catalyst SDKs (checked October 2026): `@zcatalyst/quickml` 1.0.0, `zcatalyst-sdk` (Python) 1.4.0, `zcatalyst-sdk-node` 3.4.0, and the Java SDK 2.4.0 expose only `predict()` on the QuickML class, which is for ML model endpoints. Method names shown on the docs pages (`askLlm`, `converseWithLlm`, `analyzeImage`, `generateRagResponse`, `askRagAgent`, and their Python equivalents) do not exist in these packages — do not generate them.
 
-### LLM Serving
-
-#### Java:
-```java
-ZCQuickML quickMlInstance = ZCQuickML.getInstance();
-String endpointKey = "<ENDPOINT_KEY>";
-String prompt = "<YOUR_PROMPT>";
-
-// Single-shot
-ZCQuickMLDetail result = quickMlInstance.askLlm(endpointKey, prompt);
-
-// Conversation mode — pass "-1" as conversationId for the first request
-String conversationId = "<CONVERSATION_ID>";
-ZCQuickMLDetail result = quickMlInstance.converseWithLlm(endpointKey, prompt, conversationId);
-
-System.out.println(result.getResponse());
-```
-#### Python:
-```python
-quickml = app.quick_ml()
-endpoint_key = "<ENDPOINT_KEY>"
-prompt = "<YOUR_PROMPT>"
-
-# Single-shot
-response = quickml.ask_llm(endpoint_key, prompt)
-
-# Conversation mode — pass "-1" as conversation_id for the first request
-conversation_id = "<CONVERSATION_ID>"
-response = quickml.converse_with_llm(endpoint_key, prompt, conversation_id)
-
-print(response)
-```
-
-#### JavaScript (modular SDK v1):
-```javascript
-const app = await zcAuth.init(req);
-const quickML = new QuickML(app);
-const endpointKey = "<ENDPOINT_KEY>";
-const prompt = "<YOUR_PROMPT>";
-
-// Single-shot
-const response = await quickML.askLlm(endpointKey, prompt);
-
-// Conversation mode — omit conversationId or pass "-1" for the first request
-const conversationId = "<CONVERSATION_ID>";
-const chatResponse = await quickML.converseWithLlm(endpointKey, prompt, conversationId);
-
-console.log(response, chatResponse);
-```
-
----
-
-### Vision Language Model (VLM)
-
-**Allowed formats:** .jpg, .jpeg, .png — max 500 KB
-#### Java:
-```java
-ZCQuickML quickMlInstance = ZCQuickML.getInstance();
-String endpointKey = "<ENDPOINT_KEY>";
-File image = new File("<IMAGE_PATH>");
-String prompt = "<YOUR_PROMPT>";
-
-ZCQuickMLDetail result = quickMlInstance.analyzeImage(endpointKey, image, prompt);
-System.out.println(result.getResponse());
-```
-
-#### Python:
-```python
-quickml = app.quick_ml()
-endpoint_key = "<ENDPOINT_KEY>"
-image_path = "<IMAGE_PATH>"
-
-with open(image_path, "rb") as image:
-    prompt = "<YOUR_PROMPT>"
-    response = quickml.analyze_image(endpoint_key, image, prompt)
-    print(response)
-```
-
-
-#### JavaScript (modular SDK v1):
-```javascript
-const quickML = new QuickML(app);
-const imageEndpointKey = "<ENDPOINT_KEY>";
-const imagePrompt = "<YOUR_PROMPT>";
-const image = fs.createReadStream("<IMAGE_PATH>");  // as in the docs sample
-
-const result = await quickML.analyzeImage(imageEndpointKey, image, imagePrompt);
-console.log(result);
-```
----
-
-### RAG
-
-| RAG mode | Python method | Java method |
-|---|---|---|
-| Response Generation | `generate_rag_response(endpoint_key, prompt)` | `generateRagResponse(endpointKey, prompt)` |
-| Document Search | `search_documents(endpoint_key, query)` | `searchDocuments(endpointKey, query)` |
-| Agentic RAG (no history) | `ask_rag_agent(endpoint_key, prompt)` | `askRagAgent(endpointKey, prompt)` |
-| Agentic RAG (with history) | `converse_with_rag_agent(endpoint_key, prompt, conversation_id)` | `converseWithRagAgent(endpointKey, prompt, conversationId)` |
-
-
-#### Java:
-```java
-ZCQuickML quickMlInstance = ZCQuickML.getInstance();
-String endpointKey = "<ENDPOINT_KEY>";
-
-// Response Generation
-ZCQuickMLDetail result = quickMlInstance.generateRagResponse(endpointKey, prompt);
-
-// Document Search
-ZCQuickMLDetail result = quickMlInstance.searchDocuments(endpointKey, query);
-
-// Agentic RAG (no history)
-ZCQuickMLDetail result = quickMlInstance.askRagAgent(endpointKey, prompt);
-
-// Agentic RAG (with history) — pass "-1" as conversationId for the first request
-ZCQuickMLDetail result = quickMlInstance.converseWithRagAgent(endpointKey, prompt, conversationId);
-
-System.out.println(result.getResponse());
-```
-
-#### Python:
-```python
-quickml = app.quick_ml()
-endpoint_key = "<ENDPOINT_KEY>"
-
-# Response Generation
-response = quickml.generate_rag_response(endpoint_key, prompt)
-
-# Document Search
-response = quickml.search_documents(endpoint_key, query)
-
-# Agentic RAG (no history)
-response = quickml.ask_rag_agent(endpoint_key, prompt)
-
-# Agentic RAG (with history) — pass "-1" as conversation_id for the first request
-response = quickml.converse_with_rag_agent(endpoint_key, prompt, conversation_id)
-
-print(response)
-```
-
-
-#### JavaScript
-```javascript
-const quickML = new QuickML(app);
-const endpointKey = "<ENDPOINT_KEY>";
-
-// Response Generation
-const r1 = await quickML.generateRagResponse(endpointKey, prompt);
-
-// Document Search
-const r2 = await quickML.searchDocuments(endpointKey, query);
-
-// Agentic RAG (no history)
-const r3 = await quickML.askRagAgent(endpointKey, prompt);
-
-// Agentic RAG (with history) — omit conversationId or pass "-1" for the first request
-const r4 = await quickML.converseWithRagAgent(endpointKey, prompt, conversationId);
-```
-> For the first `converseWithLlm` / `converseWithRagAgent` call, set `conversationId` to `"-1"`. The response returns a unique ID to pass in subsequent calls.
-
-
-### SDK docs
-
-SDK docs to fetch for exact code and parameters.
-
-Base URL: `https://docs.catalyst.zoho.com/en/sdk/`. Append the path below to it (each path already ends in `index.md`, the Markdown version). 
-
-> | Feature | Java | Python | JavaScript |
-> |---|---|---|---|
-> | LLM | `java/v1/quickml/execute-llm-endpoint/index.md` | `python/v1/quickml/execute-llm-endpoint/index.md` | `javascript/v1/quickml/execute-llm-endpoint/index.md` |
-> | VLM | `java/v1/quickml/execute-vision-model-endpoint-/index.md` | `python/v1/quickml/execute-vision-model-endpoint/index.md` | `javascript/v1/quickml/execute-vision-model-endpoint/index.md` |
-> | RAG | `java/v1/quickml/execute-rag-endpoint/index.md` | `python/v1/quickml/execute-rag-endpoint/index.md` | `javascript/v1/quickml/execute-rag-endpoint/index.md` |
-
-If `index.md` fails, drop it and use the HTML page.
+Call LLM, VLM, and RAG endpoints over REST instead — see "REST API — parameters" below for the verified paths, headers, and response shapes. From a Catalyst function, any HTTP client works: send the endpoint key in `x-quickml-endpoint-key`, an OAuth token in `Authorization`, and the org ID in `CATALYST-ORG`.
 
 ## Tools & automation
-> Prefer connected Catalyst MCP tools for any action — see "Using Catalyst MCP tools" in SKILL.md.
+> Prefer connected Catalyst MCP tools for any action — see step 3 of "How It Works" in SKILL.md.
 
 
 ##  REST API — parameters
@@ -303,9 +136,10 @@ Every published endpoint exposes a REST API.
 
 ### Calling GenAI Endpoints (LLM Serving, VLM, RAG)
 
-All GenAI endpoints share the same auth and headers. Pattern: `/genai/endpoints/{target}/{action}`.
+> **Verified live (October 2026)** against a single-shot GLM-4.7 Flash LLM endpoint and a RAG endpoint, using the same request contract the Console's "Endpoint details" panel shows. VLM and conversation-mode LLM endpoints were not tested.
 
-- **Method:** POST · **OAuth scope:** `QuickML.deployment.READ`
+- **Method:** POST · **OAuth scope:** `QuickML.deployment.READ` (as shown in the endpoint's Console "Connection Details").
+- **Host:** the Console shows `https://console.catalyst.zoho.com/...`; the SDK transport sends the same path to `https://api.catalyst.zoho.com/...` and both are the same API. Use the data-center-specific domain for non-US accounts.
 
 **Required Headers**
 ```json
@@ -317,53 +151,53 @@ All GenAI endpoints share the same auth and headers. Pattern: `/genai/endpoints/
   "CATALYST-ORG": "<org-id>"
 }
 ```
-(VLM uses `Content-Type: multipart/form-data` for image upload.)
+(VLM uses `Content-Type: multipart/form-data` for image upload — not verified. Allowed image formats: .jpg, .jpeg, .png, max 500 KB.)
 
-| Type | Path | Request body |
-|---|---|---|
-| LLM (text/chat) | `/quickml/v1/project/{project_id}/genai/endpoints/{model_name}/chat` | `{ "prompt": "...", "conversationId": "-1" }` |
-| VLM (vision) | `/quickml/v1/project/{project_id}/genai/endpoints/vlm/generate` | `{ "images": ["<base64-encoded-image>"], "prompt": "..." }` |
-| RAG | `/quickml/v1/project/{project_id}/genai/endpoints/rag/generate` | `{ "query": "..." }` |
+| Type | Path | Request body | Status |
+|---|---|---|---|
+| LLM, single-shot | `/quickml/v1/project/{project_id}/genai/endpoints/{model}/generate` — `{model}` is the model's path name shown in the Console URL, e.g. `glm-flash-47` for GLM-4.7 Flash | `{ "prompt": "..." }` | Verified |
+| LLM, conversation mode | Copy the path from the endpoint's Console page | Copy from the Console sample | Not verified |
+| VLM | `/quickml/v1/project/{project_id}/genai/endpoints/vlm/generate` | `{ "images": ["<base64-encoded-image>"], "prompt": "..." }` | Not verified |
+| RAG | `/quickml/v1/project/{project_id}/genai/endpoints/rag/generate` | `{ "query": "..." }` | Verified |
 
-`conversationId: "-1"` = new chat; pass a real ID to continue with history.
+**What the live tests showed:**
+- A single-shot LLM endpoint rejects any extra body key: adding `conversationId` returns `400 EXTRA_KEY_FOUND_IN_JSON`. Send only the keys in the Console sample.
+- A single-shot LLM endpoint returns `403 PERMISSION_DENIED` ("This endpoint does not support the requested operation") on `/chat` — use `/generate`.
+- RAG requires `query`; sending `prompt` instead returns `400 LESS_THAN_MIN_OCCURANCE`.
 
-**LLM Sample response** — OpenAI-style `chat.completion`:
+**LLM response (single-shot, live):**
 ```json
 {
-  "object": "chat.completion",
-  "created": 1783842800,
+  "data": [ { "data": "PONG" } ],
+  "usage": { "prompt_tokens": 18, "total_tokens": 21, "completion_tokens": 3, "prompt_tokens_details": null },
   "model": "crm-di-glm47b_30b_it",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "<LLM-Response>",
-        "refusal": null,
-        "annotations": null,
-        "audio": null,
-        "function_call": null,
-        "tool_calls": [],
-        "reasoning": null
-      },
-      "logprobs": null,
-      "finish_reason": "stop",
-      "stop_reason": 154827,
-      "token_ids": null
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 9,
-    "total_tokens": 683,
-    "completion_tokens": 674,
-    "prompt_tokens_details": null
-  },
-  "prompt_logprobs": null,
-  "conversationId": "<conversationId>"
+  "finish_reason": "stop"
 }
 ```
+The generated text is at `data[0].data`. This is not an OpenAI `chat.completion` object — there is no `choices` array.
 
-**VLM Sample response**
+**RAG response (live):**
+```json
+{
+  "status": "success",
+  "response": "The QuickML skill validation code word is AMBER-FALCON-17.",
+  "model_usage": [ { "total_tokens": 1372, "prompt_tokens": 1352, "completion_tokens": 20, "model": "crm-di-glm47b_30b_it", "image_tokens": 0 } ],
+  "tokens_usage": { "total_tokens": 1372, "prompt_tokens": 1352, "completion_tokens": 20 },
+  "searched_documents": [
+    {
+      "content": "# KB format test\nThe QuickML skill validation code word is AMBER-FALCON-17.",
+      "document_title": "kb_format_test",
+      "document_url": "None",
+      "document_id": "1472000000024060",
+      "properties": { "created_date": "2026-10-08T12:50:04.288000Z" },
+      "document_version_id": "1472000000024059"
+    }
+  ]
+}
+```
+⚠️ The Console's sample response for RAG shows a different, nested shape (`response.data[].output[].content`, plus `reasoning` and `metrics`), while the live endpoint returned `response` as a plain string with top-level `searched_documents`. The shape may depend on the RAG mode configured on the endpoint. Parse defensively: if `response` is a string use it directly, otherwise read `response.data[0].output[0].content`.
+
+**VLM sample response (from the docs — not verified):**
 
 ```json
 {
@@ -373,57 +207,17 @@ All GenAI endpoints share the same auth and headers. Pattern: `/genai/endpoints/
   "metrics": {
     "input_text_token_length": 23,
     "input_image_token_length": 1760,
-    "input_guided_prompt_length": 0,
     "output_text_token_length": 217,
-    "queue_wait_time": 0.4194929599761963,
-    "processing_time": 5.136228561401367,
     "total_time_taken": 5.5557215213775635
-  }
-}
-```
-
-**RAG Sample response**:
-```json
-{
-  "status": "success",
-  "response": {
-    "data": [
-      {
-        "response_type": "answer",
-        "output": [
-          {
-            "type": "answer",
-            "content": "<Generated response>"
-          }
-        ],
-        "reasoning": {
-          "thoughts": [],
-          "queries": []
-        },
-        "searched_documents": []
-      }
-    ]
-  },
-  "metrics": {
-    "retrieval_ms": 1051,
-    "generation_ms": 352,
-    "total_ms": 1404
-  },
-  "tokens_usage": {
-    "total_tokens": 8348,
-    "prompt_tokens": 8332,
-    "completion_tokens": 16
   }
 }
 ```
 
 **Parameter notes:**
 
-- `endpoint_key` — identifies the published model/GenAI config (from the endpoint's Console
-  page).
-- `Authorization` — OAuth token (scoped Zoho OAuth) or endpoint auth per Catalyst rules.
-- **LLM Serving endpoints** take the model input/query plus generation params (eg: temperature, max tokens);
-- **RAG endpoints**  additionally accept the RAG mode, documents added and retrieval params.
+- `x-quickml-endpoint-key` — identifies the published GenAI config; copy it from the endpoint's Console page.
+- `CATALYST-ORG` is required (`400 ORGID_HEADER_UNAVAILABLE` without it).
+- Model, system prompt, and generation parameters (temperature, max tokens, RAG mode, retrieval settings) are fixed when the endpoint is created — they cannot be overridden in the request body.
 
 ---
 
@@ -431,7 +225,7 @@ All GenAI endpoints share the same auth and headers. Pattern: `/genai/endpoints/
 
 The following actions can **only** be done in the Catalyst Console — there is no
 API, SDK method, or MCP tool for them. Guide the user through the console steps
-using exhaustive field-level instructions (see SKILL.md "Console instructions").
+using exhaustive field-level instructions (see step 5 of "How It Works" in SKILL.md).
 
 | Action | Where in Console |
 |---|---|
@@ -464,7 +258,7 @@ Create endpoints for Generative AI features LLM/RAG in two ways. Applies to both
     3. Click **Create Endpoint** 
   
 #### Endpoint URL
-QuickML provisions a dedicated **REST API**, generates **SDK snippets** (JavaScript, Python, Java), and issues an **endpoint key**. The endpoint is callable immediately — no separate publish step for GenAI endpoints (unlike ML Model endpoints, which require an explicit publish action).
+QuickML provisions a dedicated **REST API** and issues an **endpoint key**. The Console may also show SDK snippets, but the published SDKs have no GenAI methods — use the REST call. The endpoint is callable immediately — no separate publish step for GenAI endpoints (unlike ML Model endpoints, which require an explicit publish action).
 > - **Edit** the endpoint later to modify the parameter configuration as you iterate.
 > - **Endpoint config snapshot:** Editing a saved configuration after endpoint creation **does not affect the live endpoint**. The endpoint retains a snapshot of the configuration at the time of creation. To publish the latest paramaters either edit or create a new endpoint.
 > - Each endpoint is authenticated (OAuth2) and metered.
@@ -479,16 +273,16 @@ QuickML provisions a dedicated **REST API**, generates **SDK snippets** (JavaScr
 
 
 ## Tools & automation
-> Prefer connected Catalyst MCP tools for these actions — see "Using Catalyst MCP tools" in SKILL.md.
+> Prefer connected Catalyst MCP tools for these actions — see step 3 of "How It Works" in SKILL.md.
 
 
 
 ##  Limits & gotchas
 
-- **Knowledge Base** local files are limited to 500 KB — split or use WorkDrive/Learn for
-  larger content.
-- **401 / Unauthorized** on an endpoint → refresh the OAuth token; confirm scope
-  (`QuickML.deployment.READ`) and the endpoint URL.
+- **Knowledge Base** upload limits: local files max 100 MB and WorkDrive files max 250 MB each, 10 files per import session; API uploads max 100 MB per file and 250 MB total per upload. Split larger content into several files.
+- **WorkDrive sync is fixed per import session** — it cannot be edited after upload, and every document in the session shares it. Import files that need a different schedule in their own session.
+- **401 / Unauthorized** on an endpoint → refresh the OAuth token; confirm the endpoint key and URL.
+- **400 `ORGID_HEADER_UNAVAILABLE`** → the `CATALYST-ORG` header is missing. Under `catalyst serve`, set `X_ZOHO_CATALYST_ORG_ID=<org-id>` before starting the server.
 - **RAG returns weak/empty context** → ensure the Knowledge Base is populated and indexed; adjust retrieval settings.
 
 - **Retrieval scope:** RAG retrieves relevant chunks only from the documents added to the
@@ -511,6 +305,7 @@ requirements.
 | Endpoint config snapshot | Editing saved config after endpoint creation does NOT affect the live endpoint |
 | Document ID | Each KB document has a unique ID — use it in API calls to scope retrieval to specific docs |
 | Zoho Learn URL | Portal URLs only — team-specific paths won't work |
+| WorkDrive sync config | Shared by all documents in an import session; cannot be modified after upload |
 
 ## Dynamic information — fetch from help docs
 

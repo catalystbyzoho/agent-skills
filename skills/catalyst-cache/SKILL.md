@@ -2,7 +2,7 @@
 name: catalyst-cache
 description: "Catalyst Cache — in-memory key-value store with TTL for ephemeral session and temporary data. Trigger on 'Cache', 'cache segment', 'cache key', 'TTL', 'segment.put', 'segment.get', or 'temporary data Catalyst'."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 ## How It Works

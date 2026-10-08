@@ -3,6 +3,6 @@ type: llm
 weight: 1
 ---
 
-A successful response shows the real SDK call — catalystApp.quickML() then quickML.predict(endPointKey, inputData) with string input values — and corrects the premise about confidence: the SDK response shape is { status, result: [...] } with NO confidence field (and there is no model(id) or batchPredict() method). If it mentions a REST alternative for confidence scores, it must point the user to the Console's endpoint sample request or the official docs rather than writing out concrete REST details.
+A successful response shows a real SDK call — catalystApp.quickML().predict(endPointKey, inputData) (Node.js SDK v2) or new QuickML(app).predict(endPointKey, inputData) (JavaScript SDK) — and corrects the premise about confidence: the response shape is { result: [...], pipeLineType, status } with NO confidence field (and there is no model(id), batchPredict(), or runInference() method). If it mentions SHAP explanations, it may say they come from the REST/MCP explainModel option.
 
-Fail the response if it writes quickML.model(id).predict(...) or batchPredict(), reads a confidence field from the SDK response, or fabricates concrete REST specifics (endpoint URL paths, auth headers/scopes, or response field names like likelihood_score) that it presents as fact instead of deferring to the Console/docs.
+Fail the response if it writes quickML.model(id).predict(...), batchPredict(), or runInference(), reads a confidence field from the response, or invents REST specifics beyond the verified contract (POST /quickml/v1/project/{project_id}/endpoints/predict with X-QUICKML-ENDPOINT-KEY, Authorization, and CATALYST-ORG headers, OAuth scope QuickML.deployment.READ) — for example response fields like likelihood_score or confidence.

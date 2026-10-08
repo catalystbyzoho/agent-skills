@@ -2,7 +2,7 @@
 name: catalyst-smartbrowz
 description: "Catalyst SmartBrowz — browser automation and document generation service. Includes Headless (connect to remote Chrome/Firefox with Puppeteer/Playwright/Selenium), Browser Logic (serverless functions for browser tasks in Java/Node.js), PDF & Screenshot (generate visual documents from HTML/URL/Template), Templates (design dynamic content templates), Browser Grid (parallel headless browsers with auto-scaling, Early Access), and Dataverse (data scraping APIs). Trigger on 'SmartBrowz', 'headless browser', 'Headless Browser', 'Puppeteer', 'Selenium', 'Playwright', 'Browser Logic', 'PDF generation', 'screenshot', 'PDF/Screenshot generation', 'PDF & Screenshot', 'browser automation', 'Browser Grid', or 'web scraping'. Console + SDK (Java/Node.js/Python for PDF/Screenshot + Browser Grid) + CLI (for Browser Logic functions)."
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 ## Prerequisites

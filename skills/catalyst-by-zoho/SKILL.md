@@ -2,7 +2,7 @@
 name: catalyst-by-zoho
 description: "Expert coding assistant for Catalyst by Zoho — Zoho's full-stack serverless cloud platform. Use for any question about Catalyst services, CLI, SDKs, architecture, pricing, or Zoho MCP tool-based infrastructure management."
 metadata:
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Catalyst by Zoho — Skill Index
@@ -93,7 +93,7 @@ New to Catalyst? Here's what each service does in one line:
 | **Authentication** | Built-in user sign-up/login (ZAID). OAuth Connections for third-party APIs. |
 | **SmartBrowz** | Headless browser automation, PDF/screenshot generation, Browser Logic functions, Browser Grid (parallel browsers), and Dataverse (web scraping). |
 | **Zia Services** | Pre-trained AI/ML: OCR, Face Analytics, Text Analytics, Object Detection, Barcode, Moderation. |
-| **QuickML** | No/low-code ML platform — ML pipelines, AutoML, LLM Serving, RAG, Knowledge Base, prediction endpoints. *(Prediction models: all DCs. Generative AI: not in AU/SA. Zia Model Library: IN only.)* |
+| **QuickML** | No/low-code ML platform — ML pipelines, AutoML, LLM Serving, RAG, Knowledge Base, prediction endpoints. *(Prediction models: all DCs. Generative AI: not in AU/SA/CA. Zia Model Library: IN only.)* |
 | **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Signals** | Event-driven triggers / pub-sub (replaces legacy Event Listeners). |
 | **Job Scheduling** | Job pools + immediate jobs + crons — scheduled/background execution of Job functions, Webhooks, Circuits, AppSail (replaces legacy Cron). |
@@ -149,8 +149,7 @@ These services are **unavailable** in the listed data centers. Building with the
 |---------|------------------|
 | **Circuits** | EU, AU, IN, JP, SA, CA |
 | **Integration Functions** | EU, AU, IN, JP, SA, CA |
-| **Push Notifications** | EU, AU, IN, CA |
-| **QuickML — Generative AI (LLM Serving, RAG)** | AU, SA (prediction/ML models available in ALL DCs; Zia Model Library in the QuickML console is IN only) |
+| **QuickML — Generative AI (LLM Serving, RAG, Knowledge Base)** | AU, SA, CA (prediction/ML models available in ALL DCs; Zia Model Library in the QuickML console is IN only) |
 | **Identity Scanner (Zia) — Document Processing** (Aadhaar, PAN, etc.) | Available in IN DC only, API included |
 | **Identity Scanner (Zia) — Facial Comparison** | Works from ANY DC via API/SDK; only console testing is IN DC only |
 | **Mobile Device Management** | EU, AU, IN, JP, SA, CA |

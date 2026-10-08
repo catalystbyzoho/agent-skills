@@ -53,7 +53,7 @@ Use this file when a user asks "which Catalyst service should I use for X?" or i
 | If you need… | Use | DC restriction |
 |---|---|---|
 | OCR, face detection, text analytics, object detection, barcode scanning, content moderation | **Zia Services** | No DC restriction (Identity Scanner excepted; see DC table) |
-| Train a custom ML model on your own data | **QuickML (ML pipelines / AutoML)** | Prediction models: all DCs. Generative AI (LLM/RAG): not in AU, SA |
+| Train a custom ML model on your own data | **QuickML (ML pipelines / AutoML)** | Prediction models: all DCs. Generative AI (LLM/RAG/Knowledge Base): not in AU, SA, CA |
 | Browser automation, web scraping, PDF generation | **SmartBrowz / Browser Logic** | No DC restriction |
 
 ---
@@ -126,15 +126,15 @@ Functions (API layer)
 
 ## DC Availability Quick Reference
 
-Before recommending Circuits, Integration Functions, AutoML, Push Notifications, or Mobile Device Management — confirm the user's DC:
+Before recommending Circuits, Integration Functions, QuickML Generative AI, Identity Scanner, or Mobile Device Management — confirm the user's DC. (Zia AutoML is retired — "AutoML" now means QuickML AutoML, which is available in all DCs.)
 
 | Service | US | EU | IN | AU | JP | SA | CA |
 |---------|----|----|----|----|----|----|-----|
 | Circuits | Yes | No | No | No | No | No | No |
 | Integration Functions | Yes | No | No | No | No | No | No |
 | QuickML — prediction/ML models | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| QuickML — Generative AI (LLM Serving, RAG) | Yes | Yes | Yes | No | Yes | No | Yes |
-| Push Notifications | Yes | No | No | No | Yes | Yes | No |
+| QuickML — Generative AI (LLM Serving, RAG, Knowledge Base) | Yes | Yes | Yes | No | Yes | No | No |
+| Push Notifications | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Identity Scanner — Document Processing | No | No | Yes | No | No | No | No |
 | Identity Scanner — Facial Comparison API/SDK | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | All other services | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
@@ -149,5 +149,5 @@ Source: https://docs.catalyst.zoho.com/en/llms.txt
 |-------|-------|-----|
 | Circuits not visible in console | User is on EU/AU/IN/JP/SA/CA DC | Use function chaining or Job Scheduling instead |
 | Integration Functions grayed out | User is on a restricted DC (EU/AU/IN/JP/SA/CA) | For ConvoKraft bot logic, use the Deluge function option; otherwise use a Basic I/O function with the Zoho API directly via Connections |
-| QuickML Generative AI (LLM/RAG) not available | User is on AU/SA DC | Prediction/AutoML models still work in all DCs; for pre-built AI use Zia Services which have no DC restriction |
+| QuickML Generative AI (LLM/RAG/Knowledge Base) not available | User is on AU/SA/CA DC | Prediction/AutoML models still work in all DCs; for pre-built AI use Zia Services which have no DC restriction |
 | "File Store not found" error | Deprecated service accessed by pre-Aug 2025 account trying new feature | Migrate to Stratus |

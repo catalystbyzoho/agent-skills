@@ -4,14 +4,13 @@ Practical, directive reference for building and serving **trained** ML models in
 QuickML. `SKILL.md` covers what QuickML is and when to reach for it; this file covers which
 pipeline to pick and how to use it. 
 
-For **Generative AI** features like LLMs, RAG, Knowledge base see `generative-ai.md`.
+For **Generative AI** features like LLMs, RAG, Knowledge base see `generative-ai-basics.md`.
 
 ## Availability (by data center):
 > - **Prediction models** — build & publish in **US, IN, EU, AU, JP, SA, CA** (all regions).
-> -  **Pricing** Explore # QuickML Pricing section in .
 
 ## Pricing
-> See "QuickML Pricing" section in SKILL.md for more information
+> See `quickml-pricing-basics.md` for plans, pay-as-you-go rates, and free-tier limits.
 
 ## Core concepts
 - **Data Connectors** — a list of connectors available in QuickMl to import data from. Currently, the list of connectors available are:
@@ -148,7 +147,7 @@ model type). If execution fails, fix the flagged stage/column issue and re-execu
 
 ### Step 6 — Create the endpoint
 - Pick the best-performing **model version** → **Create endpoint**.
-- QuickML supports **three endpoint types**, each built from a saved configuration and generating its own REST API + SDK: **ML model** (this file), **LLM Serving**, and **RAG** (both → `generative-ai.md`). For an ml model, create an **ML model endpoint**.
+- QuickML supports **three endpoint types**, each built from a saved configuration and generating its own REST API + SDK: **ML model** (this file), **LLM Serving**, and **RAG** (both → `generative-ai-basics.md`). For an ml model, create an **ML model endpoint**.
 - On creation, QuickML provisions a **REST API** and generates the **endpoint key** and **SDK snippets** (JavaScript, Python, Java).
 
 ### Step 7 — Understand and publish
@@ -161,7 +160,7 @@ model type). If execution fails, fix the flagged stage/column issue and re-execu
 ### Step 8 — Predict / inference
 - **Call the endpoint** via REST (POST with OAuth token) or the Catalyst SDK.
 - **Feature keys must match the training column names exactly (case-sensitive)** — mismatches are the most common cause of null/empty predictions.
-- **Model Explanation (SHAP):** if **Generate Model Explainer** was enabled on the algorithm stage, each prediction call returns per-feature **SHAP values** in the response — available only after the endpoint is created and a prediction is made.
+- **Model Explanation (SHAP):** per-feature attributions are returned only when the prediction call asks for them (`explainModel=true` on REST/MCP) — a plain prediction returns just `result`. The model must have the explainer enabled (shown as `model_explainer` when the endpoint is published).
 
 ## Programmatic usage
 
@@ -183,8 +182,76 @@ pandas, NumPy**, and gradient-boosting libraries (XGBoost, LightGBM, CatBoost).
 
 ###  SDKs
 
-QuickML ships in the Catalyst SDK family: **Node.js, Python, Java**. Two-step pattern in all languages: create a QuickML component instance,
-then call the relevant method with the **endpoint key** and input data.
+QuickML ships in the Catalyst SDK family: **JavaScript, Python, Java** (plus the deprecated Node.js SDK v2). Two-step pattern in all languages: create a QuickML component instance, then call **`predict(endpointKey, inputData)`**.
+
+> **Verified live (October 2026)** against a published endpoint with `@zcatalyst/quickml` 1.0.0, `zcatalyst-sdk` (Python) 1.4.0, and `zcatalyst-sdk-node` 3.4.0: each SDK's QuickML class has exactly one call method, `predict` (the Java SDK 2.4.0 `ZCQuickML` class was checked by signature and matches). The docs pages show `runInference` / `run_inference` — **those methods do not exist in the published SDKs** and fail at runtime. There is no `model(id)`, no `batchPredict()`, and no `confidence` field in the response.
+
+All SDKs return the same shape:
+
+```json
+{ "result": ["yes"], "pipeLineType": "prediction", "status": "success" }
+```
+
+Input values may be strings or numbers — both were accepted in testing.
+
+#### JavaScript SDK (`@zcatalyst/quickml` — current, use for new code):
+
+```javascript
+const { zcAuth } = require('@zcatalyst/auth');
+const { QuickML } = require('@zcatalyst/quickml');
+
+// Pass the Advanced I/O request (req) or the Basic I/O context.
+const app = await zcAuth.init(req);
+const quickML = new QuickML(app);
+// ML endpoint key copied from the Catalyst console.
+const endpointKey = "<ENDPOINT_KEY>";
+// Keys must match the model's training column names exactly (case-sensitive).
+const inputData = {
+  "<FEATURE_1>": "<VALUE_1>",
+  "<FEATURE_2>": "<VALUE_2>"
+};
+
+const predictionResponse = await quickML.predict(endpointKey, inputData);
+console.log(predictionResponse.result);
+```
+
+#### Python (`zcatalyst-sdk`):
+
+```python
+import zcatalyst_sdk
+
+def handler(context, basicio):
+    app = zcatalyst_sdk.initialize(req=context)
+    quickml = app.quick_ml()
+
+    # Replace with your endpoint key copied from the Catalyst console.
+    endpoint_key = "<ENDPOINT_KEY>"
+    # Keys must match the model's training column names exactly (case-sensitive).
+    input_data = {
+        "<FEATURE_1>": "<VALUE_1>",
+        "<FEATURE_2>": "<VALUE_2>"
+    }
+
+    response = quickml.predict(endpoint_key, input_data)
+    basicio.write(str(response["result"]))
+    context.close()
+```
+
+#### Node.js SDK v2 (`zcatalyst-sdk-node` — deprecated; the docs say migrate to the JavaScript SDK):
+
+Use only when the project already depends on `zcatalyst-sdk-node`.
+
+```javascript
+const catalyst = require('zcatalyst-sdk-node');
+
+const catalystApp = catalyst.initialize(req);
+const quickML = catalystApp.quickML();
+// predict(endPointKey, inputData) — endpoint key from Console → QuickML endpoint
+const result = await quickML.predict('YOUR_ENDPOINT_KEY', { feature1: 'value1', feature2: 42 });
+// result: { result: ["..."], pipeLineType: "prediction", status: "success" }
+```
+
+The JavaScript SDK and Node.js SDK v2 differ only in how the instance is created: `new QuickML(app)` (JavaScript SDK) vs `catalystApp.quickML()` (Node.js SDK v2). Both call `predict()`.
 
 #### Java:
 
@@ -194,51 +261,18 @@ input_data.put("<FEATURE_1>", "<VALUE_1>");
 input_data.put("<FEATURE_2>", "<VALUE_2>");
 ZCQuickML quickMlInstance = ZCQuickML.getInstance();
 String endpointKey = "<ENDPOINT_KEY>";
-ZCQuickMLDetail result = quickMlInstance.runInference(endpointKey, input_data);
+ZCQuickMLDetail result = quickMlInstance.predict(endpointKey, input_data);
+String status = result.getStatus();
+ArrayList<String> predictions = result.getResult();
 ```
 
-#### Python:
+Verified against the Java SDK 2.4.0 class signatures (the jar `catalyst functions:add --stack java17` downloads): `ZCQuickML` has `getInstance()`, `getInstance(ZCProject)`, and `predict(String, HashMap<String, String>)` only — no `runInference`. Java input values are typed as strings.
 
-```python
-# Create a QuickML instance.
-quickml = app.quick_ml()
+#### Local testing gotcha
 
-# Replace with your endpoint key copied from the Catalyst console.
-endpoint_key = "<ENDPOINT_KEY>"
+Under `catalyst serve`, every SDK `predict()` call fails with `ORGID_HEADER_UNAVAILABLE` (HTTP 400) unless the `X_ZOHO_CATALYST_ORG_ID` environment variable is set — the SDKs send the `CATALYST-ORG` header only from that variable. Start the local server with it: `X_ZOHO_CATALYST_ORG_ID=<org-id> catalyst serve`.
 
-# Replace the sample feature names and values with the input expected by your model.
-input_data = {
-    "<FEATURE_1>": "<VALUE_1>",
-    "<FEATURE_2>": "<VALUE_2>"
-}
-
-response = quickml.run_inference(endpoint_key, input_data)
-
-print(response)
-
-```
-##### Javascript:
-
-```javascript
-   const app = await zcAuth.init(req);
-    const quickML = new QuickML(app);
-    //ml endpoint
-    const endpointKey = "<ENDPOINT_KEY>";
-   // Replace with your model input.
-   // The input object should match the features expected by your model.
-  const inputData = {
-    "<FEATURE_1>": "<VALUE_1>",
-    "<FEATURE_2>": "<VALUE_2>"
-   };
-
-   const predictionResponse = await quickML.runInference(
-    endpointKey,
-    inputData
-     );
-
-console.log(predictionResponse);
-
-```
+There is no confidence/probability score in any SDK response. If the user needs one, say so — do not invent a field. SHAP explanations are available through the REST/MCP `explainModel` option (see below).
 
 ### SDK docs 
 **Base URL**: `https://docs.catalyst.zoho.com/en/sdk/`. Append the path below to it (each path already ends in `index.md`, the Markdown version). If `index.md` fails, drop it and use the HTML page.
@@ -250,7 +284,7 @@ console.log(predictionResponse);
 
 
 ## Tools & automation
-> Prefer connected Catalyst MCP tools for any action — see "Using Catalyst MCP tools" in SKILL.md.
+> Prefer connected Catalyst MCP tools for any action — see step 3 of "How It Works" in SKILL.md.
 
 
 ##  REST API — parameters
@@ -259,11 +293,10 @@ console.log(predictionResponse);
 
 `POST https://<catalyst-api-host>/quickml/v1/project/{project_id}/endpoints/predict`
 
-- **Host** is data-center-specific (e.g. `api.catalyst.zoho.in`, `api.catalyst.zoho.com`).
-- **Method:** POST
-- **OAuth scope:** `QuickML.deployment.READ`
+- **Host** is data-center-specific (e.g. `api.catalyst.zoho.com`, `api.catalyst.zoho.in`).
+- This is the path all three SDKs call (read from the SDK source and exercised by the live SDK tests above).
 
-**Required headers**
+**Headers**
 ```json
 {
   "X-QUICKML-ENDPOINT-KEY": "<endpoint-key>",
@@ -280,19 +313,21 @@ console.log(predictionResponse);
 
 **Response**
 ```json
-{
-  "result": ["<predicted-result>"],
-  "likelihood_score": [0.98],
-  "explanation": "<model-explanation-json>"
-}
+{ "result": ["<predicted-result>"], "pipeLineType": "prediction", "status": "success" }
+```
+
+With the `explainModel=true` query parameter, the response also carries an `explanation` object (per-feature SHAP-style attributions), for example:
+```json
+{ "result": ["yes"], "explanation": { "data": [["support_tickets", 0.875, 0.9925]], "baseValue": 0 }, "pipeLineType": "prediction", "status": "success" }
 ```
 
 **Parameter notes:**
 - **Endpoint key** goes in the `X-QUICKML-ENDPOINT-KEY` header (not the URL path); copy it from the endpoint's Console page.
-- `Authorization` — Zoho OAuth token; `CATALYST-ORG` = your org ID; `Environment` = `Development` or `Production`.
-- **Body / feature keys** — must match the ML model's training column names **exactly (case-sensitive)**; wrap them inside `data`.
-- **`explanation`** is returned only when **Generate Model Explainer** was enabled on the pipeline (SHAP values per feature).
-- Note: REST wraps inputs in `data`; the SDK passes a **flat** input map — both correct for their layer.
+- **`CATALYST-ORG` is required** — without it the API returns `400 ORGID_HEADER_UNAVAILABLE`.
+- **Body / feature keys** — must match the ML model's training column names **exactly (case-sensitive)**; wrap them inside `data`. String and numeric values are both accepted.
+- **No probability field** — the response has no `likelihood_score` or `confidence`. Do not generate one.
+- **OAuth scope:** `QuickML.deployment.READ` — the scope the Console's endpoint "Connection Details" panel lists for QuickML endpoints. Confirm on the endpoint's page.
+- The Catalyst MCP tool `CatalystbyZoho_Predict_With_QuickML_Endpoint` accepts `data` as an **array** of records (several predictions in one call) and exposes `explainModel` as a query option.
 
 
 
@@ -383,6 +418,9 @@ Need custom logic? Use **Custom Code** stages (Python): Custom Data transformati
 request must match the training column names exactly.
 - **`Model not deployed`** → publish the model version as an endpoint before calling it.
 - **401 / Unauthorized** → refresh the OAuth token; confirm the endpoint key/URL.
+- **400 `ORGID_HEADER_UNAVAILABLE`** → the `CATALYST-ORG` header is missing. Under `catalyst serve`, set `X_ZOHO_CATALYST_ORG_ID=<org-id>` before starting the server.
+- **`runInference is not a function` / `AttributeError: run_inference`** → the docs' method name does not exist in the published SDKs; call `predict()`.
+- **AutoML pipelines train on creation** — creating an AutoML pipeline (console or the `CatalystbyZoho_Create_AutoML_Pipeline` MCP tool) immediately trains model V1. Calling execute right after returns `CANNOT_EXECUTE_PIPELINE`; check the model's versions instead and create the endpoint from V1.
 - Full limits: <https://docs.catalyst.zoho.com/en/quickml/help/quickml-limitations/>
 
 
@@ -411,4 +449,4 @@ request must match the training column names exactly.
 - Pricing (marketing page, not docs — no `/index.md`): <https://catalyst.zoho.com/pricing.html>
 
 
-**Related references:** `generative-ai.md` (LLM Serving, RAG, Knowledge Base).
+**Related references:** `generative-ai-basics.md` (LLM Serving, RAG, Knowledge Base).

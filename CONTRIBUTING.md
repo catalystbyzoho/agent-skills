@@ -98,10 +98,11 @@ skills/
 │   └── references/
 │       └── zia-services.md
 ├── catalyst-quickml/
-│   ├── SKILL.md                         
+│   ├── SKILL.md
 │   └── references/
-│       ├── prediction.md
-│       └── generative-ai.md
+│       ├── prediction-basics.md
+│       ├── generative-ai-basics.md
+│       └── quickml-pricing-basics.md
 ├── catalyst-zoho-mcp/
 │   ├── SKILL.md
 │   └── references/

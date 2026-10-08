@@ -3,8 +3,8 @@
 ## Overview
 
 - **Pay-per-use** model with generous monthly free tiers.
-- **Free trial:** New customers get **$250 USD** in credits, valid for **60 days from the date claimed**.
-- **Minimum billing:** $5/account/month once any free tier limit is exceeded (once per account, not per project).
+- **Free trial:** New customers get **$250 USD** in credits, valid for **6 months (180 days)** or until the credits are used up, whichever comes first.
+- **Minimum billing:** $5 **per project** per month once that project exceeds the free tier. Deleting unused projects avoids it. It does not apply to subscription plans.
 - **No upfront commitments.** Subscription option also available.
 - Free tier is **account-wide** (shared across all projects).
 
@@ -73,7 +73,7 @@ All Zia operations: **$0.001 per request** (OCR, Face Analytics, Image Moderatio
 Messages: **$0.0006 per message**
 
 ### QuickML
-QuickML pricing (subscription plans, pay-as-you-go rates for predictions/LLM/VLM tokens/training, free tiers) is maintained in the **`catalyst-quickml` skill** (`../catalyst-quickml/SKILL.md`, "QuickML Pricing" section — INR, India-region; other regions differ). Do not quote QuickML rates from this file.
+QuickML pricing (subscription plans, pay-as-you-go rates for predictions/LLM/VLM tokens/training, free tiers) is maintained in the **`catalyst-quickml` skill** (`../../catalyst-quickml/references/quickml-pricing-basics.md` — INR, India-region; other regions differ). Do not quote QuickML rates from this file.
 
 ### Slate
 | Operation | Unit Price | Unit |
@@ -136,9 +136,9 @@ QuickML pricing (subscription plans, pay-as-you-go rates for predictions/LLM/VLM
 ## Billing Rules
 
 1. **Free tier is account-wide** — shared across all projects.
-2. **Minimum $5/account/month** once any free tier limit is exceeded — the minimum applies once per account, NOT per project.
+2. **Minimum $5/project/month** once a project exceeds the free tier limits — it is charged per project, so delete unused projects to avoid it. Not applied to subscription plans.
 3. **Billable = Max(0, Usage - Free Tier)**. Cost = Billable × Unit Price.
-4. **Free trial credits ($250)** applied against invoices; valid for 60 days from the date claimed (see Overview). Normal billing begins when credits are exhausted or expire.
+4. **Free trial credits ($250)** applied against invoices; valid for 6 months or until exhausted, whichever is earlier. If credits run out early, invoicing starts the next month for the amount beyond the credits.
 
 ---
 

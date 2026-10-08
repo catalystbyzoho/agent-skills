@@ -13,7 +13,7 @@ The key distinction is **whether the app is initialized (linked) in `catalyst.js
 
 ### Path A — Linked managed runtime (already initialized via `appsail:add`)
 
-> ℹ️ **Path A is only reliably non-interactive when `app-config.json` is fully populated.** If the CLI prompts unexpectedly after `appsail:add`, fall back to Path C which is always non-interactive.
+> **Path A is only reliably non-interactive when `app-config.json` is fully populated.** If the CLI prompts unexpectedly after `appsail:add`, fall back to Path C which is always non-interactive.
 
 ```bash
 # Deploy the entire project (includes AppSail)
@@ -28,7 +28,7 @@ catalyst deploy --only appsail:<service-name> -ni   # ✅ Recommended: deploy on
 
 > ⚠️ **Always include `--name <service-name>` when running `catalyst deploy appsail`.** If `--name` is omitted, the CLI defaults the service name to `AppSail`, which can cause unexpected behavior if your actual service has a different name.
 
-> ℹ️ The "already exists" error only occurs if you run `catalyst appsail:add` again on an app that is already registered — deploying a linked app never triggers it.
+> **Note:** The "already exists" error only occurs if you run `catalyst appsail:add` again on an app that is already registered — deploying a linked app never triggers it.
 
 ```bash
 # Example: link app first, then deploy
@@ -82,7 +82,7 @@ catalyst deploy appsail \
 - `catalyst deploy appsail` without `--name`/`--source` (or Path C's `--build-path`) flags will also prompt interactively
 - If the CLI stalls, route the user to Console → AppSail → Deploy from Console → Docker Image (requires image on a container registry: Docker Hub, AWS ECR, or GCP Artifact Registry)
 
-> ℹ️ **If the frontend is on Slate:** configure CORS before the first test — Slate (`*.onslate.com`) and AppSail (`*.catalystappsail.com`) are on separate domains. Load `references/appsail-crossorigin.md` for the 2-step fix.
+> **If the frontend is on Slate:** configure CORS before the first test — Slate (`*.onslate.com`) and AppSail (`*.catalystappsail.com`) are on separate domains. Load `references/appsail-crossorigin.md` for the 2-step fix.
 
 ---
 
@@ -138,7 +138,7 @@ Production:  https://<service-name>-<ZAID>.catalystappsail.com
 
 Example: `https://demoservice-<ZAID>.development.catalystappsail.com`
 
-> ℹ️ AppSail always gets its own `catalystappsail.com` subdomain — separate from `*.catalystserverless.com` / `*.zohocatalyst.com`. This is why Slate frontends need CORS configured to call AppSail APIs (see `appsail-crossorigin.md`).
+> **Note:** AppSail always gets its own `catalystappsail.com` subdomain — separate from `*.catalystserverless.com` / `*.zohocatalyst.com`. This is why Slate frontends need CORS configured to call AppSail APIs (see `appsail-crossorigin.md`).
 
 ---
 

@@ -2,7 +2,7 @@
 name: catalyst-zia
 description: "Catalyst Zia Services — OCR, Face Analytics, Text Analytics, Object Detection, Barcode Reader, and Content Moderation via pre-trained AI APIs. Trigger on 'Zia', 'OCR', 'face detection', 'text analytics', 'object detection', 'barcode', 'content moderation', or 'image recognition'. DC restrictions: Identity Scanner Document Processing is IN DC only (API included); Facial Comparison works via API from any DC (console testing is IN DC only). For QuickML (AutoML, ML pipelines, LLM Serving, RAG) load catalyst-quickml instead."
 metadata:
-  version: "2.1.0"
+  version: "3.0.0"
 ---
 
 ## How It Works
