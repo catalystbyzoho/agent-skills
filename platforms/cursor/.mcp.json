@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "catalyst-by-zoho": {
+      "type": "streamable-http",
+      "url": "https://catalystbyzoho.zohomcp.${CATALYST_MCP_TLD}/mcp/message"
+    }
+  }
+}

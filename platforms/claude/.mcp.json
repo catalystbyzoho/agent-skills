@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "catalyst-by-zoho": {
+      "type": "streamable-http",
+      "url": "https://catalyst.zohomcp.com/mcp/message",
+      "_note": "This is the US data center endpoint. If your Catalyst account is on a different DC (EU, IN, AU, JP, SA, CA, UAE), ask the AI assistant to help you switch — it will guide you to the correct endpoint for your region."
+    }
+  }
+}

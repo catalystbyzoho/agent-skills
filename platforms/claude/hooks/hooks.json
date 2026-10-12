@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/platforms/claude/hooks/catalyst-context.js\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
