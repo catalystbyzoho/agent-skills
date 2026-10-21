@@ -1,6 +1,6 @@
 {
   "name": "catalyst-by-zoho",
-  "version": "2.1.0",
+  "version": "1.0.0",
   "description": "AI agent skill for Catalyst by Zoho — full-stack serverless cloud platform. Covers all services, SDKs, CLI, architecture patterns, pricing, migration guides, and Zoho MCP tool-based resource management.",
   "author": {
     "name": "Catalyst by Zoho",
