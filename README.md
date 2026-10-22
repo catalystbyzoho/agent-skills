@@ -28,7 +28,8 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | Cache (in-memory key-value, TTL) | `catalyst-cache` |
 | Pricing (free tier, cost estimation) | `catalyst-pricing` |
 | SDKs (Node.js, Web, Python, Java, Android, iOS, Flutter) | `catalyst-sdk` |
-| Zia Services + QuickML (OCR, AutoML) | `catalyst-zia` |
+| Zia Services (OCR, face/text analytics, moderation) | `catalyst-zia` |
+| QuickML (ML pipelines, AutoML, LLM Serving, RAG) | `catalyst-quickml` |
 | Zoho MCP (`CatalystbyZoho_*` tools) | `catalyst-zoho-mcp` |
 | Job Scheduling (job pools, immediate jobs, crons) | `catalyst-job-scheduling` |
 | Project setup, CLI, environments, architecture | `catalyst-basics` |
@@ -101,7 +102,7 @@ Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your projec
    ```bash
    git clone https://github.com/catalystbyzoho/agent-skills.git
    ```
-2. **Append** the contents of `catalyst-by-zoho/SKILL.md` to your project's `.github/copilot-instructions.md` — do not replace the file if it already has content.
+2. **Append** the contents of `skills/catalyst-by-zoho/SKILL.md` to your project's `.github/copilot-instructions.md` — do not replace the file if it already has content.
 
    > **Strip the frontmatter first.** `SKILL.md` starts with a YAML frontmatter block that `copilot-instructions.md` does not support. Remove everything between and including the opening and closing `---` lines before appending:
    > ```
@@ -115,7 +116,7 @@ Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your projec
 
    Quick one-liner to append with frontmatter stripped:
    ```bash
-   awk '/^---/{f++; next} f>=2' catalyst-by-zoho/SKILL.md >> .github/copilot-instructions.md
+   awk '/^---/{f++; next} f>=2' skills/catalyst-by-zoho/SKILL.md >> .github/copilot-instructions.md
    ```
 
 3. Copy the `skills/` folder into `.github/` for the agent to load reference files on demand
@@ -169,7 +170,7 @@ the minimal context needed for MCP-enabled tools (e.g. Claude Code with Zoho MCP
 to discover and invoke `CatalystbyZoho_*` tools correctly.
 
 **It is not a replacement for the full skill.** If you are building a Catalyst application,
-always use `catalyst-by-zoho/SKILL.md` (and its `references/` folder), which includes
+always use `skills/catalyst-by-zoho/SKILL.md` (and its `references/` folder), which includes
 the complete service catalog, SDK patterns, handler signatures, architecture guidance, and
 all reference docs. `CATALYST.md` alone is insufficient for app development.
 
