@@ -1,0 +1,25 @@
+{
+  "catalyst-session-start": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node ./scripts/session-start.mjs",
+        "timeout": 10
+      }
+    ]
+  },
+  "catalyst-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./scripts/pre-tool-guard.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

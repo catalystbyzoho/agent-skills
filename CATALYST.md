@@ -11,6 +11,7 @@
 
 - Leverage Catalyst services for serverless compute, relational data storage, object storage, AI/ML, and workflow orchestration.
 - When Zoho MCP tools (`CatalystbyZoho_*`) are available in your tool list, use them for infrastructure operations (create tables, query data, manage buckets/cache) instead of asking the user to do it manually in the console.
+- **MCP connect/fallback (Antigravity and other clients exposing meta-tools):** the visible tools may be `ZohoMCP_*` (`getSchema`, `executeTool`, `listTools`, `getFeatures`); `CatalystbyZoho_*` names are passed as `tool_name` to `ZohoMCP_executeTool`. For resource operations, or when a `catalyst` CLI command fails, call `ZohoMCP_listTools` once — this triggers the one-time Zoho login if the server isn't authorized yet. Don't conclude MCP is unavailable, or print manual setup steps, before trying it.
 - **Mandatory MCP pre-flight — Org → Project → Verify → Operate:**
   1. `List_All_Organizations` → get org `id` (if multiple orgs, ask the user which one)
   2. `List_All_Projects` (with `Catalyst-org` header) → get project `id` (if multiple projects, ask the user)
