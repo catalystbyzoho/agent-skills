@@ -28,15 +28,15 @@ function hasCodexCli() {
   }
 }
 
-test('plugin manifest points to complete disabled regional MCP definitions', () => {
+test('plugin manifest points to the shared regional MCP definitions', () => {
   const manifest = JSON.parse(
     fs.readFileSync(path.join(REPOSITORY_ROOT, '.codex-plugin', 'plugin.json'), 'utf8')
   );
   const definitions = JSON.parse(
-    fs.readFileSync(path.join(PLUGIN_ROOT, '.mcp.json'), 'utf8')
-  );
+    fs.readFileSync(path.join(REPOSITORY_ROOT, '.mcp.json'), 'utf8')
+  ).mcpServers;
 
-  assert.equal(manifest.mcpServers, './platforms/codex/.mcp.json');
+  assert.equal(manifest.mcpServers, './.mcp.json');
   assert.equal(Object.hasOwn(manifest, 'apps'), false);
   assert.equal(fs.existsSync(path.join(REPOSITORY_ROOT, '.app.json')), false);
   assert.deepEqual(
@@ -46,8 +46,6 @@ test('plugin manifest points to complete disabled regional MCP definitions', () 
   for (const [server, definition] of Object.entries(definitions)) {
     const dc = server.replace('catalyst-', '').toUpperCase();
     assert.equal(definition.url, DC_URLS[dc]);
-    assert.equal(definition.auth, 'oauth');
-    assert.equal(definition.enabled, false);
   }
 });
 

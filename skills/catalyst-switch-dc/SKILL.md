@@ -1,13 +1,20 @@
 ---
 name: catalyst-switch-dc
-description: "Select or change the regional Catalyst Zoho MCP endpoint used by the Codex plugin. Trigger on 'switch Catalyst DC', 'change MCP region', 'connect to IN DC', 'use EU data center', or 'configure Catalyst MCP region'."
+description: "Select or change the regional Catalyst Zoho MCP endpoint (data center). Codex runs the bundled helper; other clients follow dc-switching.md. Trigger on 'switch Catalyst DC', 'change MCP region', 'connect to IN DC', 'use EU data center', or 'configure Catalyst MCP region'."
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Switch the Catalyst MCP Data Center
 
-Use this skill when a Codex user needs to select or change the regional Catalyst MCP endpoint.
+Use this skill when a user needs to select or change the regional Catalyst MCP endpoint.
+
+## Client Check (Do This First)
+
+The procedure below is **Codex only**. It runs `codex plugin list` and edits `~/.codex/config.toml`.
+
+- **Not in Codex** (Claude Code, Cursor, GitHub Copilot, Gemini): do **not** run any `codex` command or touch `~/.codex/`. Load `../catalyst-zoho-mcp/references/dc-switching.md` and follow its steps and the section for the current client. The plugin ships one `catalyst-<dc>` server per data center in `.mcp.json`; the user enables the one for their DC and disables the others. Prefer the client's `switch-dc` command when it has one.
+- **In Codex**: continue with the Safety Rules and Procedure below.
 
 ## Safety Rules
 

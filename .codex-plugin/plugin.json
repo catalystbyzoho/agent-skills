@@ -12,7 +12,7 @@
   "license": "Apache-2.0",
   "keywords": ["zoho", "catalyst", "serverless", "mcp", "cloud"],
   "skills": "./skills/",
-  "mcpServers": "./platforms/codex/.mcp.json",
+  "mcpServers": "./.mcp.json",
   "hooks": "./platforms/codex/hooks/hooks.json",
   "interface": {
     "displayName": "Catalyst by Zoho",

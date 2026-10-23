@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "commands": "./platforms/claude/commands/",
   "hooks": "./platforms/claude/hooks/hooks.json",
-  "mcpServers": "./platforms/claude/.mcp.json",
+  "mcpServers": "./.mcp.json",
   "author": {
     "name": "Catalyst by Zoho",
     "url": "https://docs.catalyst.zoho.com/en/"

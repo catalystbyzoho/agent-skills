@@ -147,7 +147,7 @@ To let the AI manage Catalyst infrastructure (create tables, query data, manage 
 4. Copy your MCP server URL — go to the **Connect tab** → **Server URL** field (format: `https://<server>-<org>.zohomcp.com/mcp/<token>/message`)
 5. Add it to your tool's MCP config, or update the `<YOUR_ZOHO_MCP_URL>` placeholder in `.mcp.json`
 
-> **Note:** `.mcp.json` ships with a placeholder URL. See the `_setup` field inside for instructions.
+> **Note:** The plugins share one root `.mcp.json` with a server per Catalyst data center (`catalyst-in` is the default). Enable the server for your DC and disable the others, or run the `switch-dc` command. See `skills/catalyst-zoho-mcp/references/dc-switching.md`.
 
 See `skills/catalyst-zoho-mcp/references/zoho-mcp.md` for detailed setup and verification steps.
 

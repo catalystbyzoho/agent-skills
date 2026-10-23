@@ -447,7 +447,7 @@ function main() {
   }
   if (mcp.found) {
     lines.push(
-      `MCP: the catalyst-by-zoho server is configured (endpoint ${mcp.url || 'unknown'}, via ${mcp.source} .mcp.json). That endpoint is data-center-specific — if MCP calls fail with region/auth errors the account's DC may differ from this endpoint; use the switch-dc command to repoint it. This hook does NOT verify live MCP connectivity or authentication: before the first MCP resource operation confirm the ZohoMCP_* meta-tools (ZohoMCP_getSchema, ZohoMCP_executeTool, ZohoMCP_listTools, ZohoMCP_getFeatures) are present in the tool list — that is the connectivity signal; the CatalystbyZoho_* names are tool_name values passed to ZohoMCP_executeTool, never visible tools. Expect a one-time authentication on the first call.`
+      `MCP: the catalyst-by-zoho server is configured (first/default endpoint ${mcp.url || 'unknown'}, via ${mcp.source} .mcp.json; the plugin ships one server per DC, default IN). Endpoints are data-center-specific — if MCP calls fail with region/auth errors the account's DC may differ from this endpoint; enable the server for the account's DC via the switch-dc command. This hook does NOT verify live MCP connectivity or authentication: before the first MCP resource operation confirm the ZohoMCP_* meta-tools (ZohoMCP_getSchema, ZohoMCP_executeTool, ZohoMCP_listTools, ZohoMCP_getFeatures) are present in the tool list — that is the connectivity signal; the CatalystbyZoho_* names are tool_name values passed to ZohoMCP_executeTool, never visible tools. Expect a one-time authentication on the first call.`
     );
   } else {
     lines.push(

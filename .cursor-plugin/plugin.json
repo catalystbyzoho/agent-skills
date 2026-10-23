@@ -25,20 +25,7 @@
   "skills": "./skills/",
   "commands": "./platforms/cursor/commands/",
   "hooks": "./platforms/cursor/hooks/hooks.json",
-  "mcpServers": "./platforms/cursor/.mcp.json",
-  "variables": {
-    "type": "object",
-    "properties": {
-      "CATALYST_MCP_TLD": {
-        "type": "string",
-        "title": "Catalyst MCP data center",
-        "description": "TLD for your Zoho account region (matches catalyst.zoho.<tld>). US=com, EU=eu, IN=in, AU=com.au, CA=ca, SA=sa, JP=jp, UAE=ae.",
-        "enum": ["com", "eu", "in", "com.au", "ca", "sa", "jp", "ae"],
-        "default": "com"
-      }
-    },
-    "required": ["CATALYST_MCP_TLD"]
-  },
+  "mcpServers": "./.mcp.json",
   "logo": "./platforms/cursor/assets/catalyst_logo.svg",
   "homepage": "https://github.com/catalystbyzoho/agent-skills",
   "repository": "https://github.com/catalystbyzoho/agent-skills"
