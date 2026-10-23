@@ -3,13 +3,13 @@ name: catalyst-appsail
 description: "Catalyst AppSail — persistent backend PaaS with managed runtimes (Node.js, Java, Python) and custom Docker containers. Trigger on 'AppSail', 'persistent server', 'Docker on Catalyst', 'X_ZOHO_CATALYST_LISTEN_PORT', or 'long-running process on Catalyst'. Do NOT use for stateless request/response handlers, event-driven functions, or scheduled jobs — use catalyst-functions instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`). Custom Docker deployments additionally require Docker Desktop."
 metadata:
-  version: "2.1.0"
+  version: "2.1.1"
 ---
 
 ## How It Works
 
 1. **Identify the runtime** — Managed runtime (Node.js, Java, Python) or custom Docker container.
-2. **Load `references/appsail-basics.md`** — for PORT config, environment variables, Dockerfile requirements, and deploy commands.
+2. **Load `references/appsail-basics.md`** — for PORT config, project structure, and Dockerfile requirements. For deploy commands and environment variables, load `references/appsail-deploy.md`.
 3. **PORT rule** — Always use `process.env.X_ZOHO_CATALYST_LISTEN_PORT`, never hardcode `PORT` or `3000`.
 4. **AppSail vs Functions decision** — If the user is unsure which to use, apply this matrix:
 
