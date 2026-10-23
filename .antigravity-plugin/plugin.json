@@ -1,0 +1,21 @@
+{
+  "name": "catalyst-by-zoho",
+  "displayName": "Catalyst by Zoho",
+  "version": "0.0.1",
+  "description": "Catalyst by Zoho skills for Antigravity: build, deploy and manage serverless apps across all Catalyst services, with Zoho MCP resource management.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Create a Catalyst serverless function that reads rows from the Data Store",
+    "Deploy my Catalyst project and verify it",
+    "Switch my Catalyst MCP server to the IN data center"
+  ],
+  "keywords": ["catalyst", "zoho", "mcp", "serverless", "cloud", "datastore", "zcql", "appsail", "stratus", "functions"],
+  "author": {
+    "name": "Catalyst by Zoho",
+    "url": "https://docs.catalyst.zoho.com/en/"
+  },
+  "homepage": "https://github.com/catalystbyzoho/agent-skills",
+  "repository": "https://github.com/catalystbyzoho/agent-skills.git",
+  "license": "Apache-2.0",
+  "skills": ["./skills"]
+}

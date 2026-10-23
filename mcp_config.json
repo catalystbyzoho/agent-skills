@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "catalyst-in": { "serverUrl": "https://catalyst.zohomcp.in/mcp/message" },
+    "catalyst-us": { "serverUrl": "https://catalyst.zohomcp.com/mcp/message", "disabled": true },
+    "catalyst-eu": { "serverUrl": "https://catalyst.zohomcp.eu/mcp/message", "disabled": true },
+    "catalyst-au": { "serverUrl": "https://catalyst.zohomcp.com.au/mcp/message", "disabled": true },
+    "catalyst-ca": { "serverUrl": "https://catalyst.zohomcp.ca/mcp/message", "disabled": true },
+    "catalyst-sa": { "serverUrl": "https://catalyst.zohomcp.sa/mcp/message", "disabled": true },
+    "catalyst-jp": { "serverUrl": "https://catalyst.zohomcp.jp/mcp/message", "disabled": true },
+    "catalyst-uae": { "serverUrl": "https://catalyst.zohomcp.ae/mcp/message", "disabled": true }
+  }
+}
