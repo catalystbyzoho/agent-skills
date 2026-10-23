@@ -1,0 +1,19 @@
+{
+  "name": "catalyst-by-zoho-marketplace",
+  "owner": {
+    "name": "Catalyst by Zoho",
+    "email": "support@zohocatalyst.com"
+  },
+  "metadata": {
+    "description": "GitHub Copilot marketplace for Catalyst by Zoho — full-stack serverless cloud platform.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "catalyst-by-zoho",
+      "description": "Official GitHub Copilot plugin for Catalyst by Zoho — a full-stack serverless cloud platform.",
+      "version": "1.0.0",
+      "source": "./"
+    }
+  ]
+}

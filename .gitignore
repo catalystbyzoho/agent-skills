@@ -27,8 +27,6 @@ llms-full1.txt
 # Local drafts (blog posts, internal writeups)
 blog/
 
-.github
-
 # Eval run reports
 evals/results/
 .claude/

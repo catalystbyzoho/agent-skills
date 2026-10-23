@@ -1,7 +1,7 @@
 {
   "name": "catalyst-by-zoho",
   "displayName": "Catalyst by Zoho",
-  "version": "2.1.0",
+  "version": "1.0.0",
   "description": "AI agent skill for Catalyst by Zoho — full-stack serverless cloud platform. Covers all services, SDKs, CLI, architecture patterns, pricing, migration guides, and Zoho MCP tool-based resource management.",
   "author": {
     "name": "Catalyst by Zoho",
@@ -21,8 +21,12 @@
     "functions",
     "cloud-services"
   ],
+  "rules": "./CATALYST.md",
   "skills": "./skills/",
+  "commands": "./platforms/cursor/commands/",
+  "hooks": "./platforms/cursor/hooks/hooks.json",
   "mcpServers": "./.mcp.json",
+  "logo": "./platforms/cursor/assets/catalyst_logo.svg",
   "homepage": "https://github.com/catalystbyzoho/agent-skills",
   "repository": "https://github.com/catalystbyzoho/agent-skills"
 }

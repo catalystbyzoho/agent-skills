@@ -1,0 +1,30 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Manifests in sync with manifest.source.json
+        run: node tools/sync-manifests.js --check
+
+      - name: Shared MCP config in sync with the DC list
+        run: node tools/gen-mcp.js --check
+
+      - name: Manifest JSON files parse
+        run: |
+          for f in $(git ls-files '*.json'); do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || exit 1; done
+
+      - name: Codex switch-dc tests
+        run: node --test platforms/codex/scripts/

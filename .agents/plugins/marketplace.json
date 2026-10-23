@@ -1,0 +1,20 @@
+{
+  "name": "catalyst-by-zoho-marketplace",
+  "interface": {
+    "displayName": "Catalyst by Zoho"
+  },
+  "plugins": [
+    {
+      "name": "catalyst-by-zoho",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
