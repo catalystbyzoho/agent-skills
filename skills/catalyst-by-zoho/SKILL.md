@@ -1,8 +1,8 @@
 ---
 name: catalyst-by-zoho
-description: "Expert coding assistant for Catalyst by Zoho — Zoho's full-stack serverless cloud platform. Use for any question about Catalyst services, CLI, SDKs, architecture, pricing, or Zoho MCP tool-based infrastructure management."
+description: "Expert coding assistant for Catalyst by Zoho — Zoho's full-stack cloud platform. Use for any question about Catalyst services, CLI, SDKs, architecture, pricing, or Zoho MCP tool-based infrastructure management."
 metadata:
-  version: "2.2.0"
+  version: "2.3.0"
 ---
 
 # Catalyst by Zoho — Skill Index
@@ -96,6 +96,7 @@ New to Catalyst? Here's what each service does in one line:
 | **QuickML** | No/low-code ML platform — ML pipelines, AutoML, LLM Serving, RAG, Knowledge Base, prediction endpoints. *(Prediction models: all DCs. Generative AI: not in AU/SA/CA. Zia Model Library: IN only.)* |
 | **Circuits** | Serverless workflow orchestration (step functions). *(Not in EU/AU/IN/JP/SA/CA)* |
 | **Signals** | Event-driven triggers / pub-sub (replaces legacy Event Listeners). |
+| **Data Streams** | Real-time channels: publish from a function, clients subscribe over WebSocket with a token pair. 48 h retention. |
 | **Job Scheduling** | Job pools + immediate jobs + crons — scheduled/background execution of Job functions, Webhooks, Circuits, AppSail (replaces legacy Cron). |
 | **Zoho MCP** | AI tool integration — lets AI agents manage Catalyst infrastructure via `CatalystbyZoho_*` tools. |
 | **ZCQL** | SQL-like query language for Data Store. `SELECT`, `INSERT`, `UPDATE`, `DELETE`. Max 300 rows per SELECT. |
@@ -122,6 +123,7 @@ New to Catalyst? Here's what each service does in one line:
 | Zia Services — OCR, face/text analytics, moderation | `catalyst-zia` |
 | QuickML — ML pipelines, AutoML, LLM Serving, RAG, model endpoints | `catalyst-quickml` |
 | Signals — event-driven triggers, publish/subscribe, event listeners, custom publisher, webhook target, dispatch policy | `catalyst-signals` |
+| Data Streams — real-time channels, WebSocket subscribers, `publishData`, token pair, `sendAck`, User Roles vs Custom Logic access control | `catalyst-datastreams` |
 | SmartBrowz — headless browser, Puppeteer, Playwright, Selenium, Browser Logic, PDF generation, screenshot, Browser Grid, Dataverse | `catalyst-smartbrowz` |
 | Job Scheduling — job pools, immediate/background jobs, crons (Periodic/OneTime/Calendar/CronExpression), `submitJob`, `createCron`, retries | `catalyst-job-scheduling` |
 | Zoho MCP — MCP setup, `CatalystbyZoho_*` tools, infra-as-conversation | `catalyst-zoho-mcp` |

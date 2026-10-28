@@ -1,16 +1,36 @@
-# Catalyst Agent Skills
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/catalyst-logo-on-dark.png">
+    <img src="assets/catalyst-logo-on-light.png" alt="Catalyst by Zoho" width="320">
+  </picture>
+</p>
 
-A collection of AI agent skills for [Catalyst by Zoho](https://catalyst.zoho.com) — the full-stack serverless cloud platform.
+<h1 align="center">Agent Skills</h1>
 
-These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's platform, services, SDK patterns, and best practices — enabling them to write deployment-ready Catalyst code, recommend the right architecture, and even manage infrastructure directly via Zoho MCP tools.
+<p align="center">
+  <b>Give your coding agent verified <a href="https://catalyst.zoho.com">Catalyst</a> knowledge.</b><br>
+  Working code · The right services · One-prompt deploys<br>
+  <sub>on the agent-ready, full-stack cloud</sub>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-2.1.0-E42527" alt="Version 2.1.0">
+  <img src="https://img.shields.io/badge/skills-19-1f1f1f" alt="19 skills">
+  <img src="https://img.shields.io/badge/license-Apache%202.0-1f1f1f" alt="Apache 2.0 license">
+  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20·%20Cursor%20·%20Copilot%20·%20Gemini%20CLI%20·%20Windsurf-1f1f1f" alt="Works with Claude Code, Cursor, Copilot, Gemini CLI and Windsurf">
+</p>
+
+```bash
+npx skills add catalystbyzoho/agent-skills
+```
 
 ## What's included
 
 | Skill | Description |
 |-------|-------------|
-| `catalyst-by-zoho` | Complete Catalyst development assistant — covers all services, SDKs, CLI, architecture patterns, pricing, migration guides, and Zoho MCP tool-based resource management |
+| `catalyst-by-zoho` | Complete Catalyst development assistant. Covers all services, SDKs, CLI, architecture patterns, pricing, migration guides, and Zoho MCP tool-based resource management |
 
-> **Note:** For edge-case lookups not covered by the Tier 1 or Tier 2 reference files, the skill instructs agents to search the official Catalyst docs site (`docs.catalyst.zoho.com`) and fetch individual pages — rather than bundling the full documentation dump locally. This keeps the repo lean while ensuring accurate, up-to-date answers.
+> **Note:** For edge-case lookups not covered by the Tier 1 or Tier 2 reference files, the skill instructs agents to search the official Catalyst docs site (`docs.catalyst.zoho.com`) and fetch individual pages, rather than bundling the full documentation dump locally. This keeps the repo lean while ensuring accurate, up-to-date answers.
 
 ### Dedicated skills (full guidance + code examples)
 
@@ -22,6 +42,7 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 | Data Store + ZCQL | `catalyst-datastore` |
 | Stratus (object storage, signed URLs) | `catalyst-stratus` |
 | Signals (event bus, publishers, rules, webhooks) | `catalyst-signals` |
+| Data Streams (real-time channels, WebSocket subscribers, token pairs) | `catalyst-datastreams` |
 | SmartBrowz (headless browser, PDF & Screenshot, Browser Logic, Browser Grid, Dataverse) | `catalyst-smartbrowz` |
 | NoSQL (document storage) | `catalyst-nosql` |
 | Authentication + Connections (OAuth) | `catalyst-authentication` |
@@ -36,13 +57,13 @@ These skills give AI coding agents (Claude, etc.) deep knowledge of Catalyst's p
 
 ### Also covered (via reference files, no dedicated skill)
 
-Circuits (workflows), Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references — agents will find relevant guidance but won't have a dedicated step-by-step skill.
+Circuits (workflows), Pipelines (CI/CD), ConvoKraft (chatbots), Logs, APM, Alerts, GitHub integration, VS Code Extension, REST APIs. These topics appear in architecture guides and SDK references: agents will find relevant guidance but won't have a dedicated step-by-step skill.
 
 ## Installation
 
 ### Option 1: Agent Skills CLI
 
-Install with a single command — works with Cursor, Claude Code, Copilot, Windsurf, and any other Agent Skills-compatible tool:
+Install with a single command. It works with Cursor, Claude Code, Copilot, Windsurf, and any other Agent Skills-compatible tool:
 
 ```bash
 npx skills add catalystbyzoho/agent-skills
@@ -102,7 +123,7 @@ Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your projec
    ```bash
    git clone https://github.com/catalystbyzoho/agent-skills.git
    ```
-2. **Append** the contents of `skills/catalyst-by-zoho/SKILL.md` to your project's `.github/copilot-instructions.md` — do not replace the file if it already has content.
+2. **Append** the contents of `skills/catalyst-by-zoho/SKILL.md` to your project's `.github/copilot-instructions.md`. Do not replace the file if it already has content.
 
    > **Strip the frontmatter first.** `SKILL.md` starts with a YAML frontmatter block that `copilot-instructions.md` does not support. Remove everything between and including the opening and closing `---` lines before appending:
    > ```
@@ -112,7 +133,7 @@ Alternatively, copy the `.cursor-plugin/` and `skills/` folders into your projec
    >   ...
    > ---
    > ```
-   > Everything after the second `---` is the skill content — that's what you append.
+   > Everything after the second `---` is the skill content, and that's what you append.
 
    Quick one-liner to append with frontmatter stripped:
    ```bash
@@ -144,7 +165,7 @@ To let the AI manage Catalyst infrastructure (create tables, query data, manage 
 1. Create a Zoho MCP server at [mcp.zoho.com](https://mcp.zoho.com)
 2. Add **"Catalyst by Zoho"** tools to the server
 3. Enable **"On Demand"** authorization (not "Authorization via Connection")
-4. Copy your MCP server URL — go to the **Connect tab** → **Server URL** field (format: `https://<server>-<org>.zohomcp.com/mcp/<token>/message`)
+4. Copy your MCP server URL: go to the **Connect tab** → **Server URL** field (format: `https://<server>-<org>.zohomcp.com/mcp/<token>/message`)
 5. Add it to your tool's MCP config, or update the `<YOUR_ZOHO_MCP_URL>` placeholder in `.mcp.json`
 
 > **Note:** `.mcp.json` ships with a placeholder URL. See the `_setup` field inside for instructions.
@@ -153,11 +174,11 @@ See `skills/catalyst-zoho-mcp/references/zoho-mcp.md` for detailed setup and ver
 
 ## What the skill enables
 
-- **Architecture recommendations** — get Catalyst-specific service picks for your use case
-- **Production-ready code generation** — correct handler signatures, SDK patterns, `catalyst-config.json`, and project structure that works with `catalyst deploy`
-- **Platform migration guidance** — maps AWS, GCP, Azure, Vercel, Firebase, Supabase, and Heroku services to Catalyst equivalents
-- **Infrastructure management via Zoho MCP** — create tables, insert data, run ZCQL queries, manage cache/buckets directly from the AI conversation
-- **Pricing estimation** — detailed cost breakdowns with unit prices and free tier offsets
+- **Architecture recommendations:** get Catalyst-specific service picks for your use case
+- **Production-ready code generation:** correct handler signatures, SDK patterns, `catalyst-config.json`, and project structure that works with `catalyst deploy`
+- **Platform migration guidance:** maps AWS, GCP, Azure, Vercel, Firebase, Supabase, and Heroku services to Catalyst equivalents
+- **Infrastructure management via Zoho MCP:** create tables, insert data, run ZCQL queries, manage cache/buckets directly from the AI conversation
+- **Pricing estimation:** detailed cost breakdowns with unit prices and free tier offsets
 
 ## Contributing
 
@@ -165,7 +186,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## About CATALYST.md
 
-`CATALYST.md` at the repo root is a **lightweight MCP routing stub** — it contains only
+`CATALYST.md` at the repo root is a **lightweight MCP routing stub**. It contains only
 the minimal context needed for MCP-enabled tools (e.g. Claude Code with Zoho MCP connected)
 to discover and invoke `CatalystbyZoho_*` tools correctly.
 
@@ -176,7 +197,7 @@ all reference docs. `CATALYST.md` alone is insufficient for app development.
 
 ## License
 
-This project is licensed under the Apache 2.0 License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
 
 ## Resources
 
