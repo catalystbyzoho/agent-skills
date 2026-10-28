@@ -1,6 +1,6 @@
 {
   "name": "catalyst-by-zoho",
-  "description": "Official plugin for Catalyst by Zoho — AI agent skills for the full-stack serverless cloud platform.",
+  "description": "Official plugin for Catalyst by Zoho — AI agent skills for the agent-ready, full-stack cloud.",
   "owner": {
     "name": "Catalyst by Zoho",
     "email": "support@zohocatalyst.com"
@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "catalyst-by-zoho",
-      "description": "AI agent skill for Catalyst by Zoho — full-stack serverless cloud platform. Covers all services, SDKs, CLI, architecture patterns, pricing, migration guides, and Zoho MCP tool-based resource management.",
+      "description": "AI agent skill for Catalyst by Zoho — the agent-ready, full-stack cloud. Covers all services, SDKs, CLI, architecture patterns, pricing, migration guides, and Zoho MCP tool-based resource management.",
       "category": "development",
       "tags": [
         "catalyst",
