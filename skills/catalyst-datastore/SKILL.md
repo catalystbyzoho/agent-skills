@@ -2,7 +2,7 @@
 name: catalyst-datastore
 description: "Catalyst Data Store — relational cloud database with ZCQL, CRUD operations, table permissions, and result pagination. Requires MCP connection — check for CatalystbyZoho_* tools before any operation. Trigger on 'Data Store', 'ZCQL', 'create table', 'executeZCQLQuery', 'table permissions', 'ROWID', 'boolean column', 'boolean always true', 'truthy string', 'boolean stored as string', or 'DataStore data types'. You MUST load this skill whenever writing code that reads or writes Data Store data — ZCQL result wrapping, boolean-as-string behavior, and App User permissions are non-obvious and cause silent bugs if skipped."
 metadata:
-  version: "2.1.1"
+  version: "2.2.0"
 ---
 
 ## PREREQUISITES — READ THIS FIRST
@@ -43,11 +43,13 @@ metadata:
 ## Security Checklist
 
 - **App User write permissions are off by default.** The App User role has SELECT enabled by default, but INSERT, UPDATE, and DELETE must be manually enabled per table. Go to Console → Table → Scopes and Permissions → App User role → check Insert/Update/Delete for any table your authenticated users need to write.
+- **Choose each table's scope on purpose.** User scope: each user sees only their own rows (e.g. orders). Org scope: shared within an org. Global: every signed-in user sees every row — use only for data meant to be shared.
+- **Keep App User at least privilege.** Grant only the Select/Insert/Update/Delete each table needs. A custom role created without its own scopes inherits App User's scopes. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
 - **App Administrator has all permissions by default.** Never assign the App Administrator role to regular end-users — it grants full read/write/delete access to all tables.
 
 ## Triggers
 
-Use this skill for: "Data Store", "ZCQL", "catalyst table", "create table", "query data", `executeZCQLQuery`, "table permissions", "App User permissions", "ROWID", "CREATEDTIME", "Data Store CRUD", "JOIN in ZCQL", "pagination ZCQL", "data store column types", "insert row", "update row", "delete row", or "relational data on Catalyst".
+Use this skill for: "Data Store", "ZCQL", "catalyst table", "create table", "query data", `executeZCQLQuery`, "table permissions", "App User permissions", "ROWID", "CREATEDTIME", "Data Store CRUD", "JOIN in ZCQL", "pagination ZCQL", "data store column types", "insert row", "update row", "delete row", or "relational data on Catalyst", "table scope", "user scope vs global scope".
 
 ## References
 
