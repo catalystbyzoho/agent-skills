@@ -125,7 +125,14 @@ try {
 
 **Embedded sign-in widget has no built-in signup flow.** `catalyst.auth.signIn("divId", config)` renders a login iframe only — there is no sign-up button inside it. For signup, build a custom form and call `catalyst.auth.signUp()`.
 
-> ⚠️ **`public_signup` is OFF by default.** After enabling auth via MCP or console, `public_signup` is `false`. Any call to `catalyst.auth.signUp()` will silently fail for new users until you enable it: Console → Authentication → Settings → enable **Allow Public Signup**. There is no MCP tool to change this — must be done in the console.
+> ⚠️ **`public_signup` is OFF by default.** After enabling auth via MCP or console, `public_signup` is `false`. Any call to `catalyst.auth.signUp()` will silently fail for new users until you enable it: Console → Authentication → Authentication Types → **Public Signup** toggle. There is no MCP tool to change this — must be done in the console.
+>
+> Pick the setting that fits the app:
+> - **App open to anyone** (consumer app, ready for users): enable Public Signup.
+> - **Only some people may join** (company emails, invited users, a waitlist): enable Public Signup **and** [Custom User Validation](https://docs.catalyst.zoho.com/en/cloud-scale/help/authentication/whitelisting/custom-user-validation/introduction/) — a Basic I/O function that approves or rejects each signup. It works only while Public Signup is on.
+> - **Still in development with real data, or no self-signup needed**: keep it off and add users from User Management.
+>
+> While Public Signup is on, anyone can create an account and read Global-scope Data Store tables, so scope tables to user or org first. See `../../catalyst-basics/references/secure-practices.md`.
 
 ---
 

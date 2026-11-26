@@ -2,7 +2,7 @@
 name: catalyst-slate
 description: "Catalyst Slate — Git-based frontend hosting for React, Next.js, Vue, Angular, Svelte, Astro, SolidJS, Preact and other frameworks with preview deploys. Trigger on 'Slate', 'frontend hosting', 'slate-config.toml', 'deploy React app', or 'cross-domain Slate to function'. Do NOT use for backend APIs or server-side logic — use catalyst-appsail or catalyst-functions instead."
 metadata:
-  version: "2.0.1"
+  version: "2.1.0"
 ---
 
 > **⚠️ PRE-FLIGHT CHECK — Slate activation (one-time, per project):**
@@ -24,6 +24,11 @@ metadata:
 4. **Cross-domain calls** — If the query involves calling functions from a Slate app, apply the full URL + `generateAuthToken()` + CORS whitelist pattern.
    > ⚠️ **Migrating from basic client hosting?** Relative paths like `/server/fn/execute` that worked in basic client **silently break on Slate** — Slate is served from `*.onslate.com` while functions are on `*.catalystserverless.com`. Every function call must become an absolute URL. Find and replace all relative `/server/...` paths with the full `https://<project>.catalystserverless.com/server/...` URL and add `generateAuthToken()` headers.
 5. **Deploy** — Before deploying, confirm Slate is activated in the console (Console → Slate). `slate:create` runs locally and succeeds without activation — the first backend call happens at deploy time, which fails with `HTTP 400: Please access the Slate service in your project's console before deploying` if not activated. Once confirmed: `catalyst deploy slate <name> -ni` deploys to the current environment. Preview URLs are available after the build completes.
+
+## Security Checklist
+
+- **Keep secrets in Slate environment variables**, not in code, with separate values for Development and Production. Anything shipped to the browser bundle is public.
+- **Redeploy after a runtime change.** Changing the Node.js runtime in app settings does not rebuild the app — redeploy so it actually runs on the supported runtime. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
 
 ## Triggers
 

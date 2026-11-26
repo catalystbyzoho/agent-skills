@@ -2,7 +2,7 @@
 name: catalyst-authentication
 description: "Catalyst Authentication — user login/signup, ZAID, Web SDK auth flows, OAuth token management via Connections, third-party authentication (Okta, Auth0, Duo, custom IdP), social logins (Google, Facebook, LinkedIn, Microsoft), generateCustomToken, signinWithJwt. Trigger on 'authentication', 'login', 'signup', 'getCurrentUser', 'ZAID', 'isUserAuthenticated', 'signOut', 'Connections', 'getAccessToken', 'third-party auth', 'social login', 'Google login', 'signinWithJwt', or 'generateCustomToken'. You MUST load this skill whenever implementing user login or protecting data — ZAID differs between Development and Production and is the #1 cause of auth failures after environment promotion. For Security Rules (function invocation control), route to catalyst-functions."
 metadata:
-  version: "2.1.2"
+  version: "2.2.0"
 ---
 
 ## Local auth requires plain `catalyst serve`
@@ -21,11 +21,13 @@ Auth works locally only when served through `catalyst serve`. NEVER use the nati
 ## Security Checklist
 
 - **ZAID is environment-specific.** The Development ZAID is different from the Production ZAID. Social logins (Google, Facebook, LinkedIn, Microsoft) configured in Development MUST be reconfigured with the Production ZAID and production app domain before going live — using the wrong ZAID causes all social logins to silently fail in production.
+- **Public Signup is off by default — enable it on purpose.** Turn it on when the app is ready for real users (or for testing on a project with no real data). To control who can join, keep it on with Custom User Validation, which approves or rejects each signup. While Public Signup is on, anyone can sign up and read Global-scope tables. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
+- **Whitelist only trusted domains.** CORS in Authorized Domains gives that domain access to the app client and every function endpoint.
 - **DataStore permissions are separate from function-level auth.** Requiring authentication in Security Rules only controls who can call the function. App User table permissions (Console → Table → Scopes and Permissions) separately control which DataStore operations authenticated users can perform.
 
 ## Triggers
 
-Use this skill for: "authentication", "user management", "login", "signup", `getCurrentUser`, "ZAID", `registerUser`, `isUserAuthenticated`, `signOut`, "cross-domain logout", "hosted login", "embedded login", "Connections", "OAuth token", `getConnector`, `getAccessToken`, "Security Rules", "App User", "credentials include", "auth redirect", "third-party auth", "third-party authentication", "social login", "Google login", "Facebook login", "LinkedIn login", "Microsoft login", `signinWithJwt`, `generateCustomToken`, "Okta", "Auth0", "Duo", "custom IdP".
+Use this skill for: "authentication", "user management", "login", "signup", `getCurrentUser`, "ZAID", `registerUser`, `isUserAuthenticated`, `signOut`, "cross-domain logout", "hosted login", "embedded login", "Connections", "OAuth token", `getConnector`, `getAccessToken`, "Security Rules", "App User", "credentials include", "auth redirect", "third-party auth", "third-party authentication", "social login", "Google login", "Facebook login", "LinkedIn login", "Microsoft login", `signinWithJwt`, `generateCustomToken`, "Okta", "Auth0", "Duo", "custom IdP", "public signup", "Custom User Validation", "restrict who can sign up".
 
 ## References
 

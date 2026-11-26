@@ -2,7 +2,7 @@
 name: catalyst-stratus
 description: "Catalyst Stratus — object storage service with upload/download, signed URLs, and multipart upload support. Stratus uses its own SDK-based APIs (not S3-API-compatible). Migrate from AWS S3 or GCS using the Stratus Migration Tool. Trigger on 'Stratus', 'object storage', 'upload file', 'signed URL', 'putObject', 'getObject', or 'bucket'."
 metadata:
-  version: "2.1.2"
+  version: "2.2.0"
 ---
 
 ## How It Works
@@ -11,6 +11,12 @@ metadata:
 2. **Load `references/stratus-basics.md`** — for upload/download/delete patterns, the 250 GB single-upload limit, signed URL generation, and multipart setup.
 3. **Large files** — Multipart upload is recommended (not required) for files ≥ 100 MB. Single-shot upload supports up to 250 GB per object. Load the multipart section of `stratus-basics.md`.
 4. **Signed URLs** — For user-facing direct downloads/uploads, generate a signed URL server-side and return it to the client.
+
+## Security Checklist
+
+- **Use the Authenticated permission template for sensitive files.** The Public template lets anyone with an object URL open it without signing in.
+- **Scope access per user or org** with custom permissions (`GetObject`, `PutObject`, `DeleteObject`) and the `X_ZUID` / `X_ORGID` dynamic variables in object paths. A deny rule overrides every matching allow rule.
+- **Whitelist only trusted domains in Bucket CORS**, and enable Data Encryption plus PII/ePHI for personal or health data. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
 
 ## Response Syntax Default
 
@@ -21,7 +27,7 @@ When writing function code that returns a Stratus result to the client, **defaul
 
 ## Triggers
 
-Use this skill for: "Stratus", "object storage", "file storage", "upload file", "download file", "signed URL", "pre-signed URL", "multipart upload", `putObject`, `getObject`, "bucket", "Stratus bucket", "store files on Catalyst", "Stratus vs File Store", "250GB limit", or "file download link".
+Use this skill for: "Stratus", "object storage", "file storage", "upload file", "download file", "signed URL", "pre-signed URL", "multipart upload", `putObject`, `getObject`, "bucket", "Stratus bucket", "store files on Catalyst", "Stratus vs File Store", "250GB limit", "file download link", "bucket permissions", "public bucket", or "Bucket CORS".
 
 ## References
 

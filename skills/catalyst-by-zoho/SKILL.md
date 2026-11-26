@@ -2,7 +2,7 @@
 name: catalyst-by-zoho
 description: "Expert coding assistant for Catalyst by Zoho — Zoho's full-stack cloud platform. Use for any question about Catalyst services, CLI, SDKs, architecture, pricing, or Zoho MCP tool-based infrastructure management."
 metadata:
-  version: "2.3.0"
+  version: "2.3.1"
 ---
 
 # Catalyst by Zoho — Skill Index
@@ -110,6 +110,7 @@ New to Catalyst? Here's what each service does in one line:
 |--------------------------|-----------------|
 | **Which service to use, architecture decisions, DC restrictions** | `catalyst-basics` (load `../catalyst-basics/references/architecture.md`) |
 | Project setup, `.catalystrc`, environments, orgs, IDs, CLI commands | `catalyst-basics` |
+| Securing the app, security review, go-live readiness, collaborator access, secrets | `catalyst-basics` (load `../catalyst-basics/references/secure-practices.md`) |
 | Functions — types, signatures, `catalyst-config.json`, API Gateway, file uploads | `catalyst-functions` |
 | AppSail — backend PaaS, Docker, managed runtimes, PORT variable | `catalyst-appsail` |
 | Slate — frontend hosting, frameworks, `slate-config.toml`, Git deploy | `catalyst-slate` |

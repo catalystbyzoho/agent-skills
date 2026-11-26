@@ -3,7 +3,7 @@ name: catalyst-appsail
 description: "Catalyst AppSail — persistent backend PaaS with managed runtimes (Node.js, Java, Python) and custom Docker containers. Trigger on 'AppSail', 'persistent server', 'Docker on Catalyst', 'X_ZOHO_CATALYST_LISTEN_PORT', or 'long-running process on Catalyst'. Do NOT use for stateless request/response handlers, event-driven functions, or scheduled jobs — use catalyst-functions instead."
 compatibility: "Requires Catalyst CLI (`npm install -g zcatalyst-cli`). Custom Docker deployments additionally require Docker Desktop."
 metadata:
-  version: "2.1.1"
+  version: "2.2.0"
 ---
 
 ## How It Works
@@ -20,9 +20,14 @@ metadata:
    | Billing | Per API call | Per instance uptime |
    | Dependency management | Handled by Catalyst | You manage all libraries and frameworks |
 
+## Security Checklist
+
+- **Security Rules and API Gateway do not protect AppSail.** AppSail services are reached on their own URLs, so every endpoint that needs a signed-in user must check authentication in the app code: the gateway adds admin credentials to every request, so check that `getCurrentUser()` returns a user, and enforce ownership in data calls. An unchecked `/admin` route is open to anyone with the URL. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
+- **Keep secrets in environment variables**, with separate values for Development and Production.
+
 ## Triggers
 
-Use this skill for: "AppSail", "persistent server", "Docker on Catalyst", "backend hosting", `X_ZOHO_CATALYST_LISTEN_PORT`, `appsail:add`, "catalyst managed runtime", "deploy Express app", "AppSail vs Functions", "long-running process on Catalyst", or "containerized app on Catalyst".
+Use this skill for: "AppSail", "persistent server", "Docker on Catalyst", "backend hosting", `X_ZOHO_CATALYST_LISTEN_PORT`, `appsail:add`, "catalyst managed runtime", "deploy Express app", "AppSail vs Functions", "long-running process on Catalyst", or "containerized app on Catalyst", "secure AppSail endpoint", "AppSail authentication".
 
 ## References
 

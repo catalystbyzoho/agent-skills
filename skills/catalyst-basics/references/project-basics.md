@@ -165,7 +165,7 @@ The project domain is auto-generated when you first host a web client.
 | ID | What | Where to Find | Format |
 |---|---|---|---|
 | **Project ID** | Project identifier | Settings → General; `.catalystrc`; `catalyst projects:list` | Numeric string |
-| **API Key** | API Gateway auth key | Settings → Environments → General tab | String (common in Dev across all projects; unique per project in Prod) |
+| **API Key** | API Gateway auth key | Settings → Environments → General tab | String (common in Dev across all projects; unique per project in Prod). Do not use it to protect functions — anyone in the org with the Dev key can call them; see `secure-practices.md` |
 | **Table ID** | Data Store table | Cloud Scale → Data Store → click table | Numeric |
 | **ROWID** | Data Store row | Auto-assigned; returned in queries | BigInt |
 | **Segment ID** | Cache segment | Cloud Scale → Cache → segment list | Numeric |

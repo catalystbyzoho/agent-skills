@@ -1,8 +1,8 @@
 ---
 name: catalyst-basics
-description: "Core Catalyst project setup — directory structure, environments, CLI commands, and all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, Org ID). Trigger on 'start a Catalyst project', 'what is .catalystrc', 'where do I find my Table ID', 'difference between Development and Production', or any Catalyst ID or CLI question."
+description: "Core Catalyst project setup — directory structure, environments, CLI commands, and all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, Org ID). Trigger on 'start a Catalyst project', 'what is .catalystrc', 'where do I find my Table ID', 'difference between Development and Production', 'security review', 'secure my app', 'harden my Catalyst app', 'is my app ready to go live', 'collaborator permissions', 'MFA for collaborators', or any Catalyst ID or CLI question."
 metadata:
-  version: "2.0.2"
+  version: "2.1.0"
 ---
 
 > **⚠️ PRE-FLIGHT CHECK:** Before creating any project files, confirm that `.catalystrc` and
@@ -24,11 +24,12 @@ metadata:
 5. **Pre-flight** — Confirm `.catalystrc` and `catalyst.json` exist. If missing, use MCP to get org/project IDs and run `catalyst init --org <orgId> -p <projectId> -ni`. Never use interactive `catalyst init`.
 6. **Project structure** — Load `references/project-basics.md` for directory layout, `catalyst.json`, IDs, and dev-to-prod checklist.
 7. **CLI questions** — Load `references/cli.md` for the exact command, flags, and safety rules.
-8. **Answer** — Provide the specific ID path or CLI command needed. Never ask the user to manually look up IDs when MCP is connected.
+8. **Security review / go-live** — If the user asks to secure, harden, or security-review the app, or is about to promote to Production, load `references/secure-practices.md` and check each item against the real project.
+9. **Answer** — Provide the specific ID path or CLI command needed. Never ask the user to manually look up IDs when MCP is connected.
 
 ## Triggers
 
-Use this skill for: "how do I start a Catalyst project", "what is .catalystrc", "where do I find my Table ID / ZAID / Segment ID / Project ID", "difference between Development and Production", "Catalyst project structure", "catalyst.json explained", `catalyst init`, `catalyst deploy`, `catalyst serve`, `catalyst login`, "how do I set up Catalyst with Claude", "how do I use Catalyst in Cursor", "how do I use Catalyst with GitHub Copilot", "which service should I use", "what Catalyst service for X", or any question about Catalyst IDs, environments, organizations, IDE setup, architecture decisions, or CLI subcommands.
+Use this skill for: "how do I start a Catalyst project", "what is .catalystrc", "where do I find my Table ID / ZAID / Segment ID / Project ID", "difference between Development and Production", "Catalyst project structure", "catalyst.json explained", `catalyst init`, `catalyst deploy`, `catalyst serve`, `catalyst login`, "how do I set up Catalyst with Claude", "how do I use Catalyst in Cursor", "how do I use Catalyst with GitHub Copilot", "which service should I use", "what Catalyst service for X", "secure my app", "security review", "is my app ready to go live", "harden my Catalyst app", "collaborator permissions", "MFA for collaborators", or any question about Catalyst IDs, environments, organizations, IDE setup, architecture decisions, or CLI subcommands.
 
 ## MCP Connection Check (Do This Before Anything Else)
 
@@ -58,6 +59,7 @@ Load the relevant reference file for detailed information:
 | `references/console-ui-guide.md` | Console navigation — finding Project ID/ZAID/Table ID, creating tables with typed columns, enabling App User permissions (Scopes and Permissions), Authorized Domains + CORS toggle |
 | `references/project-basics.md` | Project directory structure, `catalyst.json`, `.catalystrc`, `catalyst-config.json`, environments, dev-to-prod checklist, all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, etc.) |
 | `references/cli.md` | Full CLI command reference — all subcommands with flags, Slate/AppSail non-interactive setup, `catalyst serve` port behavior, deploy scoping, safety rules, resource-first development order |
+| `references/secure-practices.md` | Go-live security review — open defaults (function auth optional, shared Dev API key, Global tables, Public buckets, Public Signup), collaborators and MFA, org-wide integrations, secrets in env vars, runtime currency |
 | `references/architecture.md` | Service selection guide — which Catalyst service to use for which pattern, typical stack combinations, DC availability table for regionally restricted services |
 | `references/setup/claude-code.md` | Installing skills and connecting Zoho MCP in Claude Code (Claude Desktop) |
 | `references/setup/cursor.md` | Installing skills and connecting Zoho MCP in Cursor |
