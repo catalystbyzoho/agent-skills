@@ -43,7 +43,7 @@ metadata:
 ## Security Checklist
 
 - **App User write permissions are off by default.** The App User role has SELECT enabled by default, but INSERT, UPDATE, and DELETE must be manually enabled per table. Go to Console → Table → Scopes and Permissions → App User role → check Insert/Update/Delete for any table your authenticated users need to write.
-- **Choose each table's scope on purpose.** User scope: each user sees only their own rows (e.g. orders). Org scope: shared within an org. Global: every signed-in user sees every row — use only for data meant to be shared.
+- **Choose each table's scope on purpose.** User scope: each user sees only their own rows (e.g. orders). Org scope: shared within an org. Global: every signed-in user sees every row — use only for data meant to be shared. Scopes apply only to calls made as the end user; admin-scope server calls bypass them, so filter by user or org in that code.
 - **Keep App User at least privilege.** Grant only the Select/Insert/Update/Delete each table needs. A custom role created without its own scopes inherits App User's scopes. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
 - **App Administrator has all permissions by default.** Never assign the App Administrator role to regular end-users — it grants full read/write/delete access to all tables.
 

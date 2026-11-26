@@ -40,7 +40,7 @@ Check each item against the user's real project (MCP or console). Report what is
 - For mobile apps, use OAuth-based authentication.
 - Do not use API key authentication: the Development API key is shared across all projects in the org.
 
-**AppSail.** Security Rules and API Gateway do not apply to AppSail services, which are reached on their own AppSail URLs. Add an authentication check in the app code for every endpoint that needs a signed-in user, and initialize the Catalyst SDK with the incoming request so operations run in that user's context. Without the check, an endpoint like `/admin` is open to anyone with the URL.
+**AppSail.** Security Rules and API Gateway do not apply to AppSail services, which are reached on their own AppSail URLs. The Catalyst gateway adds admin credentials to every AppSail request, including anonymous ones, so `catalyst.initialize(req)` succeeding does not mean a user is signed in. For every endpoint that needs a signed-in user, check that `getCurrentUser()` returns a user, and enforce ownership in your data calls (for example, filter by the signed-in user's ID or org), because admin-scope calls ignore table scopes and permissions. Without the check, an endpoint like `/admin` is open to anyone with the URL.
 
 **Whitelisted domains.**
 - Authorized Domains (Authentication): CORS for a domain gives it access to the app client and all function endpoints; iFrame lets it embed the app.
@@ -51,6 +51,7 @@ Check each item against the user's real project (MCP or console). Report what is
 
 **Data Store.**
 - Set each table's scope (user, org, or global) by business need. Example: an e-commerce purchases table should be user scope so customers see only their own orders.
+- Table scopes and role permissions apply only to calls made as the end user (client SDKs, or server SDK calls with `scope: 'user'`). Admin-scope server calls bypass them, so customer-facing endpoints that use admin scope must filter by the signed-in user or org themselves.
 - Give the App User role only the Select, Insert, Update, and Delete permissions it needs, per table (Scopes & Permissions).
 - A custom role created without its own scopes follows App User's scopes, so keeping App User minimal also limits new roles.
 - Roles apply to Data Store tables and, through them, to Search and ZCQL.
@@ -64,6 +65,7 @@ Check each item against the user's real project (MCP or console). Report what is
 
 **Secrets.**
 - Keep secrets in environment variables, not in code — any collaborator with read access can read code. Functions, AppSail, and Slate all support environment variables.
+- Slate: variables read by frontend code (for example, `VITE_*` in a React/Vite app) are built into the browser bundle and are public. Keep secrets in server-side code only (functions or AppSail), and use frontend variables only for public configuration.
 - Environment variable values are encrypted at rest but shown in plain text to collaborators in the console and API responses, so restrict who has Production access.
 - Use different secrets in Development and Production, and rotate API keys and secrets regularly.
 
@@ -81,8 +83,8 @@ Check each item against the user's real project (MCP or console). Report what is
 | All function and client URLs return errors right after enabling API Gateway | API Gateway disables Security Rules; no APIs exist yet | Create an API in API Gateway for each function and the web client |
 | `signUp()` fails for new users | Public Signup is off (the default) | If the app is ready for users, enable Public Signup; to restrict who can join, also enable Custom User Validation |
 | Strangers sign up during development and see app data | Public Signup enabled early and tables are Global scope | Turn Public Signup off until launch, or keep it on with Custom User Validation; scope tables to user or org |
-| Signed-in users see other users' rows | Table scope is Global, or App User has more permissions than needed | Change the table scope to user or org; trim App User permissions |
+| Signed-in users see other users' rows | Table scope is Global, App User has more permissions than needed, or the endpoint reads data with admin scope | Change the table scope to user or org; trim App User permissions; in admin-scope code, filter by the signed-in user or org |
 | Anyone with a link can open files in a bucket | Bucket uses the Public template | Switch to Authenticated or custom permissions; use `X_ZUID`/`X_ORGID` paths for per-user files |
-| AppSail endpoint answers unauthenticated requests | AppSail is not covered by Security Rules or API Gateway | Add an auth check in the app code and initialize the SDK with the incoming request |
+| AppSail endpoint answers unauthenticated requests | AppSail is not covered by Security Rules or API Gateway, and the gateway adds admin credentials to every request | Check that `getCurrentUser()` returns a user before serving the endpoint; enforce ownership in data calls |
 | Function protected by an API key is called from another project | The Development API key is shared across all projects in the org | Replace API key authentication with Catalyst Authentication or OAuth |
-| Secret visible to every collaborator | Secret written in code | Move it to an environment variable; use separate Dev and Prod values; rotate the exposed secret |
+| Secret visible to every collaborator | Secret written in code | Move it to an environment variable; restrict which collaborators can access that environment; use separate Dev and Prod values; rotate the exposed secret |

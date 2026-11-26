@@ -22,7 +22,7 @@ metadata:
 
 ## Security Checklist
 
-- **Security Rules and API Gateway do not protect AppSail.** AppSail services are reached on their own URLs, so every endpoint that needs a signed-in user must check authentication in the app code, and initialize the Catalyst SDK with the incoming request so operations run in that user's context. An unchecked `/admin` route is open to anyone with the URL. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
+- **Security Rules and API Gateway do not protect AppSail.** AppSail services are reached on their own URLs, so every endpoint that needs a signed-in user must check authentication in the app code: the gateway adds admin credentials to every request, so check that `getCurrentUser()` returns a user, and enforce ownership in data calls. An unchecked `/admin` route is open to anyone with the URL. Full go-live checklist: `../catalyst-basics/references/secure-practices.md`.
 - **Keep secrets in environment variables**, with separate values for Development and Production.
 
 ## Triggers

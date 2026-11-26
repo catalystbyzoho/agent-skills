@@ -1,6 +1,6 @@
 ---
 name: catalyst-basics
-description: "Core Catalyst project setup — directory structure, environments, CLI commands, and all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, Org ID). Trigger on 'start a Catalyst project', 'what is .catalystrc', 'where do I find my Table ID', 'difference between Development and Production', or any Catalyst ID or CLI question."
+description: "Core Catalyst project setup — directory structure, environments, CLI commands, and all Catalyst IDs (Project ID, ZAID, Table ID, Segment ID, Org ID). Trigger on 'start a Catalyst project', 'what is .catalystrc', 'where do I find my Table ID', 'difference between Development and Production', 'security review', 'secure my app', 'harden my Catalyst app', 'is my app ready to go live', 'collaborator permissions', 'MFA for collaborators', or any Catalyst ID or CLI question."
 metadata:
   version: "2.1.0"
 ---
